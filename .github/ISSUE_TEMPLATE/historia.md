@@ -1,7 +1,7 @@
 ---
 name: Historia
 about: Issue para historias de usuarios
-title: 'H[N.n]: [Título historia]'
+title: 'HU-E[n]-[n]: [Título historia]'
 labels: historia
 assignees: ''
 
