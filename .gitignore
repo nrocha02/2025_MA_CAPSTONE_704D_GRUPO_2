@@ -1,2 +1,15 @@
-# Ignorar la venv
-Fase 2/Evidencias Proyecto/django-venv
+# Python
+__pycache__/
+
+# Entornos
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Certificado
+ca-certificate.crt
+

@@ -1,0 +1,22 @@
+[project]
+name = "api-db-cordillerapets"
+version = "0.1.0"
+description = "API para conectar la base de datos con el ecommerce"
+authors = [
+    {name = "Nicolás Rocha",email = "nico.rocha@duocuc.cl"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard] (>=0.118.0,<0.119.0)",
+    "sqlmodel (>=0.0.25,<0.0.26)",
+    "pymysql (>=1.1.2,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
