@@ -1,0 +1,251 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - {{ categoria }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<!-- Barra superior -->
+<div class="bg-primary text-white text-center p-1">
+  <small>Despachos gratis por compras sobre $50.000 dentro de Santiago</small>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+  <div class="container">
+    <img src="{% static 'blog/images/inicio/logo.png'%}" style="width:100px; height:auto; float:left; margin-right:10px;"  alt="logo">
+    <a class="navbar-brand fw-bold" href="#">Cordillera Pets</a>
+    <form class="d-flex mx-auto w-50">
+      <input class="form-control me-2" type="search" placeholder="Busca tu producto favorito">
+      <button class="btn btn-outline-primary">🔍</button>
+    </form>
+    <div>
+      <a href="#" class="btn btn-outline-dark me-2">Inicia sesión</a>
+      <a href="{% url 'carrito' %}" class="btn btn-primary">🛒 Carrito</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Categorías -->
+<div class="bg-white border-top border-bottom">
+  <div class="container d-flex justify-content-center py-2">
+    <a href="perro" class="mx-3 text-decoration-none fw-bold">Perro</a>
+    <a href="gato" class="mx-3 text-decoration-none fw-bold">Gato</a>
+    <a href="arena" class="mx-3 text-decoration-none fw-bold">Arenas Sanitarias</a>
+    <a href="#" class="mx-3 text-decoration-none fw-bold">Nosotros</a>
+    <a href="#" class="mx-3 text-decoration-none fw-bold">Contáctanos</a>
+  </div>
+</div>
+
+<!----- Migas de pan -
+<div class="container mt-3">
+  <small><a href="/">Home</a> / {{ categoria }}</small>
+</div
+
+
+
+ Imagen destacada estilo banner largo -->
+<div style="width: 100%; max-width: 1200px; margin: 20px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
+    <img src="{% static 'blog/images/sanitaria/sanitaria.png' %}" 
+         alt="Promoción" 
+         style="width: 100%; height: 400px; object-fit: cover; display: block;">
+</div>
+
+
+
+<!-- Subcategorías -->
+<div class="container text-center my-5">
+  <h4>¡Lo mejor para tu mascota {{ categoria|lower }}!</h4>
+    <div class="row justify-content-center mt-4">
+    </div>
+</div>
+
+
+</div>
+
+   <!--Catalogo-->
+    <section id="portafolio" class="portfolio section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="section-header text-center pb-5">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-8 col-lg-3">
+                    <div class="card  text-center bg-white pb-2">
+                        <div class="card-body text-dark">
+                            <div class="img-area mb-4">
+                                <img src="{% static 'blog/images/sanitaria/vender.png' %}" alt=""  width="200" height="200">
+                            </div>
+                            <h3 class="card-title">VanCat Arena Sanitaria Aglutinante Aroma Lavanda 10Kg</h3>
+                            <p class="lead" style="font-size: medium" >Esta elaborada con Bentonita Natural con un gran capacidad
+                              de absorción, la arena es capaz de absorver hasta el 30% de liquido.  <br>
+                                <br>
+                                Precio: 12.500<br> 
+                               </p>
+                            <button type="button" class="btn btn-secondary">Añadir al Carrito</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 col-lg-3">
+                    <div class="card  text-center bg-white pb-2">
+                        <div class="card-body text-dark">
+                            <div class="img-area mb-4">
+                                <img src="{% static 'blog/images/sanitaria/Grey.png' %}" alt="" width="200" height="200">
+                            </div>
+                            <h3 class="card-title">VanCat Arena para Gatos Alto Control de Olores 10Kg</h3>
+                            <p class="lead" style="font-size: medium">La ingeniosa distribución del gránulo, desde grueso hasta fino, 
+                               eliminando de raíz problemas comunes como el lodo y malos olores.<br>
+                                <br>
+                                Precio: $16.190<br> 
+                                </p>
+                            <button type="button" class="btn btn-secondary">Añadir al carrito</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 col-lg-3">
+                    <div class="card  text-center bg-white pb-2">
+                        <div class="card-body text-dark">
+                            <div class="img-area mb-4">
+                                <img src="{% static 'blog/images/sanitaria/Soap.png' %}" alt="" width="200" height="200">
+                            </div>
+                            <h3 class="card-title">VanCat Arena Sanitaria Aroma Jabón de marsella 10Kg</h3>
+                            <p class="lead" style="font-size: medium">Gracias a su extraordinaria capacidad de absorción de líquidos, 
+                              proporciona un uso más prolongado en comparación de otras arenas. <br>
+                                <br>
+                                Precio: $16.190<br> 
+                                </p>
+                            <button type="button" class="btn btn-secondary">Añadir al carrito</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 col-lg-3">
+                    <div class="card  text-center bg-white pb-2">
+                        <div class="card-body text-dark">
+                            <div class="img-area mb-4">
+                                <img src="{% static 'blog/images/sanitaria/Orange.png' %}" alt="" width="200" height="200">
+                            </div>
+                            <h3 class="card-title">VanCat Arena Sanitaria Aroma Naranja 10Kg</h3>
+                            <p class="lead" style="font-size: medium">La distribución del granulo de grueso a fino de VanCat permite que el líquido 
+                              de la superficie pase a la parte inferior, elimina la adherencia a las patas. <br>
+                                <br>
+                                Precio: 18.000 <br> 
+                                </p>
+                            <button type="button" class="btn btn-secondary">Añadir al carrito</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 col-lg-3">
+                    <div class="card  text-center bg-white pb-2">
+                        <div class="card-body text-dark">
+                            <div class="img-area mb-4">
+                                <img src="{% static 'blog/images/sanitaria/Vanilla.png' %}" alt="" width="200" height="200">
+                            </div>
+                            <h3 class="card-title">VanCat Arena Sanitaria Aroma Vainilla 10Kg</h3>
+                            <p class="lead " style="font-size: medium">Gracias a su extraordinaria capacidad de absorción de líquidos, 
+                              proporciona un uso más prolongado en comparación de otras arenas. <br>
+                                <br>
+                                Precio: $16.000<br> 
+                                </p>
+                            <button type="button" class="btn btn-secondary">Añadir al carrito</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 col-lg-3">
+                    <div class="card  text-center bg-white pb-2">
+                        <div class="card-body text-dark">
+                            <div class="img-area mb-4">
+                                <img src="{% static 'blog/images/sanitaria/VanCat2.png' %}" alt="" width="200" height="200">
+                            </div>
+                            <h3 class="card-title">VanCat Arena Sanitaria Aroma Natural 20Kg</h3>
+                            <p class="lead" style="font-size: medium">Esta elaborada con Bentonita Natural con un gran capacidad
+                              de absorción, la arena es capaz de absorver hasta el 30% de liquido.<br>
+                                <br>
+                                Precio: $17000 <br> 
+                                </p>
+                            <button type="button" class="btn btn-secondary">Añadir al carrito</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+<!-- Productos recomendados -->
+<div class="container my-5">
+  <h4 class="fw-bold">No te lo pierdas!</h4>
+  <div id="carouselProductos" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+
+      {% for producto in productos %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}">
+        <div class="row justify-content-center">
+          <div class="col-6 col-md-3">
+            <div class="card shadow-sm h-100">
+              <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+              <div class="card-body text-center">
+                <h6 class="card-title">{{ producto.nombre }}</h6>
+                <p class="text-primary fw-bold">${{ producto.precio }}</p>
+                <a href="{% url 'carrito' %}?add={{ producto.id }}" class="btn btn-sm btn-success">Agregar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselProductos" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselProductos" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-light border-top mt-5 py-4">
+  <div class="container d-flex flex-wrap justify-content-between">
+    <div>
+      <h6>Productos</h6>
+      <a href="#" class="d-block text-muted">Perros</a>
+      <a href="#" class="d-block text-muted">Gatos</a>
+      <a href="#" class="d-block text-muted">Arenas Sanitarias</a>
+    </div>
+    <div>
+      <h6>Mi cuenta</h6>
+      <a href="#" class="d-block text-muted">Entrar a mi cuenta</a>
+      <a href="#" class="d-block text-muted">Mis pedidos</a>
+    </div>
+    <div>
+      <h6>Nosotros</h6>
+      <a href="#" class="d-block text-muted">Quiénes somos</a>
+      <a href="#" class="d-block text-muted">Trabaja con nosotros</a>
+      <a href="#" class="d-block text-muted">Términos y condiciones</a>
+    </div>
+    <div>
+      <h6>Contacto</h6>
+      <p class="text-muted mb-1">📧 ventas@cordillerapets.cl</p>
+      <p class="text-muted mb-1">📞 +56999999999</p>
+      <p class="text-muted">📲 WhatsApp: +56999999999</p>
+    </div>
+  </div>
+  <div class="text-center mt-3">
+    <small class="text-muted">© 2025 Cordillera Pets - Todos los derechos reservados</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

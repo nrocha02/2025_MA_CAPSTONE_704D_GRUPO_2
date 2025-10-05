@@ -1,0 +1,17 @@
+.btn{
+    display: inline-block;
+    background-color: rgba(241, 237, 0, 0.918);
+    padding: 25px;
+    color: rgb(255, 240, 218);
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 5px;
+    
+
+}
+
+body {
+      font-family: 'Epilogue', sans-serif;
+    }
+
