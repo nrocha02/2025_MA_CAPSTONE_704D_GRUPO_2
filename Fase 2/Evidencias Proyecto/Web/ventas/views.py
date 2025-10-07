@@ -1,7 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, ItemCarrito
-
-from .models import *
+from django.shortcuts import render
+from .models import Producto
 
 def index(request):
     return render(request, 'ventas/index.html')
@@ -23,8 +21,3 @@ def gato(request):
 
 def arena(request):
     return render(request, 'ventas/arena.html')
-
-
-
-##Carrito##
-
