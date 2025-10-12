@@ -1,255 +1,161 @@
+{% extends "ventas/base.html" %}
 {% load static %}
-{% load django_bootstrap5 %}
 
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ producto.nombre }} - Cordillera Pets</title>
-    {% bootstrap_css %}
-    <link rel="stylesheet" href="{% static 'ventas/css/style.css' %}" />
-  </head>
-  <body>
-    <!-- Barra superior -->
-    <div class="bg-primary text-white text-center p-1">
-      <small
-      >Despachos gratis en comunas San Miguel, Estación Central, La Florida
-        por compras sobre $50.000</small
-        >
-      </div>
+{% block title %}{{ producto.nombre }} - Cordillera Pets{% endblock %}
 
-    <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container">
-          <img
-            src="{% static 'blog/images/inicio/logo.png'%}"
-            style="width: 100px; height: auto; float: left; margin-right: 10px"
-            alt="logo"
-          />
-          <a class="navbar-brand fw-bold" href="{% url 'index' %}"
-          >🐾 Cordillera Pets</a
-            >
-            <form class="d-flex mx-auto w-50">
-              <input
-                class="form-control me-2"
-                type="search"
-                placeholder="Busca tu producto favorito"
-              />
-              <button class="btn btn-outline-primary">🔍</button>
-            </form>
-            <div>
-              <a href="#" class="btn btn-outline-dark me-2">Inicia sesión</a>
-              <a href="{% url 'carrito' %}" class="btn btn-primary">🛒 Carrito</a>
-            </div>
-          </div>
-        </nav>
-
-    <!-- Categorías -->
-        <div class="bg-white border-top border-bottom">
-          <div class="container d-flex justify-content-center py-2">
-            <a href="{% url 'perro' %}" class="mx-3 text-decoration-none fw-bold"
-            >Perro</a
-              >
-              <a href="{% url 'gato' %}" class="mx-3 text-decoration-none fw-bold"
-              >Gato</a
-                >
-                <a href="{% url 'arena' %}" class="mx-3 text-decoration-none fw-bold"
-                >Arenas Sanitarias</a
-                  >
-                  <a href="#" class="mx-3 text-decoration-none fw-bold">Nosotros</a>
-                  <a href="#" class="mx-3 text-decoration-none fw-bold">Contáctanos</a>
-                </div>
-              </div>
+{% block content %}
 
     <!-- Migas de pan -->
-              <div class="container mt-3">
-                <small>
-                  <a href="{% url 'index' %}">Inicio</a> /
-                  <a href="{% url 'catalogo' %}">Catálogo</a> /
-                  <a
-                    href="{% url 'catalogo' %}?categoria={{ producto.categoria.categoria_id }}"
-                  >{{ producto.categoria.nombre }}</a
-                    >
-                    / {{ producto.nombre }}
-                  </small>
-                </div>
+  <div class="container mt-3">
+    <small>
+      <a href="{% url 'index' %}">Inicio</a> /
+      <a href="{% url 'catalogo' %}">Catálogo</a> /
+      <a
+        href="{% url 'catalogo' %}?categoria={{ producto.categoria.categoria_id }}"
+      >{{ producto.categoria.nombre }}</a
+        >
+        / {{ producto.nombre }}
+      </small>
+    </div>
 
     <!-- Detalle del producto -->
-                <div class="container my-5">
-                  <div class="row">
+    <div class="container my-5">
+      <div class="row">
         <!-- Imagen del producto -->
-                    <div class="col-md-6">
-                      {% if producto.imagen_url %}
-                        <img
-                          src="{% static producto.imagen_url %}"
-                          alt="{{ producto.nombre }}"
-                          class="img-fluid rounded shadow"
-                          style="max-height: 500px; width: 100%; object-fit: contain"
-                        />
-                      {% else %}
-                        <div
-                          class="d-flex align-items-center justify-content-center bg-light rounded"
-                          style="height: 400px"
-                        >
-                          <span class="text-muted fs-4">Sin imagen disponible</span>
-                        </div>
-                      {% endif %}
-                    </div>
+        <div class="col-md-6">
+          {% if producto.imagen_url %}
+            <img
+              src="{% static producto.imagen_url %}"
+              alt="{{ producto.nombre }}"
+              class="img-fluid rounded shadow"
+              style="max-height: 500px; width: 100%; object-fit: contain"
+            />
+          {% else %}
+            <div
+              class="d-flex align-items-center justify-content-center bg-light rounded"
+              style="height: 400px"
+            >
+              <span class="text-muted fs-4">Sin imagen disponible</span>
+            </div>
+          {% endif %}
+        </div>
 
         <!-- Información del producto -->
-                    <div class="col-md-6">
-                      <h1 class="h2">{{ producto.nombre }}</h1>
-                      <p class="text-muted mb-3">
-                        <strong>SKU:</strong> {{ producto.sku }} |
-                        <strong>Marca:</strong> {{ producto.marca.nombre|default:"Sin marca"
-                        }} | <strong>Categoría:</strong> {{ producto.categoria.nombre }}
-                      </p>
+        <div class="col-md-6">
+          <h1 class="h2">{{ producto.nombre }}</h1>
+          <p class="text-muted mb-3">
+            <strong>SKU:</strong> {{ producto.sku }} |
+            <strong>Marca:</strong> {{ producto.marca.nombre|default:"Sin marca"
+            }} | <strong>Categoría:</strong> {{ producto.categoria.nombre }}
+          </p>
 
-                      <div class="mb-4">
-                        <span class="h3 text-primary fw-bold"
-                        >${{ producto.precio|floatformat:0 }}</span
-                          >
-                        </div>
+          <div class="mb-4">
+            <span class="h3 text-primary fw-bold"
+            >${{ producto.precio|floatformat:0 }}</span
+              >
+            </div>
 
           <!-- Stock -->
-                        <div class="mb-3">
-                          {% if producto.stock > 0 %}
-                            <span class="badge bg-success fs-6"
-                            >✓ En stock ({{ producto.stock }} unidades)</span
-                              >
-                          {% else %}
-                            <span class="badge bg-danger fs-6">✗ Sin stock</span>
-                          {% endif %}
-                        </div>
+            <div class="mb-3">
+              {% if producto.stock > 0 %}
+                <span class="badge bg-success fs-6"
+                >✓ En stock ({{ producto.stock }} unidades)</span
+                  >
+              {% else %}
+                <span class="badge bg-danger fs-6">✗ Sin stock</span>
+              {% endif %}
+            </div>
 
           <!-- Descripción -->
-                        <div class="mb-4">
-                          <h5>Descripción</h5>
-                          <p>
-                            {{ producto.descripcion|default:"Descripción no
-                            disponible"|linebreaks }}
-                          </p>
-                        </div>
+            <div class="mb-4">
+              <h5>Descripción</h5>
+              <p>
+                {{ producto.descripcion|default:"Descripción no
+                disponible"|linebreaks }}
+              </p>
+            </div>
 
           <!-- Botones de acción -->
-                        <div class="d-grid gap-2 d-md-block">
-                          {% if producto.stock > 0 %}
-                            <button
-                              type="button"
-                              class="btn btn-success btn-lg"
-                              onclick="agregarAlCarrito({{ producto.producto_id }})"
-                            >
-                              🛒 Agregar al carrito
-                            </button>
-                          {% else %}
-                            <button type="button" class="btn btn-secondary btn-lg" disabled>
-                              Sin stock disponible
-                            </button>
-                          {% endif %}
-                          <a
-                            href="{% url 'catalogo' %}"
-                            class="btn btn-outline-primary btn-lg"
-                          >Seguir comprando</a
-                            >
-                          </div>
+            <div class="d-grid gap-2 d-md-block">
+              {% if producto.stock > 0 %}
+                <button
+                  type="button"
+                  class="btn btn-success btn-lg"
+                  onclick="agregarAlCarrito({{ producto.producto_id }})"
+                >
+                  🛒 Agregar al carrito
+                </button>
+              {% else %}
+                <button type="button" class="btn btn-secondary btn-lg" disabled>
+                  Sin stock disponible
+                </button>
+              {% endif %}
+              <a
+                href="{% url 'catalogo' %}"
+                class="btn btn-outline-primary btn-lg"
+              >Seguir comprando</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <!-- Productos relacionados -->
+        {% if productos_relacionados %}
+          <div class="container my-5">
+            <h4>Productos relacionados</h4>
+            <div class="row">
+              {% for producto_rel in productos_relacionados %}
+                <div class="col-6 col-md-3 mb-4">
+                  <div class="card h-100 shadow-sm">
+                    {% if producto_rel.imagen_url %}
+                      <img
+                        src="{% static producto_rel.imagen_url %}"
+                        class="card-img-top"
+                        alt="{{ producto_rel.nombre }}"
+                        style="height: 200px; object-fit: cover"
+                      />
+                    {% else %}
+                      <div
+                        class="card-img-top d-flex align-items-center justify-content-center bg-light"
+                        style="height: 200px"
+                      >
+                        <span class="text-muted">Sin imagen</span>
+                      </div>
+                    {% endif %}
+                    <div class="card-body text-center">
+                      <h6 class="card-title">
+                        {{ producto_rel.nombre|truncatechars:30 }}
+                      </h6>
+                      <p class="text-primary fw-bold">
+                        ${{ producto_rel.precio|floatformat:0 }}
+                      </p>
+                      <a
+                        href="{% url 'producto_detalle' producto_rel.producto_id %}"
+                        class="btn btn-sm btn-outline-primary me-1"
+                      >Ver</a
+                        >
+                        <a
+                          href="{% url 'carrito' %}?add={{ producto_rel.producto_id }}"
+                          class="btn btn-sm btn-success"
+                        >Agregar</a
+                          >
                         </div>
                       </div>
                     </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
 
-    <!-- Productos relacionados -->
-                    {% if productos_relacionados %}
-                      <div class="container my-5">
-                        <h4>Productos relacionados</h4>
-                        <div class="row">
-                          {% for producto_rel in productos_relacionados %}
-                            <div class="col-6 col-md-3 mb-4">
-                              <div class="card h-100 shadow-sm">
-                                {% if producto_rel.imagen_url %}
-                                  <img
-                                    src="{% static producto_rel.imagen_url %}"
-                                    class="card-img-top"
-                                    alt="{{ producto_rel.nombre }}"
-                                    style="height: 200px; object-fit: cover"
-                                  />
-                                {% else %}
-                                  <div
-                                    class="card-img-top d-flex align-items-center justify-content-center bg-light"
-                                    style="height: 200px"
-                                  >
-                                    <span class="text-muted">Sin imagen</span>
-                                  </div>
-                                {% endif %}
-                                <div class="card-body text-center">
-                                  <h6 class="card-title">
-                                    {{ producto_rel.nombre|truncatechars:30 }}
-                                  </h6>
-                                  <p class="text-primary fw-bold">
-                                    ${{ producto_rel.precio|floatformat:0 }}
-                                  </p>
-                                  <a
-                                    href="{% url 'producto_detalle' producto_rel.producto_id %}"
-                                    class="btn btn-sm btn-outline-primary me-1"
-                                  >Ver</a
-                                    >
-                                    <a
-                                      href="{% url 'carrito' %}?add={{ producto_rel.producto_id }}"
-                                      class="btn btn-sm btn-success"
-                                    >Agregar</a
-                                      >
-                                    </div>
-                                  </div>
-                                </div>
-                          {% endfor %}
-                        </div>
-                      </div>
-                    {% endif %}
+{% endblock %}
 
-    <!-- Footer -->
-                    <footer class="bg-light border-top mt-5 py-4">
-                      <div class="container d-flex flex-wrap justify-content-between">
-                        <div>
-                          <h6>Productos</h6>
-                          <a href="{% url 'perro' %}" class="d-block text-muted">Perros</a>
-                          <a href="{% url 'gato' %}" class="d-block text-muted">Gatos</a>
-                          <a href="{% url 'arena' %}" class="d-block text-muted"
-                          >Arenas Sanitarias</a
-                            >
-                          </div>
-                          <div>
-                            <h6>Mi cuenta</h6>
-                            <a href="#" class="d-block text-muted">Entrar a mi cuenta</a>
-                            <a href="#" class="d-block text-muted">Mis pedidos</a>
-                          </div>
-                          <div>
-                            <h6>Nosotros</h6>
-                            <a href="#" class="d-block text-muted">Quiénes somos</a>
-                            <a href="#" class="d-block text-muted">Trabaja con nosotros</a>
-                            <a href="#" class="d-block text-muted">Términos y condiciones</a>
-                          </div>
-                          <div>
-                            <h6>Contacto</h6>
-                            <p class="text-muted mb-1">📧 ventas@cordillerapets.cl</p>
-                            <p class="text-muted mb-1">📞 +56999999999</p>
-                            <p class="text-muted">📲 WhatsApp: +56999999999</p>
-                          </div>
-                        </div>
-                        <div class="text-center mt-3">
-                          <small class="text-muted"
-                          >© 2025 Cordillera Pets - Todos los derechos reservados</small
-                            >
-                          </div>
-                        </footer>
-
-    <!-- Script para agregar al carrito -->
-                        <script>
-                          function agregarAlCarrito(productoId) {
-        // Aquí puedes implementar la lógica AJAX para agregar al carrito
-        // Por ahora, redirigimos al carrito con el ID del producto
-                            window.location.href = "{% url 'carrito' %}?add=" + productoId;
-                          }
-                        </script>
-
-                        {% bootstrap_javascript %}
-                      </body>
-                    </html>
+{% block extra_js %}
+  <script>
+    function agregarAlCarrito(productoId) {
+    // Aquí puedes implementar la lógica AJAX para agregar al carrito
+    // Por ahora, redirigimos al carrito con el ID del producto
+      window.location.href = "{% url 'carrito' %}?add=" + productoId;
+    }
+  </script>
+{% endblock %}
