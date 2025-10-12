@@ -14,13 +14,13 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'admin_dashboard' %}">
+    <a class="navbar-brand" href="{% url 'dashboard:admin_dashboard' %}">
       <i class="fas fa-cog"></i> Admin Cordillera Pets
     </a>
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}" class="text-white-50">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'producto_list' %}" class="text-white-50">Productos</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_dashboard' %}" class="text-white-50">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:producto_list' %}" class="text-white-50">Productos</a></li>
         <li class="breadcrumb-item active text-white">{{ titulo }}</li>
       </ol>
     </nav>
@@ -41,7 +41,7 @@
       </p>
     </div>
     <div class="col-md-4 text-end">
-      <a href="{% url 'producto_list' %}" class="btn btn-secondary">
+      <a href="{% url 'dashboard:producto_list' %}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Volver a Lista
       </a>
     </div>
@@ -188,7 +188,7 @@
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a href="{% url 'producto_list' %}" class="btn btn-secondary">
+              <a href="{% url 'dashboard:producto_list' %}" class="btn btn-secondary">
                 <i class="fas fa-times"></i> Cancelar
               </a>
               <button type="submit" class="btn btn-{% if producto %}warning{% else %}success{% endif %}">

@@ -19,18 +19,22 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'admin_dashboard' %}">
+        <a class="navbar-brand" href="{% url 'dashboard:admin_dashboard' %}">
           <i class="fas fa-cog"></i> Admin Cordillera Pets
         </a>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
-              <a href="{% url 'admin_dashboard' %}" class="text-white-50"
+              <a
+                href="{% url 'dashboard:admin_dashboard' %}"
+                class="text-white-50"
                 >Dashboard</a
               >
             </li>
             <li class="breadcrumb-item">
-              <a href="{% url 'categoria_list' %}" class="text-white-50"
+              <a
+                href="{% url 'dashboard:categoria_list' %}"
+                class="text-white-50"
                 >Categorías</a
               >
             </li>
@@ -50,7 +54,10 @@
           <p class="text-muted">Esta acción no se puede deshacer</p>
         </div>
         <div class="col-md-4 text-end">
-          <a href="{% url 'categoria_list' %}" class="btn btn-secondary">
+          <a
+            href="{% url 'dashboard:categoria_list' %}"
+            class="btn btn-secondary"
+          >
             <i class="fas fa-arrow-left"></i> Volver a Lista
           </a>
         </div>
@@ -169,13 +176,13 @@
 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                   <a
-                    href="{% url 'categoria_list' %}"
+                    href="{% url 'dashboard:categoria_list' %}"
                     class="btn btn-secondary"
                   >
                     <i class="fas fa-times"></i> Cancelar
                   </a>
                   <a
-                    href="{% url 'categoria_edit' categoria.categoria_id %}"
+                    href="{% url 'dashboard:categoria_edit' categoria.categoria_id %}"
                     class="btn btn-warning"
                   >
                     <i class="fas fa-edit"></i> Editar en su lugar
@@ -211,7 +218,7 @@
 
               <div class="d-grid gap-2 mt-3">
                 <a
-                  href="{% url 'categoria_edit' categoria.categoria_id %}"
+                  href="{% url 'dashboard:categoria_edit' categoria.categoria_id %}"
                   class="btn btn-outline-warning btn-sm"
                 >
                   <i class="fas fa-edit"></i> Editar Categoría

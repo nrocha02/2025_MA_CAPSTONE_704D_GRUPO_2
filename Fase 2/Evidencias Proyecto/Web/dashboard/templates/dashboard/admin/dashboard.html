@@ -19,7 +19,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'admin_dashboard' %}">
+        <a class="navbar-brand" href="{% url 'dashboard:admin_dashboard' %}">
           <i class="fas fa-cog"></i> Admin Cordillera Pets
         </a>
         <div class="navbar-nav ms-auto">
@@ -130,12 +130,15 @@
               <p>Administra el catálogo de productos de la tienda.</p>
               <div class="d-grid gap-2">
                 <a
-                  href="{% url 'producto_list' %}"
+                  href="{% url 'dashboard:producto_list' %}"
                   class="btn btn-outline-primary"
                 >
                   <i class="fas fa-list"></i> Ver Todos los Productos
                 </a>
-                <a href="{% url 'producto_create' %}" class="btn btn-primary">
+                <a
+                  href="{% url 'dashboard:producto_create' %}"
+                  class="btn btn-primary"
+                >
                   <i class="fas fa-plus"></i> Crear Nuevo Producto
                 </a>
               </div>
@@ -154,12 +157,15 @@
               <p>Organiza los productos en categorías y subcategorías.</p>
               <div class="d-grid gap-2">
                 <a
-                  href="{% url 'categoria_list' %}"
+                  href="{% url 'dashboard:categoria_list' %}"
                   class="btn btn-outline-success"
                 >
                   <i class="fas fa-list"></i> Ver Todas las Categorías
                 </a>
-                <a href="{% url 'categoria_create' %}" class="btn btn-success">
+                <a
+                  href="{% url 'dashboard:categoria_create' %}"
+                  class="btn btn-success"
+                >
                   <i class="fas fa-plus"></i> Crear Nueva Categoría
                 </a>
               </div>

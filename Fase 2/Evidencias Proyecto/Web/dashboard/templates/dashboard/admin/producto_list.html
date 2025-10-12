@@ -14,12 +14,12 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'admin_dashboard' %}">
+    <a class="navbar-brand" href="{% url 'dashboard:admin_dashboard' %}">
       <i class="fas fa-cog"></i> Admin Cordillera Pets
     </a>
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}" class="text-white-50">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_dashboard' %}" class="text-white-50">Dashboard</a></li>
         <li class="breadcrumb-item active text-white">{{ titulo }}</li>
       </ol>
     </nav>
@@ -34,7 +34,7 @@
       <p class="text-muted">Administra el catálogo de productos</p>
     </div>
     <div class="col-md-4 text-end">
-      <a href="{% url 'producto_create' %}" class="btn btn-success">
+      <a href="{% url 'dashboard:producto_create' %}" class="btn btn-success">
         <i class="fas fa-plus"></i> Nuevo Producto
       </a>
     </div>
@@ -99,7 +99,7 @@
             <button type="submit" class="btn btn-primary">
               <i class="fas fa-search"></i> Filtrar
             </button>
-            <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">
+            <a href="{% url 'dashboard:producto_list' %}" class="btn btn-outline-secondary">
               <i class="fas fa-times"></i> Limpiar
             </a>
           </div>
@@ -187,11 +187,11 @@
                          class="btn btn-outline-info" title="Ver" target="_blank">
                         <i class="fas fa-eye"></i>
                       </a>
-                      <a href="{% url 'producto_edit' producto.producto_id %}" 
+                      <a href="{% url 'dashboard:producto_edit' producto.producto_id %}" 
                          class="btn btn-outline-primary" title="Editar">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <a href="{% url 'producto_delete' producto.producto_id %}" 
+                      <a href="{% url 'dashboard:producto_delete' producto.producto_id %}" 
                          class="btn btn-outline-danger" title="Eliminar">
                         <i class="fas fa-trash"></i>
                       </a>
@@ -243,7 +243,7 @@
           <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
           <h5 class="text-muted">No hay productos registrados</h5>
           <p class="text-muted">Comienza creando tu primer producto</p>
-          <a href="{% url 'producto_create' %}" class="btn btn-success">
+          <a href="{% url 'dashboard:producto_create' %}" class="btn btn-success">
             <i class="fas fa-plus"></i> Crear Primer Producto
           </a>
         </div>
@@ -272,10 +272,10 @@
         <div class="card-body">
           <h6 class="card-title">Acciones rápidas</h6>
           <div class="d-grid gap-2">
-            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
               <i class="fas fa-arrow-left"></i> Volver al Dashboard
             </a>
-            <a href="{% url 'categoria_list' %}" class="btn btn-outline-success btn-sm">
+            <a href="{% url 'dashboard:categoria_list' %}" class="btn btn-outline-success btn-sm">
               <i class="fas fa-sitemap"></i> Ver Categorías
             </a>
           </div>
