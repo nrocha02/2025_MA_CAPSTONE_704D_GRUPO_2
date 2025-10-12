@@ -49,7 +49,7 @@ def categoria_list(request):
         'categorias': page_obj,
         'titulo': 'Gestión de Categorías'
     }
-    return render(request, 'dashboard/admin/categoria_list.html', context)
+    return render(request, 'dashboard/categoria/list.html', context)
 
 
 def categoria_create(request):
@@ -90,7 +90,7 @@ def categoria_create(request):
         'categorias_padre': categorias_padre,
         'titulo': 'Crear Categoría'
     }
-    return render(request, 'dashboard/admin/categoria_form.html', context)
+    return render(request, 'dashboard/categoria/form.html', context)
 
 
 def categoria_edit(request, categoria_id):
@@ -130,7 +130,7 @@ def categoria_edit(request, categoria_id):
         'categorias_padre': categorias_padre,
         'titulo': f'Editar: {categoria.nombre}'
     }
-    return render(request, 'dashboard/admin/categoria_form.html', context)
+    return render(request, 'dashboard/categoria/form.html', context)
 
 
 def categoria_delete(request, categoria_id):
@@ -157,7 +157,7 @@ def categoria_delete(request, categoria_id):
         'subcategorias_count': subcategorias_count,
         'titulo': f'Eliminar: {categoria.nombre}'
     }
-    return render(request, 'dashboard/admin/categoria_delete.html', context)
+    return render(request, 'dashboard/categoria/delete.html', context)
 
 
 
@@ -204,7 +204,7 @@ def producto_list(request):
         },
         'titulo': 'Gestión de Productos'
     }
-    return render(request, 'dashboard/admin/producto_list.html', context)
+    return render(request, 'dashboard/producto/list.html', context)
 
 
 def producto_create(request):
@@ -243,7 +243,7 @@ def producto_create(request):
         'marcas': marcas,
         'titulo': 'Crear Producto'
     }
-    return render(request, 'dashboard/admin/producto_form.html', context)
+    return render(request, 'dashboard/producto/form.html', context)
 
 
 def producto_edit(request, producto_id):
@@ -282,7 +282,7 @@ def producto_edit(request, producto_id):
         'marcas': marcas,
         'titulo': f'Editar: {producto.nombre}'
     }
-    return render(request, 'dashboard/admin/producto_form.html', context)
+    return render(request, 'dashboard/producto/form.html', context)
 
 
 def producto_delete(request, producto_id):
@@ -303,4 +303,4 @@ def producto_delete(request, producto_id):
         'producto': producto,
         'titulo': f'Eliminar: {producto.nombre}'
     }
-    return render(request, 'dashboard/admin/producto_delete.html', context)
+    return render(request, 'dashboard/producto/delete.html', context)

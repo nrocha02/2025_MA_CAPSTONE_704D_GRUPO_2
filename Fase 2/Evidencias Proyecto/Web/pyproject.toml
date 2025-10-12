@@ -22,3 +22,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
+
+[dependency-groups]
+dev = [
+    "djhtml (>=3.0.10,<4.0.0)"
+]
