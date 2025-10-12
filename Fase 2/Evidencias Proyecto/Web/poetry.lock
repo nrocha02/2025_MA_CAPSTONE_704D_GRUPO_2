@@ -37,6 +37,24 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-bootstrap5"
+version = "25.2"
+description = "Bootstrap 5 for Django"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "django_bootstrap5-25.2-py3-none-any.whl", hash = "sha256:9418969fa5932729dc1addb1b70f13c9312a522b15033219ac3cbc5728eb8937"},
+    {file = "django_bootstrap5-25.2.tar.gz", hash = "sha256:abcfcd543efc19aaab4456a12b566507f684cfda98effc5dd3ad5167ba05c7b3"},
+]
+
+[package.dependencies]
+django = ">=4.2"
+
+[package.extras]
+jinja = ["jinja2 (>=3.0,<4)"]
+
+[[package]]
 name = "djhtml"
 version = "3.0.10"
 description = "Django/Jinja template indenter"
@@ -319,4 +337,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "c2d8dfcafd7ec72c957bd321e54857f93f4eb853883a6dca6626bb67f2160a42"
+content-hash = "ed49dd5d8cb9493bac55832dbe0000b532f176d1863ab41709a8ca2b2f3f54b5"
