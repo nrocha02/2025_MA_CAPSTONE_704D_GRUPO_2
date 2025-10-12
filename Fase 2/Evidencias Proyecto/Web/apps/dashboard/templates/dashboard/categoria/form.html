@@ -1,0 +1,206 @@
+{% extends 'dashboard/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}{{ titulo }} - Cordillera Pets{% endblock %}
+
+{% block show_breadcrumb %}True{% endblock %}
+
+{% block breadcrumb %}
+{{ block.super }}
+<li class="breadcrumb-item"><a href="{% url 'dashboard:categoria_list' %}" class="text-white-50">Categorías</a></li>
+<li class="breadcrumb-item active text-white">{{ titulo }}</li>
+{% endblock %}
+
+{% block navbar_extra %}{% endblock %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block page_description %}
+{% if categoria %}
+Modifica los datos de la categoría
+{% else %}
+Completa los datos para crear una nueva categoría
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'dashboard:categoria_list' %}" class="btn btn-secondary">
+  <i class="fas fa-arrow-left"></i> Volver a Lista
+</a>
+{% endblock %}
+
+{% block main_content %}
+
+      <div class="row">
+    <!-- Formulario -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="fas fa-{% if categoria %}edit{% else %}plus{% endif %}"></i>
+                Datos de la Categoría
+              </h5>
+            </div>
+            <div class="card-body">
+              <form method="post">
+                {% csrf_token %}
+
+                <div class="row mb-3">
+                  <div class="col-md-8">
+                    <label for="nombre" class="form-label">Nombre *</label>
+                    <input type="text"
+                           class="form-control"
+                           id="nombre"
+                           name="nombre"
+                           value="{{ categoria.nombre|default:'' }}"
+                           required
+                           maxlength="50">
+                    <div class="form-text">Nombre descriptivo de la categoría</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="slug" class="form-label">Slug</label>
+                    <input type="text"
+                           class="form-control"
+                           id="slug"
+                           name="slug"
+                           value="{{ categoria.slug|default:'' }}"
+                           maxlength="50">
+                    <div class="form-text">URL amigable (opcional)</div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="descripcion" class="form-label">Descripción</label>
+                  <textarea class="form-control"
+                            id="descripcion"
+                            name="descripcion"
+                            rows="3"
+                            placeholder="Descripción opcional de la categoría">{{ categoria.descripcion|default:'' }}</textarea>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="categoria_padre" class="form-label">Categoría Padre</label>
+                    <select class="form-select" id="categoria_padre" name="categoria_padre">
+                      <option value="">Sin categoría padre (Nivel 1)</option>
+                      {% for cat_padre in categorias_padre %}
+                        <option value="{{ cat_padre.categoria_id }}"
+                                {% if categoria.categoria_padre and categoria.categoria_padre.categoria_id == cat_padre.categoria_id %}selected{% endif %}>
+                          {{ cat_padre.nombre }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                    <div class="form-text">
+                      Si seleccionas una categoría padre, esta será de nivel 2
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    {% if categoria %}
+                      <label class="form-label">Estado</label>
+                      <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="activa"
+                               name="activa"
+                               {% if categoria.activa %}checked{% endif %}>
+                        <label class="form-check-label" for="activa">
+                          Categoría activa
+                        </label>
+                      </div>
+                      <div class="form-text">
+                        Las categorías inactivas no aparecen en el sitio público
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+            <!-- Información de nivel -->
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Información sobre niveles:</strong>
+                  <ul class="mb-0 mt-2">
+                    <li><strong>Nivel 1:</strong> Categorías principales (Perro, Gato, etc.)</li>
+                    <li><strong>Nivel 2:</strong> Subcategorías (Alimento, Juguetes, etc.)</li>
+                  </ul>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <a href="{% url 'dashboard:categoria_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                  </a>
+                  {% if categoria %}
+                    {% bootstrap_button button_type="submit" content='<i class="fas fa-save"></i> Actualizar Categoría' button_class="btn-warning" %}
+                  {% else %}
+                    {% bootstrap_button button_type="submit" content='<i class="fas fa-plus"></i> Crear Categoría' button_class="btn-success" %}
+                  {% endif %}
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+    <!-- Información lateral -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">Ayuda</h6>
+            </div>
+            <div class="card-body">
+              <h6>Consejos para categorías:</h6>
+              <ul class="small">
+                <li>Usa nombres claros y descriptivos</li>
+                <li>Las categorías nivel 1 son las principales</li>
+                <li>Las subcategorías ayudan a organizar mejor</li>
+                <li>El slug se usa para URLs amigables</li>
+              </ul>
+
+              <hr>
+
+              <h6>Ejemplos de estructura:</h6>
+              <div class="small">
+                <strong>Perro</strong> (Nivel 1)
+                <div class="ms-3">
+                  <i class="fas fa-arrow-right text-muted"></i> Alimento (Nivel 2)<br>
+                  <i class="fas fa-arrow-right text-muted"></i> Juguetes (Nivel 2)<br>
+                  <i class="fas fa-arrow-right text-muted"></i> Accesorios (Nivel 2)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if categoria %}
+            <div class="card mt-3">
+              <div class="card-header">
+                <h6 class="mb-0">Información de la Categoría</h6>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                  <li><strong>ID:</strong> {{ categoria.categoria_id }}</li>
+                  <li><strong>Nivel:</strong> {{ categoria.nivel }}</li>
+                  <li><strong>Creada:</strong> Información no disponible</li>
+                  {% if categoria.categoria_padre %}
+                    <li><strong>Padre:</strong> {{ categoria.categoria_padre.nombre }}</li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generar slug basado en el nombre
+document.getElementById('nombre').addEventListener('input', function() {
+  const slug = this.value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+
+  document.getElementById('slug').value = slug;
+});
+</script>
+{% endblock %}

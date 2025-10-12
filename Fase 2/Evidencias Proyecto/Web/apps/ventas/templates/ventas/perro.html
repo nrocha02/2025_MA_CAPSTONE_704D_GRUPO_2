@@ -1,0 +1,138 @@
+{% extends "ventas/ventas_base.html" %}
+{% load static %}
+
+{% block title %}Productos para Perros - Cordillera Pets{% endblock %}
+
+{% block top_bar_message %}Despachos gratis por compras sobre $50.000 dentro de Santiago{% endblock %}
+
+{% block content %}
+
+<!----- Migas de pan -
+<div class="container mt-3">
+  <small><a href="/">Home</a> / {{ categoria }}</small>
+</div
+
+ Imagen destacada estilo banner largo -->
+  <div style="width: 100%; max-width: 1200px; margin: 20px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
+    <img src="{% static 'blog/images/perro/imgperro.png' %}"
+         alt="Promoción"
+         style="width: 100%; height: 400px; object-fit: cover; display: block;">
+  </div>
+
+
+
+<!-- Subcategorías -->
+  <div class="container text-center my-5">
+    <h4>¡Encuentra lo mejor para tu mascota {{ categoria|lower }}!</h4>
+    <div class="row justify-content-center mt-4">
+      <div class="col-6 col-md-3 mb-3">
+      </div>
+    </div>
+
+<!--Productos para perros desde la base de datos-->
+    <section id="portafolio" class="portfolio section-padding">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="section-header text-center pb-5">
+              <h4>Productos para {{ categoria }} ({{ productos|length }})</h4>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {% for producto in productos %}
+            <div class="col-12 col-md-6 col-lg-3 mb-4">
+              <div class="card text-center bg-white pb-2 h-100">
+                <div class="card-body text-dark">
+                  <div class="img-area mb-4">
+                    {% if producto.imagen_url %}
+                      <img src="{% static producto.imagen_url %}" alt="{{ producto.nombre }}" width="200" height="200" style="object-fit: cover;">
+                    {% else %}
+                      <div class="d-flex align-items-center justify-content-center bg-light" style="width: 200px; height: 200px; margin: 0 auto;">
+                        <span class="text-muted">Sin imagen</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <h5 class="card-title">{{ producto.nombre }}</h5>
+                  <p class="text-muted small">{{ producto.marca.nombre|default:"Sin marca" }}</p>
+                  <p class="lead" style="font-size: small;">
+                    {{ producto.descripcion|truncatewords:20|default:"Descripción no disponible" }}
+                    <br><br>
+                    <strong>SKU:</strong> {{ producto.sku }}<br>
+                    <strong>Stock:</strong> {{ producto.stock }} unidades<br>
+                    <strong>Precio: ${{ producto.precio|floatformat:0 }}</strong>
+                  </p>
+                  <div class="mt-auto">
+                    <a href="{% url 'producto_detalle' producto.producto_id %}" class="btn btn-outline-primary btn-sm me-2">Ver detalle</a>
+                    {% if producto.stock > 0 %}
+                      <button type="button" class="btn btn-success btn-sm" onclick="agregarAlCarrito({{ producto.producto_id }})">Añadir al Carrito</button>
+                    {% else %}
+                      <button type="button" class="btn btn-secondary btn-sm" disabled>Sin stock</button>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center">
+              <div class="alert alert-info">
+                <h5>No hay productos disponibles</h5>
+                <p>No se encontraron productos para {{ categoria|lower }} en este momento.</p>
+                <a href="{% url 'catalogo' %}" class="btn btn-primary">Ver todos los productos</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+<!-- Script para agregar al carrito -->
+    <script>
+      function agregarAlCarrito(productoId) {
+    // Aquí puedes implementar la lógica AJAX para agregar al carrito
+    // Por ahora, redirigimos al carrito con el ID del producto
+        window.location.href = "{% url 'carrito' %}?add=" + productoId;
+      }
+    </script>
+
+
+
+<!-- Productos destacados -->
+    {% if productos %}
+      <div class="container my-5">
+        <h4 class="fw-bold">Productos destacados para {{ categoria|lower }}</h4>
+        <div class="row">
+          {% for producto in productos|slice:":4" %}
+            <div class="col-6 col-md-3 mb-3">
+              <div class="card shadow-sm h-100">
+                {% if producto.imagen_url %}
+                  <img src="{% static producto.imagen_url %}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 150px; object-fit: cover;">
+                {% else %}
+                  <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 150px;">
+                    <span class="text-muted">Sin imagen</span>
+                  </div>
+                {% endif %}
+                <div class="card-body text-center">
+                  <h6 class="card-title">{{ producto.nombre|truncatechars:25 }}</h6>
+                  <p class="text-primary fw-bold">${{ producto.precio|floatformat:0 }}</p>
+                  <a href="{% url 'producto_detalle' producto.producto_id %}" class="btn btn-sm btn-outline-primary me-1">Ver</a>
+                  <a href="{% url 'carrito' %}?add={{ producto.producto_id }}" class="btn btn-sm btn-success">Agregar</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    function agregarAlCarrito(productoId) {
+    // Aquí puedes implementar la lógica AJAX para agregar al carrito
+    // Por ahora, redirigimos al carrito con el ID del producto
+      window.location.href = "{% url 'carrito' %}?add=" + productoId;
+    }
+  </script>
+{% endblock %}

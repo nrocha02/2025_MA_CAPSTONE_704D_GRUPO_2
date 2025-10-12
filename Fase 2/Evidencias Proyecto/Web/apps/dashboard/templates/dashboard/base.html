@@ -1,0 +1,83 @@
+{% load static %}
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Dashboard Admin - Cordillera Pets{% endblock %}</title>
+    {% bootstrap_css %}
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container{% block navbar_container_class %}{% endblock %}">
+        <a class="navbar-brand" href="{% url 'dashboard:admin_dashboard' %}">
+          <i class="fas fa-cog"></i> Admin Cordillera Pets
+        </a>
+        
+        {% block navbar_content %}
+        <!-- Breadcrumb por defecto -->
+        {% if show_breadcrumb %}
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0">
+            {% block breadcrumb %}
+            <li class="breadcrumb-item">
+              <a href="{% url 'dashboard:admin_dashboard' %}" class="text-white-50">Dashboard</a>
+            </li>
+            {% endblock %}
+          </ol>
+        </nav>
+        {% endif %}
+        {% endblock %}
+        
+        {% block navbar_extra %}
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="{% url 'index' %}">
+            <i class="fas fa-home"></i> Volver al sitio
+          </a>
+        </div>
+        {% endblock %}
+      </div>
+    </nav>
+
+    <!-- Contenedor principal -->
+    <div class="container{% block main_container_class %}{% endblock %} mt-4">
+      {% block content %}
+      <!-- Encabezado por defecto -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <h1 class="h3">{% block page_title %}Dashboard{% endblock %}</h1>
+          <p class="text-muted">{% block page_description %}Panel de administración{% endblock %}</p>
+        </div>
+        <div class="col-md-4 text-end">
+          {% block page_actions %}{% endblock %}
+        </div>
+      </div>
+
+      <!-- Mensajes -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Contenido específico de la página -->
+      {% block main_content %}{% endblock %}
+      {% endblock %}
+    </div>
+
+    <!-- Scripts -->
+    {% bootstrap_javascript %}
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
