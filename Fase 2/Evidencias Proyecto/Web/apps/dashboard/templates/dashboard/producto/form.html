@@ -1,0 +1,294 @@
+{% extends 'dashboard/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}{{ titulo }} - Cordillera Pets{% endblock %}
+
+{% block show_breadcrumb %}True{% endblock %}
+
+{% block breadcrumb %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'dashboard:producto_list' %}" class="text-white-50">Productos</a></li>
+  <li class="breadcrumb-item active text-white">{{ titulo }}</li>
+{% endblock %}
+
+{% block navbar_extra %}{% endblock %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block page_description %}
+  {% if producto %}
+    Modifica los datos del producto
+  {% else %}
+    Completa los datos para crear un nuevo producto
+  {% endif %}
+{% endblock %}
+
+{% block page_actions %}
+  <a href="{% url 'dashboard:producto_list' %}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Volver a Lista
+  </a>
+{% endblock %}
+
+{% block main_content %}
+
+  <div class="row">
+    <!-- Formulario -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-{% if producto %}edit{% else %}plus{% endif %}"></i>
+            Datos del Producto
+          </h5>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <label for="nombre" class="form-label">Nombre del Producto *</label>
+                <input type="text"
+                       class="form-control"
+                       id="nombre"
+                       name="nombre"
+                       value="{{ producto.nombre|default:'' }}"
+                       required
+                       maxlength="50">
+              </div>
+              <div class="col-md-4">
+                <label for="sku" class="form-label">SKU *</label>
+                <input type="text"
+                       class="form-control"
+                       id="sku"
+                       name="sku"
+                       value="{{ producto.sku|default:'' }}"
+                       required
+                       maxlength="100">
+                <div class="form-text">Código único del producto</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción</label>
+              <textarea class="form-control"
+                        id="descripcion"
+                        name="descripcion"
+                        rows="4"
+                        placeholder="Descripción detallada del producto">{{ producto.descripcion|default:'' }}</textarea>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="categoria" class="form-label">Categoría *</label>
+                <select class="form-select" id="categoria" name="categoria" required>
+                  <option value="">Seleccionar categoría</option>
+                  {% for categoria in categorias %}
+                    <option value="{{ categoria.categoria_id }}"
+                            {% if producto.categoria and producto.categoria.categoria_id == categoria.categoria_id %}selected{% endif %}>
+                      {% if categoria.nivel == 2 %}→ {% endif %}{{ categoria.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="marca" class="form-label">Marca</label>
+                <select class="form-select" id="marca" name="marca">
+                  <option value="">Sin marca</option>
+                  {% for marca in marcas %}
+                    <option value="{{ marca.marca_id }}"
+                            {% if producto.marca and producto.marca.marca_id == marca.marca_id %}selected{% endif %}>
+                      {{ marca.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="precio" class="form-label">Precio *</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number"
+                         class="form-control"
+                         id="precio"
+                         name="precio"
+                         value="{{ producto.precio|default:'' }}"
+                         required
+                         min="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="number"
+                       class="form-control"
+                       id="stock"
+                       name="stock"
+                       value="{{ producto.stock|default:'0' }}"
+                       min="0">
+              </div>
+              <div class="col-md-4">
+                {% if producto %}
+                  <label for="estado_producto" class="form-label">Estado</label>
+                  <select class="form-select" id="estado_producto" name="estado_producto">
+                    <option value="activo" {% if producto.estado_producto == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if producto.estado_producto == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                    <option value="agotado" {% if producto.estado_producto == 'agotado' %}selected{% endif %}>Agotado</option>
+                  </select>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="imagen_url" class="form-label">URL de Imagen</label>
+              <input type="text"
+                     class="form-control"
+                     id="imagen_url"
+                     name="imagen_url"
+                     value="{{ producto.imagen_url|default:'' }}"
+                     placeholder="Ejemplo: blog/images/productos/mi-producto.jpg">
+              <div class="form-text">
+                Ruta relativa a la carpeta static. Ejemplo: blog/images/productos/alimento.jpg
+              </div>
+            </div>
+
+            <!-- Vista previa de imagen -->
+            <div class="mb-3" id="preview-container" style="display: none;">
+              <label class="form-label">Vista previa</label>
+              <div>
+                <img id="imagen-preview" src="" alt="Vista previa" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{% url 'dashboard:producto_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+              </a>
+              {% if producto %}
+                {% bootstrap_button button_type="submit" content='<i class="fas fa-save"></i> Actualizar Producto' button_class="btn-warning" %}
+              {% else %}
+                {% bootstrap_button button_type="submit" content='<i class="fas fa-plus"></i> Crear Producto' button_class="btn-success" %}
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información lateral -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Ayuda</h6>
+        </div>
+        <div class="card-body">
+          <h6>Consejos para productos:</h6>
+          <ul class="small">
+            <li>Usa nombres descriptivos y claros</li>
+            <li>El SKU debe ser único</li>
+            <li>Añade descripciones detalladas</li>
+            <li>Asigna la categoría correcta</li>
+            <li>Las imágenes mejoran las ventas</li>
+          </ul>
+
+          <hr>
+
+          <h6>Estados de producto:</h6>
+          <ul class="small">
+            <li><strong>Activo:</strong> Visible y comprable</li>
+            <li><strong>Inactivo:</strong> No visible públicamente</li>
+            <li><strong>Agotado:</strong> Sin stock disponible</li>
+          </ul>
+        </div>
+      </div>
+
+      {% if producto %}
+        <div class="card mt-3">
+          <div class="card-header">
+            <h6 class="mb-0">Información del Producto</h6>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled small mb-0">
+              <li><strong>ID:</strong> {{ producto.producto_id }}</li>
+              <li><strong>Fecha creación:</strong> {{ producto.fecha_creation|date:"d/m/Y H:i" }}</li>
+              <li><strong>Estado actual:</strong> {{ producto.estado_producto|title }}</li>
+            </ul>
+
+            <div class="mt-3">
+              <a href="{% url 'producto_detalle' producto.producto_id %}"
+                 class="btn btn-outline-info btn-sm" target="_blank">
+                <i class="fas fa-eye"></i> Ver en sitio público
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card mt-3">
+        <div class="card-header">
+          <h6 class="mb-0">Gestión de Imágenes</h6>
+        </div>
+        <div class="card-body">
+          <p class="small">Para las imágenes, asegúrate de:</p>
+          <ul class="small">
+            <li>Subir las imágenes a la carpeta static</li>
+            <li>Usar formatos JPG o PNG</li>
+            <li>Mantener tamaños razonables (&lt;500KB)</li>
+            <li>Usar nombres descriptivos</li>
+          </ul>
+
+          <div class="alert alert-info small">
+            <strong>Estructura recomendada:</strong><br>
+            <code>static/blog/images/productos/[categoria]/[nombre].jpg</code>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+// Auto-generar SKU basado en el nombre
+    document.getElementById('nombre').addEventListener('input', function() {
+      if (!document.getElementById('sku').value) {
+        const sku = 'SKU-' + this.value
+          .toUpperCase()
+          .replace(/[^A-Z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+          .substring(0, 20);
+
+        document.getElementById('sku').value = sku;
+      }
+    });
+
+// Vista previa de imagen
+    document.getElementById('imagen_url').addEventListener('input', function() {
+      const url = this.value;
+      const preview = document.getElementById('imagen-preview');
+      const container = document.getElementById('preview-container');
+
+      if (url) {
+    // Construir URL completa para la vista previa
+        const staticUrl = '/static/' + url;
+        preview.src = staticUrl;
+        preview.onload = function() {
+          container.style.display = 'block';
+        };
+        preview.onerror = function() {
+          container.style.display = 'none';
+        };
+      } else {
+        container.style.display = 'none';
+      }
+    });
+
+// Activar vista previa si ya hay una imagen
+    window.addEventListener('load', function() {
+      const imagenUrl = document.getElementById('imagen_url').value;
+      if (imagenUrl) {
+        document.getElementById('imagen_url').dispatchEvent(new Event('input'));
+      }
+    });
+  </script>
+{% endblock %}
