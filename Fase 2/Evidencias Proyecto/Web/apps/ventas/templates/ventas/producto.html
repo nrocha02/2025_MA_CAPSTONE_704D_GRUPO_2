@@ -92,9 +92,19 @@
               <a
                 href="{% url 'catalogo' %}"
                 class="btn btn-outline-primary btn-lg"
-              >Seguir comprando</a
-                >
+              >Seguir comprando</a>
+            </div>
+            
+            <!-- Área de confirmación -->
+            <div id="confirmacion-area" class="mt-3" style="display: none;">
+              <div class="alert alert-success d-flex align-items-center" role="alert">
+                <i class="fas fa-check-circle me-2 text-success"></i>
+                <div>
+                  <strong>¡Producto agregado!</strong> 
+                  <span id="nombre-producto">{{ producto.nombre }}</span> se ha añadido a tu carrito.
+                </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -105,20 +115,120 @@
 <script>
 $(document).on("click", "#agregar-carrito", function (e) {
     e.preventDefault();
+    
+    const boton = $(this);
+    const textoOriginal = boton.html();
+    
+    boton.html('<span class="spinner-border spinner-border-sm" role="status"></span> Agregando...');
+    boton.prop('disabled', true);
+    
     $.ajax({
         type: "POST",
         url: "{% url 'carrito:agregar_al_carrito' %}",
         data: {
-          producto_id: $("#agregar-carrito").val(),
+          producto_id: boton.val(),
           csrfmiddlewaretoken: "{{ csrf_token }}",
-          action: "post"
+          action: "post",
+          cantidad: 1
         },
         success: function(json){
           console.log(json);
+          
+          if (json.success) {
+            boton.html('✓ ¡Agregado al carrito!');
+            boton.removeClass('btn-success').addClass('btn-success');
+            
+            $('#confirmacion-area').slideDown(400);
+            
+            const contadorCarrito = $('.cart-count, .carrito-count, #cart-count');
+            if (contadorCarrito.length && json.total_productos) {
+              contadorCarrito.text(json.total_productos);
+            }
+            
+            mostrarNotificacion(`${json.nombre_producto || 'Producto'} agregado al carrito exitosamente`, 'success');
+            
+            $('html, body').animate({
+              scrollTop: $('#confirmacion-area').offset().top - 100
+            }, 500);
+            
+            setTimeout(function() {
+              boton.html(textoOriginal);
+              boton.prop('disabled', false);
+            }, 3000);
+            
+          } else {
+            boton.html('Error - Inténtalo de nuevo');
+            boton.removeClass('btn-success').addClass('btn-danger');
+            mostrarNotificacion('Error al agregar producto al carrito', 'error');
+            
+            setTimeout(function() {
+              boton.html(textoOriginal);
+              boton.removeClass('btn-danger').addClass('btn-success');
+              boton.prop('disabled', false);
+            }, 2000);
+          }
         },
         error: function(xhr, errmsg, err){
+          console.error('Error:', xhr.responseText);
+          
+          boton.html('Error - Inténtalo de nuevo');
+          boton.removeClass('btn-success').addClass('btn-danger');
+          
+          mostrarNotificacion('Error de conexión. Inténtalo de nuevo.', 'error');
+          
+          setTimeout(function() {
+            boton.html(textoOriginal);
+            boton.removeClass('btn-danger').addClass('btn-success');
+            boton.prop('disabled', false);
+          }, 2000);
         }
     });
 });
+
+function mostrarNotificacion(mensaje, tipo) {
+  $('.notificacion-producto').remove();
+  
+  const notificacion = $(`
+    <div class="alert alert-${tipo === 'success' ? 'success' : 'danger'} notificacion-producto position-fixed shadow-lg" 
+         style="top: 20px; right: 20px; z-index: 9999; min-width: 350px; animation: slideInRight 0.5s ease-out;">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+        <span class="flex-grow-1">${mensaje}</span>
+        <button type="button" class="btn-close ms-2" onclick="$(this).closest('.notificacion-producto').remove()"></button>
+      </div>
+    </div>
+  `);
+  
+  $('body').append(notificacion);
+  
+  setTimeout(function() {
+    notificacion.fadeOut(300, function() {
+      $(this).remove();
+    });
+  }, 4000);
+}
+
+if (!$('#notification-styles').length) {
+  $('head').append(`
+    <style id="notification-styles">
+      @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      
+      .notificacion-producto {
+        border-left: 4px solid;
+      }
+      
+      .alert-success.notificacion-producto {
+        border-left-color: #28a745;
+      }
+      
+      .alert-danger.notificacion-producto {
+        border-left-color: #dc3545;
+      }
+    </style>
+  `);
+}
 </script>
 {% endblock %}
