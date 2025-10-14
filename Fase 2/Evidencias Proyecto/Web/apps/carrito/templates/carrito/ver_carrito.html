@@ -1,0 +1,359 @@
+{% extends "ventas/ventas_base.html" %}
+{% load static %}
+
+{% block title %}Carrito de Compras - Cordillera Pets{% endblock %}
+
+{% block extra_css %}
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Contenedor principal */
+    .carrito-container {
+      width: 60%;
+      margin: 20px auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    /* Encabezado */
+    .carrito-header {
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .volver {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Producto */
+    .producto {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .producto-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+    }
+
+    .producto-info img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .producto-detalles {
+      font-size: 14px;
+    }
+
+    .producto-detalles b {
+      font-size: 16px;
+    }
+
+    /* Controles cantidad */
+    .cantidad {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0 20px;
+    }
+
+    .cantidad button {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 1px solid #ccc;
+      background: #f8f9fa;
+      cursor: pointer;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .cantidad button:hover {
+      background: #e9ecef;
+      border-color: #999;
+    }
+
+    .cantidad-valor {
+      width: 40px;
+      height: 30px;
+      text-align: center;
+      font-weight: bold;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+    }
+
+    .btn-eliminar {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 1px solid #dc3545;
+      background: #dc3545;
+      color: white;
+      cursor: pointer;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    .btn-eliminar:hover {
+      background: #c82333;
+      border-color: #bd2130;
+    }
+
+    /* Total del producto */
+    .total {
+      text-align: right;
+      min-width: 100px;
+    }
+
+    /* Totales */
+    .totales {
+      padding: 15px;
+      text-align: right;
+    }
+
+    .totales div {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .totales b {
+      font-size: 16px;
+    }
+
+    /* Botones */
+    .btn-pedido, .btn-seguir {
+      display: block;
+      width: 180px;
+      margin-left: auto;
+      margin-right: 15px;
+      margin-bottom: 10px;
+      padding: 12px;
+      background: #0d4686;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    .btn-pedido:hover, .btn-seguir:hover {
+      background: #0a3a6b;
+    }
+
+    .carrito-vacio {
+      padding: 40px;
+      text-align: center;
+      color: #666;
+    }
+
+    .carrito-vacio img {
+      width: 100px;
+      opacity: 0.5;
+      margin-bottom: 20px;
+    }
+
+    /* Footer */
+    .footer {
+      background: #b2e0f7;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .footer img {
+      width: 150px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="carrito-container">
+    <div class="carrito-header">
+      Mi Carrito
+    </div>
+
+    {% if carrito_vacio %}
+      <div class="carrito-vacio">
+        <h3>Tu carrito está vacío</h3>
+        <p>¡Agrega algunos productos para comenzar!</p>
+        <a href="{% url 'catalogo' %}" class="btn-seguir">SEGUIR COMPRANDO</a>
+      </div>
+    {% else %}
+      {% for producto in productos_carrito %}
+        <div class="producto" data-producto-id="{{ producto.producto_id }}">
+          <div class="producto-info">
+            <img src="{% if producto.imagen_url %}{{ producto.imagen_url }}{% else %}https://via.placeholder.com/80x80?text=Sin+Imagen{% endif %}" 
+                 alt="{{ producto.nombre }}">
+            <div class="producto-detalles">
+              <b>{{ producto.nombre }}</b><br>
+              <span>$<span class="precio">{{ producto.precio }}</span></span><br>
+              {% if producto.stock > 0 %}
+                <small style="color:green;">En stock ({{ producto.stock }} disponibles)</small>
+              {% else %}
+                <small style="color:red;">Sin stock</small>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="cantidad">
+            <button onclick="cambiarCantidad({{ producto.producto_id }}, -1)">-</button>
+            <span class="cantidad-valor">{{ producto.cantidad_carrito }}</span>
+            <button onclick="cambiarCantidad({{ producto.producto_id }}, 1)">+</button>
+            <button class="btn-eliminar" onclick="eliminarProducto({{ producto.producto_id }})">×</button>
+          </div>
+
+          <div class="total">
+            <b>$<span class="subtotal-producto">{{ producto.subtotal }}</span></b>
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="totales">
+        <div>Subtotal: <b>$<span id="subtotal">{{ subtotal }}</span></b></div>
+        <div>Gastos de envío: <b>$<span id="envio">{{ costo_envio }}</span></b></div>
+        <div><b>Total: $<span id="granTotal">{{ total }}</span></b></div>
+      </div>
+
+      <a href="{% url 'catalogo' %}" class="btn-seguir">SEGUIR COMPRANDO</a>
+      <button class="btn-pedido" onclick="hacerPedido()">HACER PEDIDO</button>
+    {% endif %}
+
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // Función para obtener el token CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function cambiarCantidad(productoId, cambio) {
+      const productoDiv = document.querySelector(`[data-producto-id="${productoId}"]`);
+      const cantidadSpan = productoDiv.querySelector('.cantidad-valor');
+      let cantidadActual = parseInt(cantidadSpan.textContent);
+      let nuevaCantidad = cantidadActual + cambio;
+
+      if (nuevaCantidad < 1) {
+        eliminarProducto(productoId);
+        return;
+      }
+
+      // Enviar petición AJAX para actualizar cantidad
+      fetch("{% url 'carrito:actualizar_el_carrito' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: `action=post&producto_id=${productoId}&cantidad=${nuevaCantidad}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Actualizar la cantidad mostrada
+          cantidadSpan.textContent = nuevaCantidad;
+          
+          // Recalcular subtotal del producto
+          const precio = parseInt(productoDiv.querySelector('.precio').textContent);
+          const subtotalProducto = precio * nuevaCantidad;
+          productoDiv.querySelector('.subtotal-producto').textContent = subtotalProducto;
+          
+          // Actualizar totales
+          document.getElementById('subtotal').textContent = data.subtotal;
+          document.getElementById('granTotal').textContent = data.total;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al actualizar la cantidad. Inténtalo de nuevo.');
+      });
+    }
+
+    function eliminarProducto(productoId) {
+      if (!confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+        return;
+      }
+
+      fetch("{% url 'carrito:eliminar_del_carrito' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: `action=post&producto_id=${productoId}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Eliminar el producto del DOM
+          const productoDiv = document.querySelector(`[data-producto-id="${productoId}"]`);
+          productoDiv.remove();
+          
+          // Si no quedan productos, recargar la página para mostrar el carrito vacío
+          if (data.total_productos === 0) {
+            location.reload();
+          } else {
+            // Actualizar totales
+            document.getElementById('subtotal').textContent = data.subtotal;
+            document.getElementById('granTotal').textContent = data.total;
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al eliminar el producto. Inténtalo de nuevo.');
+      });
+    }
+
+    function hacerPedido() {
+      // Aquí puedes implementar la lógica para procesar el pedido
+      // Por ahora, solo mostramos un mensaje
+      alert('Funcionalidad de pedido en desarrollo. ¡Pronto estará disponible!');
+    }
+  </script>
+{% endblock %}

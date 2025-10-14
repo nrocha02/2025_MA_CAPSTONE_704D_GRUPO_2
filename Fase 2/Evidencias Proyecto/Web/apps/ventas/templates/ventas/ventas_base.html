@@ -1,5 +1,4 @@
-{% load static %}
-{% load django_bootstrap5 %}
+{% load static %} {% load django_bootstrap5 %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -12,18 +11,17 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     {% block extra_css %}
-      <link rel="stylesheet" href="{% static 'style.css' %}" />
-    {% endblock %}
-    {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    {% endblock %} {% block extra_head %}{% endblock %}
   </head>
   <body>
     <!-- Barra superior -->
     <div class="bg-primary text-white text-center p-1">
       <small>
-        {% block top_bar_message %}
-          Despachos gratis en comunas San Miguel, Estación Central, La Florida por compras sobre $50.000
-        {% endblock %}
+        {% block top_bar_message %} Despachos gratis en comunas San Miguel,
+        Estación Central, La Florida por compras sobre $50.000 {% endblock %}
       </small>
     </div>
 
@@ -35,7 +33,9 @@
           style="width: 100px; height: auto; float: left; margin-right: 10px"
           alt="logo"
         />
-        <a class="navbar-brand fw-bold" href="{% url 'index' %}">🐾 Cordillera Pets</a>
+        <a class="navbar-brand fw-bold" href="{% url 'index' %}"
+          >🐾 Cordillera Pets</a
+        >
 
         <!-- Buscador -->
         <form class="d-flex mx-auto w-50">
@@ -50,7 +50,9 @@
         <!-- Carrito / Login -->
         <div>
           <a href="#" class="btn btn-outline-dark me-2">Inicia sesión</a>
-          <a href="{% url 'carrito' %}" class="btn btn-primary">🛒 Carrito</a>
+          <a href="{% url 'carrito:ver_carrito' %}" class="btn btn-primary"
+            >🛒 Carrito</a
+          >
         </div>
       </div>
     </nav>
@@ -58,19 +60,22 @@
     <!-- Categorías -->
     <div class="bg-white border-top border-bottom">
       <div class="container d-flex justify-content-center py-2">
-        <a href="{% url 'perro' %}" class="mx-3 text-decoration-none fw-bold">Perro</a>
-        <a href="{% url 'gato' %}" class="mx-3 text-decoration-none fw-bold">Gato</a>
-        <a href="{% url 'arena' %}" class="mx-3 text-decoration-none fw-bold">Arenas Sanitarias</a>
+        <a href="{% url 'perro' %}" class="mx-3 text-decoration-none fw-bold"
+          >Perro</a
+        >
+        <a href="{% url 'gato' %}" class="mx-3 text-decoration-none fw-bold"
+          >Gato</a
+        >
+        <a href="{% url 'arena' %}" class="mx-3 text-decoration-none fw-bold"
+          >Arenas Sanitarias</a
+        >
         <a href="#" class="mx-3 text-decoration-none fw-bold">Nosotros</a>
         <a href="#" class="mx-3 text-decoration-none fw-bold">Contáctanos</a>
       </div>
     </div>
 
     <!-- Contenido principal -->
-    <main>
-      {% block content %}
-      {% endblock %}
-    </main>
+    <main>{% block content %} {% endblock %}</main>
 
     <!-- Footer -->
     <footer class="bg-light border-top mt-5 py-4">
@@ -79,7 +84,9 @@
           <h6>Productos</h6>
           <a href="{% url 'perro' %}" class="d-block text-muted">Perros</a>
           <a href="{% url 'gato' %}" class="d-block text-muted">Gatos</a>
-          <a href="{% url 'arena' %}" class="d-block text-muted">Arenas Sanitarias</a>
+          <a href="{% url 'arena' %}" class="d-block text-muted"
+            >Arenas Sanitarias</a
+          >
         </div>
         <div>
           <h6>Mi cuenta</h6>
@@ -106,7 +113,6 @@
       </div>
     </footer>
 
-    {% bootstrap_javascript %}
-    {% block extra_js %}{% endblock %}
+    {% bootstrap_javascript %} {% block extra_js %}{% endblock %}
   </body>
 </html>

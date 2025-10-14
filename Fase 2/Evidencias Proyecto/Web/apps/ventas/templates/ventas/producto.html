@@ -45,8 +45,7 @@
           <h1 class="h2">{{ producto.nombre }}</h1>
           <p class="text-muted mb-3">
             <strong>SKU:</strong> {{ producto.sku }} |
-            <strong>Marca:</strong> {{ producto.marca.nombre|default:"Sin marca"
-            }} | <strong>Categoría:</strong> {{ producto.categoria.nombre }}
+            <strong>Marca:</strong> {{ producto.marca.nombre|default:"Sin marca" }} | <strong>Categoría:</strong> {{ producto.categoria.nombre }}
           </p>
 
           <div class="mb-4">
@@ -70,8 +69,7 @@
             <div class="mb-4">
               <h5>Descripción</h5>
               <p>
-                {{ producto.descripcion|default:"Descripción no
-                disponible"|linebreaks }}
+                {{ producto.descripcion|default:"Descripción no disponible"|linebreaks }}
               </p>
             </div>
 
@@ -81,7 +79,8 @@
                 <button
                   type="button"
                   class="btn btn-success btn-lg"
-                  onclick="agregarAlCarrito({{ producto.producto_id }})"
+                  value="{{ producto.producto_id }}"
+                  id="agregar-carrito"
                 >
                   🛒 Agregar al carrito
                 </button>
@@ -100,62 +99,26 @@
           </div>
         </div>
 
-    <!-- Productos relacionados -->
-        {% if productos_relacionados %}
-          <div class="container my-5">
-            <h4>Productos relacionados</h4>
-            <div class="row">
-              {% for producto_rel in productos_relacionados %}
-                <div class="col-6 col-md-3 mb-4">
-                  <div class="card h-100 shadow-sm">
-                    {% if producto_rel.imagen_url %}
-                      <img
-                        src="{% static producto_rel.imagen_url %}"
-                        class="card-img-top"
-                        alt="{{ producto_rel.nombre }}"
-                        style="height: 200px; object-fit: cover"
-                      />
-                    {% else %}
-                      <div
-                        class="card-img-top d-flex align-items-center justify-content-center bg-light"
-                        style="height: 200px"
-                      >
-                        <span class="text-muted">Sin imagen</span>
-                      </div>
-                    {% endif %}
-                    <div class="card-body text-center">
-                      <h6 class="card-title">
-                        {{ producto_rel.nombre|truncatechars:30 }}
-                      </h6>
-                      <p class="text-primary fw-bold">
-                        ${{ producto_rel.precio|floatformat:0 }}
-                      </p>
-                      <a
-                        href="{% url 'producto_detalle' producto_rel.producto_id %}"
-                        class="btn btn-sm btn-outline-primary me-1"
-                      >Ver</a
-                        >
-                        <a
-                          href="{% url 'carrito' %}?add={{ producto_rel.producto_id }}"
-                          class="btn btn-sm btn-success"
-                        >Agregar</a
-                          >
-                        </div>
-                      </div>
-                    </div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endif %}
-
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-    function agregarAlCarrito(productoId) {
-    // Aquí puedes implementar la lógica AJAX para agregar al carrito
-    // Por ahora, redirigimos al carrito con el ID del producto
-      window.location.href = "{% url 'carrito' %}?add=" + productoId;
-    }
-  </script>
+<script>
+$(document).on("click", "#agregar-carrito", function (e) {
+    e.preventDefault();
+    $.ajax({
+        type: "POST",
+        url: "{% url 'carrito:agregar_al_carrito' %}",
+        data: {
+          producto_id: $("#agregar-carrito").val(),
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+          action: "post"
+        },
+        success: function(json){
+          console.log(json);
+        },
+        error: function(xhr, errmsg, err){
+        }
+    });
+});
+</script>
 {% endblock %}
