@@ -164,10 +164,128 @@
 
 <!-- Script para agregar al carrito -->
     <script>
+      // Función para obtener el token CSRF
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
       function agregarAlCarrito(productoId) {
-    // Aquí puedes implementar la lógica AJAX para agregar al carrito
-    // Por ahora, redirigimos al carrito con el ID del producto
-        window.location.href = "{% url 'carrito' %}?add=" + productoId;
+        // Encontrar el botón para mostrar feedback visual
+        const boton = document.querySelector(`button[onclick="agregarAlCarrito(${productoId})"]`);
+        const textoOriginal = boton.innerHTML;
+        
+        // Cambiar el botón a estado de carga
+        boton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Agregando...';
+        boton.disabled = true;
+
+        // Enviar petición AJAX para agregar al carrito
+        fetch("{% url 'carrito:agregar_al_carrito' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: `action=post&producto_id=${productoId}&cantidad=1`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Mostrar mensaje de éxito
+            boton.innerHTML = '✓ Agregado';
+            boton.className = 'btn btn-success btn-sm';
+            
+            // Actualizar contador del carrito si existe
+            const contadorCarrito = document.querySelector('.cart-count, .carrito-count, #cart-count');
+            if (contadorCarrito) {
+              contadorCarrito.textContent = data.total_productos;
+            }
+            
+            // Mostrar notificación
+            mostrarNotificacion(`${data.nombre_producto} agregado al carrito`, 'success');
+            
+            // Restaurar botón después de 2 segundos
+            setTimeout(() => {
+              boton.innerHTML = textoOriginal;
+              boton.className = 'btn btn-success btn-sm';
+              boton.disabled = false;
+            }, 2000);
+          } else {
+            throw new Error('Error al agregar producto');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          boton.innerHTML = textoOriginal;
+          boton.disabled = false;
+          mostrarNotificacion('Error al agregar producto al carrito', 'error');
+        });
+      }
+
+      function mostrarNotificacion(mensaje, tipo) {
+        // Crear elemento de notificación
+        const notificacion = document.createElement('div');
+        notificacion.className = `alert alert-${tipo === 'success' ? 'success' : 'danger'} position-fixed`;
+        notificacion.style.cssText = `
+          top: 20px;
+          right: 20px;
+          z-index: 9999;
+          min-width: 300px;
+          animation: slideInRight 0.5s ease-out;
+        `;
+        notificacion.innerHTML = `
+          <strong>${tipo === 'success' ? '✓' : '✗'}</strong> ${mensaje}
+          <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        `;
+
+        // Agregar al DOM
+        document.body.appendChild(notificacion);
+
+        // Remover automáticamente después de 3 segundos
+        setTimeout(() => {
+          if (notificacion.parentElement) {
+            notificacion.remove();
+          }
+        }, 3000);
+      }
+
+      // CSS para la animación
+      if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+          @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+          .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+          }
+          .spinner-border {
+            display: inline-block;
+            vertical-align: text-bottom;
+            border: 0.25em solid;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+          }
+          @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+          }
+        `;
+        document.head.appendChild(style);
       }
     </script>
 
@@ -192,7 +310,11 @@
                   <h6 class="card-title">{{ producto.nombre|truncatechars:30 }}</h6>
                   <p class="text-primary fw-bold">${{ producto.precio|floatformat:0 }}</p>
                   <a href="{% url 'producto_detalle' producto.producto_id %}" class="btn btn-sm btn-outline-primary me-1">Ver</a>
-                  <a href="{% url 'carrito' %}?add={{ producto.producto_id }}" class="btn btn-sm btn-success">Agregar</a>
+                  {% if producto.stock > 0 %}
+                    <button type="button" class="btn btn-sm btn-success" onclick="agregarAlCarrito({{ producto.producto_id }})">Agregar</button>
+                  {% else %}
+                    <button type="button" class="btn btn-sm btn-secondary" disabled>Sin stock</button>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -205,10 +327,57 @@
 
 {% block extra_js %}
   <script>
-    function agregarAlCarrito(productoId) {
-    // Aquí puedes implementar la lógica AJAX para agregar al carrito
-    // Por ahora, redirigimos al carrito con el ID del producto
-      window.location.href = "{% url 'carrito' %}?add=" + productoId;
-    }
+    // La función agregarAlCarrito ya está definida arriba
+    // Aquí se pueden agregar más funciones específicas del catálogo
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Manejar el envío del formulario de filtros
+      const form = document.querySelector('form[method="GET"]');
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          // Agregar indicador de carga
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            const textoOriginal = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Filtrando...';
+            submitBtn.disabled = true;
+            
+            // En caso de que la página no cambie, restaurar después de un tiempo
+            setTimeout(() => {
+              if (submitBtn) {
+                submitBtn.innerHTML = textoOriginal;
+                submitBtn.disabled = false;
+              }
+            }, 3000);
+          }
+        });
+      }
+
+      // Añadir efectos hover a las cards de productos
+      const productCards = document.querySelectorAll('.card');
+      productCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px)';
+          this.style.transition = 'transform 0.3s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+      });
+
+      // Mejorar los enlaces de categorías circulares
+      const categoryLinks = document.querySelectorAll('a[style*="border-radius:50%"]');
+      categoryLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+          this.style.transition = 'transform 0.3s ease';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+        });
+      });
+    });
   </script>
 {% endblock %}
