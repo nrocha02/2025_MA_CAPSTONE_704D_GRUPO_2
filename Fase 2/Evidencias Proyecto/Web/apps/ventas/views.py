@@ -60,6 +60,43 @@ def catalogo(request):
     }
     return render(request, 'ventas/catalogo.html', context)
 
+
+def catalogo_por_categoria(request, categoria):
+    """
+    Muestra productos según la categoría elegida:
+    - /catalogo/perro/  → Alimento para perro
+    - /catalogo/gato/   → Alimento para gato
+    - /catalogo/arena/  → Arena para gato
+    """
+
+    # Relación slug → nombre real en la base de datos
+    categoria_map = {
+        'perro': 'Alimento para perro',
+        'gato': 'Alimento para gato',
+        'arena': 'Arena para gato',
+    }
+
+    nombre_categoria = categoria_map.get(categoria.lower())
+
+    # Buscar la categoría correspondiente
+    categoria_obj = Categoria.objects.filter(nombre__iexact=nombre_categoria).first()
+
+    if categoria_obj:
+        productos = Producto.objects.filter(
+            categoria=categoria_obj,
+            estado_producto='activo'
+        ).select_related('marca')
+    else:
+        productos = Producto.objects.none()
+
+    context = {
+        'productos': productos,
+        'categoria': nombre_categoria or categoria.capitalize(),
+        'categoria_obj': categoria_obj,
+    }
+    return render(request, 'ventas/catalogo.html', context)
+
+
 def carrito(request):
     context = {}
     return render(request, 'ventas/carrito.html', context)

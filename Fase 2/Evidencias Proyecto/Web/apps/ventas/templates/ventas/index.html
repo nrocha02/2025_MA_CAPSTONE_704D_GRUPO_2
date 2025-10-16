@@ -135,7 +135,7 @@
         <!-- Botón Perro con imagen -->
       <div class="col-md-6 mb-3">
         <a
-          href="perro"
+          href="{% url 'catalogo_por_categoria' 'perro'%}"
           style="
                  display: block;
                  width: 100%;
@@ -175,7 +175,7 @@
         <!-- Botón Gato con imagen -->
       <div class="col-md-6 mb-3">
         <a
-          href="gato"
+          href="{% url 'catalogo_por_categoria' 'gato' % }"
           style="
                  display: block;
                  width: 100%;
