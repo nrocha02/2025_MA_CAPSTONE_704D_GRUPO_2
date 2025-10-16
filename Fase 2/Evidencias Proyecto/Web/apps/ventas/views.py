@@ -40,10 +40,19 @@ def catalogo(request):
     
     # Filtros opcionales
     categoria_id = request.GET.get('categoria')
+    categoria_nombre = request.GET.get('categoria_nombre')
     marca_id = request.GET.get('marca')
     
+    # Filtrar por ID de categoría
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
+    # Filtrar por nombre de categoría (para los botones de perro/gato)
+    elif categoria_nombre:
+        categoria_obj = Categoria.objects.filter(nombre__iexact=categoria_nombre, activa=True).first()
+        if categoria_obj:
+            productos = productos.filter(categoria=categoria_obj)
+            categoria_id = str(categoria_obj.categoria_id)
+    
     if marca_id:
         productos = productos.filter(marca_id=marca_id)
     
