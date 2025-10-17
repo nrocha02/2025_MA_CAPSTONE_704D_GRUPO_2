@@ -7,8 +7,8 @@ def index(request):
         estado_producto='activo'
     ).select_related('categoria', 'marca')[:8]
     
-    # Obtener marcas activas para mostrar en la página principal
-    marcas = Marca.objects.filter(activa=True)[:5]
+    # Obtener todas las marcas activas para mostrar en el carrusel
+    marcas = Marca.objects.filter(activa=True)
     
     context = {
         'productos': productos_recomendados,
