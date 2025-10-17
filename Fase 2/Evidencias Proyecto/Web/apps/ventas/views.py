@@ -104,12 +104,6 @@ def catalogo_por_categoria(request, categoria):
         'categoria_obj': categoria_obj,
     }
     return render(request, 'ventas/catalogo.html', context)
-
-
-def carrito(request):
-    context = {}
-    return render(request, 'ventas/carrito.html', context)
-
 def perro(request):
     # Productos específicos para perros
     categoria_perro = Categoria.objects.filter(nombre__icontains='perro').first()
