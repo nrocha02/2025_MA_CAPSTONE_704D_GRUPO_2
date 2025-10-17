@@ -39,19 +39,14 @@ def catalogo(request):
     ).select_related('categoria', 'marca')
     
     # Filtros opcionales
-    categoria_id = request.GET.get('categoria')
-    categoria_nombre = request.GET.get('categoria_nombre')
+    categoria_slug = request.GET.get('categoria')
     marca_id = request.GET.get('marca')
     
-    # Filtrar por ID de categoría
-    if categoria_id:
-        productos = productos.filter(categoria_id=categoria_id)
-    # Filtrar por nombre de categoría (para los botones de perro/gato)
-    elif categoria_nombre:
-        categoria_obj = Categoria.objects.filter(nombre__iexact=categoria_nombre, activa=True).first()
+    # Filtrar por slug de categoría
+    if categoria_slug:
+        categoria_obj = Categoria.objects.filter(slug=categoria_slug, activa=True).first()
         if categoria_obj:
             productos = productos.filter(categoria=categoria_obj)
-            categoria_id = str(categoria_obj.categoria_id)
     
     if marca_id:
         productos = productos.filter(marca_id=marca_id)
@@ -64,89 +59,7 @@ def catalogo(request):
         'productos': productos,
         'categorias': categorias,
         'marcas': marcas,
-        'categoria_seleccionada': categoria_id,
+        'categoria_seleccionada': categoria_slug,
         'marca_seleccionada': marca_id,
     }
     return render(request, 'ventas/catalogo.html', context)
-
-
-def catalogo_por_categoria(request, categoria):
-    """
-    Muestra productos según la categoría elegida:
-    - /catalogo/perro/  → Alimento para perro
-    - /catalogo/gato/   → Alimento para gato
-    - /catalogo/arena/  → Arena para gato
-    """
-
-    # Relación slug → nombre real en la base de datos
-    categoria_map = {
-        'perro': 'Alimento para perro',
-        'gato': 'Alimento para gato',
-        'arena': 'Arena para gato',
-    }
-
-    nombre_categoria = categoria_map.get(categoria.lower())
-
-    # Buscar la categoría correspondiente
-    categoria_obj = Categoria.objects.filter(nombre__iexact=nombre_categoria).first()
-
-    if categoria_obj:
-        productos = Producto.objects.filter(
-            categoria=categoria_obj,
-            estado_producto='activo'
-        ).select_related('marca')
-    else:
-        productos = Producto.objects.none()
-
-    context = {
-        'productos': productos,
-        'categoria': nombre_categoria or categoria.capitalize(),
-        'categoria_obj': categoria_obj,
-    }
-    return render(request, 'ventas/catalogo.html', context)
-def perro(request):
-    # Productos específicos para perros
-    categoria_perro = Categoria.objects.filter(nombre__icontains='perro').first()
-    productos_perro = Producto.objects.filter(
-        categoria=categoria_perro,
-        estado_producto='activo'
-    ).select_related('marca') if categoria_perro else Producto.objects.none()
-    
-    context = {
-        'productos': productos_perro,
-        'categoria': 'Perro',
-        'categoria_obj': categoria_perro,
-    }
-    return render(request, 'ventas/perro.html', context)
-
-def gato(request):
-    # Productos específicos para gatos
-    categoria_gato = Categoria.objects.filter(nombre__icontains='gato').first()
-    productos_gato = Producto.objects.filter(
-        categoria=categoria_gato,
-        estado_producto='activo'
-    ).select_related('marca') if categoria_gato else Producto.objects.none()
-    
-    context = {
-        'productos': productos_gato,
-        'categoria': 'Gato',
-        'categoria_obj': categoria_gato,
-    }
-    return render(request, 'ventas/gato.html', context)
-
-def arena(request):
-    # Productos específicos para arenas sanitarias
-    categoria_arena = Categoria.objects.filter(nombre__icontains='arena').first()
-    productos_arena = Producto.objects.filter(
-        categoria=categoria_arena,
-        estado_producto='activo'
-    ).select_related('marca') if categoria_arena else Producto.objects.none()
-    
-    context = {
-        'productos': productos_arena,
-        'categoria': 'Arena Sanitaria',
-        'categoria_obj': categoria_arena,
-    }
-    return render(request, 'ventas/arena.html', context)
-
-

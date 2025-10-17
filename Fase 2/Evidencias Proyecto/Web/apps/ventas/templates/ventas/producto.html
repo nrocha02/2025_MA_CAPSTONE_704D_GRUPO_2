@@ -11,7 +11,7 @@
       <a href="{% url 'index' %}">Inicio</a> /
       <a href="{% url 'catalogo' %}">Catálogo</a> /
       <a
-        href="{% url 'catalogo' %}?categoria={{ producto.categoria.categoria_id }}"
+        href="{% url 'catalogo' %}?categoria={{ producto.categoria.slug }}"
       >{{ producto.categoria.nombre }}</a
         >
         / {{ producto.nombre }}

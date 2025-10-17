@@ -83,8 +83,8 @@
             <select name="categoria" class="form-select" style="width: auto;">
               <option value="">Todas las categorías</option>
               {% for categoria in categorias %}
-                <option value="{{ categoria.categoria_id }}"
-                        {% if categoria_seleccionada == categoria.categoria_id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ categoria.slug }}"
+                        {% if categoria_seleccionada == categoria.slug %}selected{% endif %}>
                   {{ categoria.nombre }}
                 </option>
               {% endfor %}
