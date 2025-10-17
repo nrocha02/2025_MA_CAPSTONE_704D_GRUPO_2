@@ -1,7 +1,8 @@
 {% extends "ventas/ventas_base.html" %}
 {% load static %}
+{% load image_tags %}
 
-{% block title %}Cordillera Pets - Tienda Online{% endblock %}
+{% block title %}Inicio - Cordillera Pets{% endblock %}
 
 {% block content %}
 
@@ -100,7 +101,7 @@
                   >
                     {% if i.logo_url %}
                       <img
-                        src="{% static i.logo_url %}"
+                        src="{% product_image_url i.logo_url %}"
                         alt="{{ i.nombre }}"
                         style="width: 100%; height: 100%; object-fit: cover"
                       />

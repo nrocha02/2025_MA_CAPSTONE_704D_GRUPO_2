@@ -1,5 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load image_tags %}
 
 {% block title %}{{ titulo }} - Cordillera Pets{% endblock %}
 
@@ -108,7 +109,7 @@
                 <tr>
                   <td>
                     {% if producto.imagen_url %}
-                      <img src="{% static producto.imagen_url %}" alt="{{ producto.nombre }}"
+                      <img src="{% product_image_url producto.imagen_url %}" alt="{{ producto.nombre }}"
                            class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
                     {% else %}
                       <div class="bg-light d-flex align-items-center justify-content-center"

@@ -222,6 +222,7 @@ class Producto(models.Model):
     fecha_creation = models.DateTimeField(auto_now_add=True)
     estado_producto = models.CharField(max_length=50, default='activo')  # enum estado_producto
     marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, blank=True, null=True)
+    slug = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         db_table = 'producto'
