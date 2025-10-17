@@ -16,10 +16,15 @@
   </head>
   <body class="bg-light">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container{% block navbar_container_class %}{% endblock %}">
-        <a class="navbar-brand" href="{% url 'dashboard:admin_dashboard' %}">
-          <i class="fas fa-cog"></i> Admin Cordillera Pets
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container d-flex align-items-center{% block navbar_container_class %}{% endblock %}">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard:admin_dashboard' %}">
+          <img
+          src="{% static 'blog/images/inicio/logo1.png' %}"
+          style="width: 60px; height: auto; float: left; margin-right: 10px"
+          alt="logo"
+        />
+            <span class="fw-bold fs-5"></span> Admin Cordillera Pets
         </a>
 
         {% block navbar_content %}

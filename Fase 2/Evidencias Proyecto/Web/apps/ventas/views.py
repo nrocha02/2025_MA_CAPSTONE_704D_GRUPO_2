@@ -7,8 +7,8 @@ def index(request):
         estado_producto='activo'
     ).select_related('categoria', 'marca')[:8]
     
-    # Obtener marcas activas para mostrar en la página principal
-    marcas = Marca.objects.filter(activa=True)[:5]
+    # Obtener todas las marcas activas para mostrar en el carrusel
+    marcas = Marca.objects.filter(activa=True)
     
     context = {
         'productos': productos_recomendados,
@@ -39,11 +39,15 @@ def catalogo(request):
     ).select_related('categoria', 'marca')
     
     # Filtros opcionales
-    categoria_id = request.GET.get('categoria')
+    categoria_slug = request.GET.get('categoria')
     marca_id = request.GET.get('marca')
     
-    if categoria_id:
-        productos = productos.filter(categoria_id=categoria_id)
+    # Filtrar por slug de categoría
+    if categoria_slug:
+        categoria_obj = Categoria.objects.filter(slug=categoria_slug, activa=True).first()
+        if categoria_obj:
+            productos = productos.filter(categoria=categoria_obj)
+    
     if marca_id:
         productos = productos.filter(marca_id=marca_id)
     
@@ -55,54 +59,7 @@ def catalogo(request):
         'productos': productos,
         'categorias': categorias,
         'marcas': marcas,
-        'categoria_seleccionada': categoria_id,
+        'categoria_seleccionada': categoria_slug,
         'marca_seleccionada': marca_id,
     }
     return render(request, 'ventas/catalogo.html', context)
-
-def perro(request):
-    # Productos específicos para perros
-    categoria_perro = Categoria.objects.filter(nombre__icontains='perro').first()
-    productos_perro = Producto.objects.filter(
-        categoria=categoria_perro,
-        estado_producto='activo'
-    ).select_related('marca') if categoria_perro else Producto.objects.none()
-    
-    context = {
-        'productos': productos_perro,
-        'categoria': 'Perro',
-        'categoria_obj': categoria_perro,
-    }
-    return render(request, 'ventas/perro.html', context)
-
-def gato(request):
-    # Productos específicos para gatos
-    categoria_gato = Categoria.objects.filter(nombre__icontains='gato').first()
-    productos_gato = Producto.objects.filter(
-        categoria=categoria_gato,
-        estado_producto='activo'
-    ).select_related('marca') if categoria_gato else Producto.objects.none()
-    
-    context = {
-        'productos': productos_gato,
-        'categoria': 'Gato',
-        'categoria_obj': categoria_gato,
-    }
-    return render(request, 'ventas/gato.html', context)
-
-def arena(request):
-    # Productos específicos para arenas sanitarias
-    categoria_arena = Categoria.objects.filter(nombre__icontains='arena').first()
-    productos_arena = Producto.objects.filter(
-        categoria=categoria_arena,
-        estado_producto='activo'
-    ).select_related('marca') if categoria_arena else Producto.objects.none()
-    
-    context = {
-        'productos': productos_arena,
-        'categoria': 'Arena Sanitaria',
-        'categoria_obj': categoria_arena,
-    }
-    return render(request, 'ventas/arena.html', context)
-
-

@@ -7,18 +7,65 @@
 
 {% block content %}
 
-<!----- Migas de pan -
-<div class="container mt-3">
-  <small><a href="/">Home</a> / {{ categoria }}</small>
-</div
 
- Imagen destacada estilo banner largo -->
-  <div style="width: 100%; max-width: 1200px; margin: 20px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
-    <img src="{% static 'blog/images/catalogo/catalogo1.png' %}"
-         alt="Promoción"
-         style="width: 100%; height: 400px; object-fit: cover; display: block;">
+    <!-- Carrusel de imágenes -->
+  <div
+    id="carouselExampleControls"
+    class="carousel slide"
+    data-bs-ride="carousel"
+    style="
+           width: 100%;
+           max-width: 1200px;
+           margin: 30px auto;
+           border-radius: 15px;
+           overflow: hidden;
+           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+          "
+  >
+    <div class="carousel-inner">
+        <!-- Slide 1 -->
+      <div class="carousel-item active" data-bs-interval="4000">
+        <a href="#">
+          <img
+            src="{% static 'blog/images/inicio/pitbull.png' %}"
+            class="d-block w-100"
+            alt="Promoción"
+            style="height: 400px; object-fit: cover"
+          />
+        </a>
+      </div>
+
+        <!-- Slide 2 -->
+      <div class="carousel-item" data-bs-interval="4000">
+        <img
+          src="{% static 'blog/images/inicio/michi.png' %}"
+          class="d-block w-100"
+          alt="Promoción"
+          style="height: 400px; object-fit: cover"
+        />
+      </div>
+    </div>
+
+      <!-- Controles -->
+    <button
+      class="carousel-control-prev"
+      type="button"
+      data-bs-target="#carouselExampleControls"
+      data-bs-slide="prev"
+    >
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Anterior</span>
+    </button>
+    <button
+      class="carousel-control-next"
+      type="button"
+      data-bs-target="#carouselExampleControls"
+      data-bs-slide="next"
+    >
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Siguiente</span>
+    </button>
   </div>
-
 
 <!-- Subcategorías -->
   <div class="container text-center my-5">
@@ -28,53 +75,6 @@
       </div>
     </div>
 
-<!-- Marcas como botones -->
-    <div class="container my-4">
-      <div class="d-flex justify-content-center flex-wrap">
-
-        <div>
-          <a href="" class="m-3"
-             style="width:150px; height:150px; border-radius:50%; overflow:hidden;
-                    box-shadow:0 4px 10px rgba(0,0,0,0.2); display:block;">
-            <img src="{% static 'blog/images/catalogo/alimento1.png' %}" alt=""
-                 style="width:100%; height:100%; object-fit:cover;">
-          </a>
-          <p style="margin-top:10px; font-weight:bold;">Alimento Perro</p>
-        </div>
-
-        <div><a href="" class="m-3"
-                style="width:150px; height:150px; border-radius:50%; overflow:hidden;
-                       box-shadow:0 4px 10px rgba(0,0,0,0.2); display:block;">
-          <img src="{% static 'blog/images/catalogo/gato.png' %}" alt=""
-               style="width:100%; height:100%; object-fit:cover;">
-        </a>
-          <p style="margin-top:10px; font-weight:bold;">Alimento Gato</p>
-        </div>
-
-        <div>
-          <a href="" class="m-3"
-             style="width:150px; height:150px; border-radius:50%; overflow:hidden;
-                    box-shadow:0 4px 10px rgba(0,0,0,0.2); display:block;">
-            <img src="{% static 'blog/images/catalogo/arena.png' %}" alt=""
-                 style="width:100%; height:100%; object-fit:cover;">
-          </a>
-          <p style="margin-top:10px; font-weight:bold;">Arena Sanitaria</p>
-        </div>
-
-        <div>
-          <a href="" class="m-3"
-             style="width:150px; height:150px; border-radius:50%; overflow:hidden;
-                    box-shadow:0 4px 10px rgba(0,0,0,0.2); display:block;">
-            <img src="{% static 'blog/images/catalogo/juguete1.png' %}" alt=""
-                 style="width:100%; height:100%; object-fit:cover;">
-          </a>
-          <p style="margin-top:10px; font-weight:bold;">Juguetes & Accesorio</p>
-        </div>
-      </div>
-    </div>
-
-
-
 <!-- Filtros -->
     <div class="container my-4">
       <div class="row">
@@ -83,8 +83,8 @@
             <select name="categoria" class="form-select" style="width: auto;">
               <option value="">Todas las categorías</option>
               {% for categoria in categorias %}
-                <option value="{{ categoria.categoria_id }}"
-                        {% if categoria_seleccionada == categoria.categoria_id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ categoria.slug }}"
+                        {% if categoria_seleccionada == categoria.slug %}selected{% endif %}>
                   {{ categoria.nombre }}
                 </option>
               {% endfor %}
