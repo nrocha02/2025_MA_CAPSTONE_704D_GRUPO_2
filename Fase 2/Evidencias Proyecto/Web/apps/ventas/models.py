@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models import Q
+from django.contrib.auth.models import User, AbstractUser
+
 
 """
 Importante:
@@ -10,6 +12,10 @@ Importante:
  - Las constraints complejas se replican con CheckConstraint y UniqueConstraint cuando es posible.
 """
 
+# class User(AbstractUser):
+#     email = models.EmailField('email address', unique=True)
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = ['username']
 
 class ClienteEmpresa(models.Model):
     cliente_empresa_id = models.AutoField(primary_key=True)
@@ -44,6 +50,9 @@ class ClientePersona(models.Model):
     fecha_nacimiento = models.DateField()
     fecha_registro = models.DateTimeField(auto_now_add=True)
     estado = models.BooleanField(default=True)
+    password = models.CharField()
+#    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
 
     class Meta:
         db_table = 'cliente_persona'

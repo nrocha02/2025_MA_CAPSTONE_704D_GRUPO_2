@@ -10,4 +10,8 @@ urlpatterns = [
     path("perro/", views.perro, name="perro"),
     path("gato/", views.gato, name="gato"),
     path("arena/", views.arena, name="arena"),
+    path("iniciosesion/", views.iniciosesion, name="iniciosesion"),
+    path("registro/", views.registro_view, name="registro"),
+
 ]
+ 
