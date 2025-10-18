@@ -1,5 +1,6 @@
 {% extends "ventas/ventas_base.html" %}
 {% load static %}
+{% load image_tags %}
 
 {% block title %}Productos para Perros - Cordillera Pets{% endblock %}
 
@@ -46,7 +47,7 @@
                 <div class="card-body text-dark">
                   <div class="img-area mb-4">
                     {% if producto.imagen_url %}
-                      <img src="{% static producto.imagen_url %}" alt="{{ producto.nombre }}" width="200" height="200" style="object-fit: cover;">
+                      <img src="{% product_image_url producto.imagen_url %}" alt="{{ producto.nombre }}" width="200" height="200" style="object-fit: cover;">
                     {% else %}
                       <div class="d-flex align-items-center justify-content-center bg-light" style="width: 200px; height: 200px; margin: 0 auto;">
                         <span class="text-muted">Sin imagen</span>

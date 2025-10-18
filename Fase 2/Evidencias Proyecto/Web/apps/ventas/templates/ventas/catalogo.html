@@ -1,5 +1,6 @@
 {% extends "ventas/ventas_base.html" %}
 {% load static %}
+{% load image_tags %}
 
 {% block title %}Catálogo - Cordillera Pets{% endblock %}
 
@@ -122,7 +123,7 @@
                 <div class="card-body text-dark">
                   <div class="img-area mb-4">
                     {% if producto.imagen_url %}
-                      <img src="{% static producto.imagen_url %}" alt="{{ producto.nombre }}" width="200" height="200" style="object-fit: cover;">
+                      <img src="{% product_image_url producto.imagen_url %}" alt="{{ producto.nombre }}" width="200" height="200" style="object-fit: cover;">
                     {% else %}
                       <div class="d-flex align-items-center justify-content-center bg-light" style="width: 200px; height: 200px; margin: 0 auto;">
                         <span class="text-muted">Sin imagen</span>
@@ -300,7 +301,7 @@
             <div class="col-6 col-md-3 mb-3">
               <div class="card shadow-sm h-100">
                 {% if producto.imagen_url %}
-                  <img src="{% static producto.imagen_url %}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 150px; object-fit: cover;">
+                  <img src="{% product_image_url producto.imagen_url %}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 150px; object-fit: cover;">
                 {% else %}
                   <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 150px;">
                     <span class="text-muted">Sin imagen</span>
