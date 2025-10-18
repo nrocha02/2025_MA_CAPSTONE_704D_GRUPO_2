@@ -15,6 +15,7 @@ dependencies = [
     "psycopg[binary] (>=3.2.10,<4.0.0)",
     "django-bootstrap5 (>=25.2,<26.0)",
     "python-dotenv (>=1.0.0,<2.0.0)",
+    "boto3 (>=1.40.55,<2.0.0)",
 ]
 
 

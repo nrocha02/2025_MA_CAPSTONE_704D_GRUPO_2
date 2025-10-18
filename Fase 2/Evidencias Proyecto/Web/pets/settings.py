@@ -139,3 +139,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # URL base del Space de DigitalOcean donde están almacenadas las imágenes
 DO_SPACES_URL = os.getenv('DO_SPACES_URL', '')
 DO_SPACES_CDN_URL = os.getenv('DO_SPACES_CDN_URL', '')
+
+# Credenciales para subir archivos (solo necesarias para carga desde dashboard)
+DO_SPACES_ACCESS_KEY = os.getenv('DO_SPACES_ACCESS_KEY', '')
+DO_SPACES_SECRET_KEY = os.getenv('DO_SPACES_SECRET_KEY', '')
+DO_SPACES_BUCKET = os.getenv('DO_SPACES_BUCKET', '')
+DO_SPACES_REGION = os.getenv('DO_SPACES_REGION', 'nyc3')

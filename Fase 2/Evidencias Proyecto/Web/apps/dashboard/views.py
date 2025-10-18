@@ -2,6 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from apps.ventas.models import Producto, Categoria, Marca
+from .storage import upload_product_image, delete_product_image, is_spaces_configured
+import logging
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 
 
 def admin_dashboard(request):
@@ -211,11 +216,34 @@ def producto_create(request):
     """Crear nuevo producto"""
     if request.method == 'POST':
         try:
+            logger.info("Iniciando creación de producto")
+            
             categoria_id = request.POST.get('categoria')
             marca_id = request.POST.get('marca')
             
             categoria = Categoria.objects.get(categoria_id=categoria_id)
             marca = Marca.objects.get(marca_id=marca_id) if marca_id else None
+            
+            # Manejar imagen subida
+            imagen_url = ''
+            
+            if 'imagen_file' in request.FILES:
+                imagen_file = request.FILES['imagen_file']
+                logger.info(f"Archivo de imagen recibido: {imagen_file.name}, tamaño: {imagen_file.size} bytes")
+                
+                # Subir a DigitalOcean Spaces (siempre sin timestamp, solo slug)
+                result = upload_product_image(imagen_file, use_unique_name=False)
+                
+                if result['success']:
+                    # Guardar solo la ruta relativa (productos/nombre.jpg)
+                    imagen_url = result['path']
+                    logger.info(f"Imagen subida exitosamente: {result['path']}")
+                    messages.success(request, f'Imagen subida exitosamente: {result["path"]}')
+                else:
+                    logger.error(f"Error al subir imagen: {result['message']}")
+                    messages.warning(request, f'No se pudo subir la imagen: {result["message"]}')
+            else:
+                logger.info("No se recibió archivo de imagen")
             
             producto = Producto.objects.create(
                 categoria=categoria,
@@ -225,14 +253,16 @@ def producto_create(request):
                 descripcion=request.POST.get('descripcion', ''),
                 precio=int(request.POST.get('precio')),
                 stock=int(request.POST.get('stock', 0)),
-                imagen_url=request.POST.get('imagen_url', ''),
+                imagen_url=imagen_url,
                 estado_producto='activo'
             )
             
+            logger.info(f"Producto creado exitosamente: {producto.nombre} (ID: {producto.producto_id})")
             messages.success(request, f'Producto "{producto.nombre}" creado exitosamente.')
             return redirect('dashboard:producto_list')
             
         except Exception as e:
+            logger.error(f"Error al crear producto: {str(e)}", exc_info=True)
             messages.error(request, f'Error al crear producto: {str(e)}')
     
     categorias = Categoria.objects.filter(activa=True)
@@ -252,6 +282,8 @@ def producto_edit(request, producto_id):
     
     if request.method == 'POST':
         try:
+            logger.info(f"Iniciando edición de producto: {producto.nombre} (ID: {producto_id})")
+            
             categoria_id = request.POST.get('categoria')
             marca_id = request.POST.get('marca')
             
@@ -262,15 +294,64 @@ def producto_edit(request, producto_id):
             producto.descripcion = request.POST.get('descripcion', '')
             producto.precio = int(request.POST.get('precio'))
             producto.stock = int(request.POST.get('stock', 0))
-            producto.imagen_url = request.POST.get('imagen_url', '')
             producto.estado_producto = request.POST.get('estado_producto')
+            
+            # Verificar si se solicita eliminar la imagen actual
+            eliminar_imagen = request.POST.get('eliminar_imagen') == 'true'
+            
+            if eliminar_imagen and producto.imagen_url:
+                logger.info(f"Solicitud de eliminar imagen actual: {producto.imagen_url}")
+                imagen_a_eliminar = producto.imagen_url
+                
+                # Eliminar imagen del storage
+                delete_result = delete_product_image(imagen_a_eliminar)
+                if delete_result['success']:
+                    logger.info(f"Imagen eliminada exitosamente: {imagen_a_eliminar}")
+                    messages.info(request, f'Imagen eliminada: {imagen_a_eliminar}')
+                    producto.imagen_url = ''
+                else:
+                    logger.warning(f"No se pudo eliminar imagen: {delete_result['message']}")
+                    messages.warning(request, f'No se pudo eliminar la imagen: {delete_result["message"]}')
+            
+            # Manejar imagen subida (solo si no se eliminó o si se sube una nueva)
+            elif 'imagen_file' in request.FILES:
+                imagen_file = request.FILES['imagen_file']
+                logger.info(f"Nueva imagen recibida: {imagen_file.name}, tamaño: {imagen_file.size} bytes")
+                
+                # Guardar la imagen anterior para eliminarla después
+                imagen_anterior = producto.imagen_url
+                logger.info(f"Imagen anterior a eliminar: {imagen_anterior}")
+                
+                # Subir a DigitalOcean Spaces (siempre sin timestamp, solo slug)
+                result = upload_product_image(imagen_file, use_unique_name=False)
+                
+                if result['success']:
+                    # Actualizar con la nueva ruta
+                    producto.imagen_url = result['path']
+                    logger.info(f"Nueva imagen subida: {result['path']}")
+                    messages.success(request, f'Nueva imagen subida: {result["path"]}')
+                    
+                    # Eliminar la imagen anterior si existe y es diferente
+                    if imagen_anterior and imagen_anterior != result['path']:
+                        logger.info(f"Intentando eliminar imagen anterior: {imagen_anterior}")
+                        delete_result = delete_product_image(imagen_anterior)
+                        if delete_result['success']:
+                            logger.info(f"Imagen anterior eliminada: {imagen_anterior}")
+                            messages.info(request, f'Imagen anterior eliminada: {imagen_anterior}')
+                        else:
+                            logger.warning(f"No se pudo eliminar imagen anterior: {delete_result['message']}")
+                else:
+                    logger.error(f"Error al subir nueva imagen: {result['message']}")
+                    messages.warning(request, f'No se pudo subir la nueva imagen: {result["message"]}')
             
             producto.save()
             
+            logger.info(f"Producto actualizado exitosamente: {producto.nombre}")
             messages.success(request, f'Producto "{producto.nombre}" actualizado exitosamente.')
             return redirect('dashboard:producto_list')
             
         except Exception as e:
+            logger.error(f"Error al actualizar producto: {str(e)}", exc_info=True)
             messages.error(request, f'Error al actualizar producto: {str(e)}')
     
     categorias = Categoria.objects.filter(activa=True)
@@ -292,9 +373,28 @@ def producto_delete(request, producto_id):
     if request.method == 'POST':
         try:
             nombre = producto.nombre
+            imagen_url = producto.imagen_url
+            
+            logger.info(f"Eliminando producto: {nombre} (ID: {producto_id})")
+            
+            # Eliminar producto de la base de datos
             producto.delete()
+            logger.info(f"Producto eliminado de la base de datos: {nombre}")
+            
+            # Eliminar imagen de Spaces si existe
+            if imagen_url:
+                logger.info(f"Intentando eliminar imagen del storage: {imagen_url}")
+                delete_result = delete_product_image(imagen_url)
+                if delete_result['success']:
+                    logger.info(f"Imagen eliminada del storage: {imagen_url}")
+                    messages.info(request, f'Imagen eliminada: {imagen_url}')
+                else:
+                    logger.warning(f"No se pudo eliminar imagen: {delete_result['message']}")
+                    # No mostramos error al usuario porque el producto ya fue eliminado
+            
             messages.success(request, f'Producto "{nombre}" eliminado exitosamente.')
         except Exception as e:
+            logger.error(f"Error al eliminar producto: {str(e)}", exc_info=True)
             messages.error(request, f'Error al eliminar producto: {str(e)}')
         
         return redirect('dashboard:producto_list')
