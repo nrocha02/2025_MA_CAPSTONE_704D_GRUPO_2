@@ -45,28 +45,16 @@
           <form method="post">
             {% csrf_token %}
 
-            <div class="row mb-3">
-              <div class="col-md-8">
-                <label for="nombre" class="form-label">Nombre *</label>
-                <input type="text"
-                       class="form-control"
-                       id="nombre"
-                       name="nombre"
-                       value="{{ categoria.nombre|default:'' }}"
-                       required
-                       maxlength="50">
-                <div class="form-text">Nombre descriptivo de la categoría</div>
-              </div>
-              <div class="col-md-4">
-                <label for="slug" class="form-label">Slug</label>
-                <input type="text"
-                       class="form-control"
-                       id="slug"
-                       name="slug"
-                       value="{{ categoria.slug|default:'' }}"
-                       maxlength="50">
-                <div class="form-text">URL amigable (opcional)</div>
-              </div>
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre *</label>
+              <input type="text"
+                     class="form-control"
+                     id="nombre"
+                     name="nombre"
+                     value="{{ categoria.nombre|default:'' }}"
+                     required
+                     maxlength="50">
+              <div class="form-text">Nombre descriptivo de la categoría</div>
             </div>
 
             <div class="mb-3">
@@ -151,7 +139,7 @@
             <li>Usa nombres claros y descriptivos</li>
             <li>Las categorías nivel 1 son las principales</li>
             <li>Las subcategorías ayudan a organizar mejor</li>
-            <li>El slug se usa para URLs amigables</li>
+            <li>El slug se genera automáticamente del nombre</li>
           </ul>
 
           <hr>
@@ -190,17 +178,4 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-// Auto-generar slug basado en el nombre
-    document.getElementById('nombre').addEventListener('input', function() {
-      const slug = this.value
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-
-      document.getElementById('slug').value = slug;
-    });
-  </script>
 {% endblock %}

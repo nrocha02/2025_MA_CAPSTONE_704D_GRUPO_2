@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.utils.text import slugify
 from apps.ventas.models import Producto, Categoria, Marca
 from .storage import upload_product_image, delete_product_image, is_spaces_configured
 import logging
@@ -64,7 +65,6 @@ def categoria_create(request):
             nombre = request.POST.get('nombre')
             descripcion = request.POST.get('descripcion', '')
             categoria_padre_id = request.POST.get('categoria_padre')
-            slug = request.POST.get('slug', '')
             
             # Determinar el nivel
             nivel = 1
@@ -78,7 +78,7 @@ def categoria_create(request):
                 descripcion=descripcion,
                 categoria_padre=categoria_padre,
                 nivel=nivel,
-                slug=slug,
+                slug=slugify(nombre),
                 activa=True
             )
             
@@ -104,9 +104,11 @@ def categoria_edit(request, categoria_id):
     
     if request.method == 'POST':
         try:
-            categoria.nombre = request.POST.get('nombre')
+            nombre = request.POST.get('nombre')
+            
+            categoria.nombre = nombre
             categoria.descripcion = request.POST.get('descripcion', '')
-            categoria.slug = request.POST.get('slug', '')
+            categoria.slug = slugify(nombre)
             categoria.activa = request.POST.get('activa') == 'on'
             
             # Si cambia la categoría padre, actualizar nivel
@@ -245,16 +247,19 @@ def producto_create(request):
             else:
                 logger.info("No se recibió archivo de imagen")
             
+            nombre = request.POST.get('nombre')
+            
             producto = Producto.objects.create(
                 categoria=categoria,
                 marca=marca,
                 sku=request.POST.get('sku'),
-                nombre=request.POST.get('nombre'),
+                nombre=nombre,
                 descripcion=request.POST.get('descripcion', ''),
                 precio=int(request.POST.get('precio')),
                 stock=int(request.POST.get('stock', 0)),
                 imagen_url=imagen_url,
-                estado_producto='activo'
+                estado_producto='activo',
+                slug=slugify(nombre)
             )
             
             logger.info(f"Producto creado exitosamente: {producto.nombre} (ID: {producto.producto_id})")
@@ -287,14 +292,17 @@ def producto_edit(request, producto_id):
             categoria_id = request.POST.get('categoria')
             marca_id = request.POST.get('marca')
             
+            nombre = request.POST.get('nombre')
+            
             producto.categoria = Categoria.objects.get(categoria_id=categoria_id)
             producto.marca = Marca.objects.get(marca_id=marca_id) if marca_id else None
             producto.sku = request.POST.get('sku')
-            producto.nombre = request.POST.get('nombre')
+            producto.nombre = nombre
             producto.descripcion = request.POST.get('descripcion', '')
             producto.precio = int(request.POST.get('precio'))
             producto.stock = int(request.POST.get('stock', 0))
             producto.estado_producto = request.POST.get('estado_producto')
+            producto.slug = slugify(nombre)
             
             # Verificar si se solicita eliminar la imagen actual
             eliminar_imagen = request.POST.get('eliminar_imagen') == 'true'
