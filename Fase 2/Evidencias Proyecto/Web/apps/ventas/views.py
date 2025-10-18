@@ -1,5 +1,12 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Producto, Categoria, Marca
+import hashlib
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout as login_aut
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.contrib.auth.forms import UserCreationForm
+from .models import *
 
 def index(request):
     # Obtener productos recomendados (los primeros 8 productos activos)

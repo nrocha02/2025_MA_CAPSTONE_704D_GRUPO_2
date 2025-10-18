@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'apps.carrito'
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -122,6 +123,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'apps.ventas.auth_backends.ClientePersonaBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Keep default backend as fallback
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
