@@ -70,3 +70,61 @@ def catalogo(request):
         'marca_seleccionada': marca_id,
     }
     return render(request, 'ventas/catalogo.html', context)
+
+def iniciosesion(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')  # Email o RUT
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'¡Bienvenido, {user.first_name}!')
+            return redirect ('index')
+        else:
+            print(messages.error(request, 'Usuario o Contraseña Incorrecta'))
+
+    return render(request, 'ventas/iniciosesion.html')
+
+def registro_view(request):
+    """Vista para registro de nuevos clientes"""
+    if request.method == 'POST':
+
+        rut = request.POST.get('rut')
+        nombres = request.POST.get('nombres')
+        apellido_paterno = request.POST.get('apellido_paterno')
+        apellido_materno = request.POST.get('apellido_materno')
+        email = request.POST.get('email')
+        telefono = request.POST.get('telefono')
+        fecha_nacimiento = request.POST.get('fecha_nacimiento')
+        password = request.POST.get('password')
+
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+
+        if ClientePersona.objects.filter(rut=rut).exists():
+            messages.error(request, 'Ya existe un cliente con este RUT.')
+        elif ClientePersona.objects.filter(email=email).exists():
+            messages.error(request, 'Ya existe un cliente con este email.')
+        else:
+            try:
+                # Crear nuevo cliente
+                cliente = ClientePersona.objects.create(
+                    rut=rut,
+                    nombres=nombres,
+                    apellido_paterno=apellido_paterno,
+                    apellido_materno=apellido_materno,
+                    email=email,
+                    telefono=telefono,
+                    fecha_nacimiento=fecha_nacimiento,
+                    estado=True,
+                    password=password_hash
+                )
+
+                messages.success(request, 'Cliente registrado exitosamente. Ya puede iniciar sesión.')
+                return redirect('login')
+
+            except Exception as e:
+                messages.error(request, f'Error al registrar cliente: {str(e)}')
+
+    return render(request, 'ventas/registro.html')
