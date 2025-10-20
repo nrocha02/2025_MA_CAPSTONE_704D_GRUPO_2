@@ -120,12 +120,12 @@
     <h2>Iniciar Sesión</h2>
     <form action="{%url 'iniciosesion'%}" method="POST">
         {%csrf_token%}
-      <input type="text" name="username" id="username" placeholder="Nombre de usuario" required>
+      <input type="text" name="username" id="username" placeholder="Email" required>
       <input type="password" name="password" id="password" placeholder="Contraseña" required>
       <button type="submit">Ingresar</button>
     </form>
     <a href="#">¿Olvidaste tu contraseña?</a>
-    <a href="#">Crear una cuenta nueva</a>
+    <a href="{% url 'registro' %}">Crear una cuenta nueva</a>
   </div>
 
   <!-- Bootstrap JS (opcional) -->

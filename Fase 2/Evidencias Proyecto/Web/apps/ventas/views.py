@@ -118,7 +118,7 @@ def arena(request):
 
 def iniciosesion(request):
     if request.method == 'POST':
-        username = request.POST.get('username')  # Email o RUT
+        username = request.POST.get('username')  # Email 
         password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
