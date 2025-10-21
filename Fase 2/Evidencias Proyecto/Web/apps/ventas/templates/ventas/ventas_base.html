@@ -10,11 +10,11 @@
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
-      
+
     />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'style.css' %}" />
+      <link rel="stylesheet" href="{% static 'style.css' %}" />
     {% endblock %} {% block extra_head %}{% endblock %}
   </head>
   <body>
@@ -22,7 +22,7 @@
     <div class="bg-primary text-white text-center p-1">
       <small>
         {% block top_bar_message %} Despachos gratis en comunas San Miguel,
-        Estación Central, La Florida por compras sobre $50.000 {% endblock %}
+          Estación Central, La Florida por compras sobre $50.000 {% endblock %}
       </small>
     </div>
 
@@ -55,80 +55,80 @@
             <a href="{% url 'iniciosesion' %}" class="btn btn-outline-dark me-2">Inicia sesión</a>
           {% endif %}
           <a href="{% url 'carrito:ver_carrito' %}" class="btn btn-primary"
-            >🛒 Carrito</a
-          >
+          >🛒 Carrito</a
+            >
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
     <!-- Categorías -->
-    <div class="bg-white border-top border-bottom">
-      <div class="container d-flex justify-content-center py-2">
-        <a href="#" class="mx-3 text-decoration-none fw-bold"
+      <div class="bg-white border-top border-bottom">
+        <div class="container d-flex justify-content-center py-2">
+          <a href="#" class="mx-3 text-decoration-none fw-bold"
           >Perro</a
-        >
-        <a href="#" class="mx-3 text-decoration-none fw-bold"
-          >Gato</a
-        >
-        <a href="#" class="mx-3 text-decoration-none fw-bold"
-          >Arenas Sanitarias</a
-        >
-        <a href="#" class="mx-3 text-decoration-none fw-bold">Nosotros</a>
-        <a href="#" class="mx-3 text-decoration-none fw-bold">Contáctanos</a>
-      </div>
-    </div>
+            >
+            <a href="#" class="mx-3 text-decoration-none fw-bold"
+            >Gato</a
+              >
+              <a href="#" class="mx-3 text-decoration-none fw-bold"
+              >Arenas Sanitarias</a
+                >
+                <a href="#" class="mx-3 text-decoration-none fw-bold">Nosotros</a>
+                <a href="#" class="mx-3 text-decoration-none fw-bold">Contáctanos</a>
+              </div>
+            </div>
 
     <!-- Mensajes de confirmación -->
-    {% if messages %}
-    <div class="container mt-3">
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
+            {% if messages %}
+              <div class="container mt-3">
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
 
     <!-- Contenido principal -->
-    <main>{% block content %} {% endblock %}</main>
+            <main>{% block content %} {% endblock %}</main>
 
     <!-- Footer -->
-    <footer class="bg-light border-top mt-5 py-4">
-      <div class="container d-flex flex-wrap justify-content-between">
-        <div>
-          <h6>Productos</h6>
-          <a href="#" class="d-block text-muted">Perros</a>
-          <a href="#" class="d-block text-muted">Gatos</a>
-          <a href="#" class="d-block text-muted"
-            >Arenas Sanitarias</a
-          >
-        </div>
-        <div>
-          <h6>Mi cuenta</h6>
-          <a href="#" class="d-block text-muted">Entrar a mi cuenta</a>
-          <a href="#" class="d-block text-muted">Mis pedidos</a>
-        </div>
-        <div>
-          <h6>Nosotros</h6>
-          <a href="#" class="d-block text-muted">Quiénes somos</a>
-          <a href="#" class="d-block text-muted">Trabaja con nosotros</a>
-          <a href="#" class="d-block text-muted">Términos y condiciones</a>
-        </div>
-        <div>
-          <h6>Contacto</h6>
-          <p class="text-muted mb-1">📧 ventas@cordillerapets.cl</p>
-          <p class="text-muted mb-1">📞 +56999999999</p>
-          <p class="text-muted">📲 WhatsApp: +56999999999</p>
-        </div>
-      </div>
-      <div class="text-center mt-3">
-        <small class="text-muted">
-          © 2025 Cordillera Pets - Todos los derechos reservados
-        </small>
-      </div>
-    </footer>
+            <footer class="bg-light border-top mt-5 py-4">
+              <div class="container d-flex flex-wrap justify-content-between">
+                <div>
+                  <h6>Productos</h6>
+                  <a href="#" class="d-block text-muted">Perros</a>
+                  <a href="#" class="d-block text-muted">Gatos</a>
+                  <a href="#" class="d-block text-muted"
+                  >Arenas Sanitarias</a
+                    >
+                  </div>
+                  <div>
+                    <h6>Mi cuenta</h6>
+                    <a href="#" class="d-block text-muted">Entrar a mi cuenta</a>
+                    <a href="#" class="d-block text-muted">Mis pedidos</a>
+                  </div>
+                  <div>
+                    <h6>Nosotros</h6>
+                    <a href="#" class="d-block text-muted">Quiénes somos</a>
+                    <a href="#" class="d-block text-muted">Trabaja con nosotros</a>
+                    <a href="#" class="d-block text-muted">Términos y condiciones</a>
+                  </div>
+                  <div>
+                    <h6>Contacto</h6>
+                    <p class="text-muted mb-1">📧 ventas@cordillerapets.cl</p>
+                    <p class="text-muted mb-1">📞 +56999999999</p>
+                    <p class="text-muted">📲 WhatsApp: +56999999999</p>
+                  </div>
+                </div>
+                <div class="text-center mt-3">
+                  <small class="text-muted">
+                    © 2025 Cordillera Pets - Todos los derechos reservados
+                  </small>
+                </div>
+              </footer>
 
-    {% bootstrap_javascript %} {% block extra_js %}{% endblock %}
-  </body>
-</html>
+              {% bootstrap_javascript %} {% block extra_js %}{% endblock %}
+            </body>
+          </html>

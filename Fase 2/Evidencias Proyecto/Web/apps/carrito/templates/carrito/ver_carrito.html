@@ -260,10 +260,10 @@
         <div class="producto" data-producto-id="{{ producto.producto_id }}">
           <div class="producto-info">
             {% if producto.imagen_url %}
-              <img src="{% product_image_url producto.imagen_url %}" 
+              <img src="{% product_image_url producto.imagen_url %}"
                    alt="{{ producto.nombre }}">
             {% else %}
-              <img src="https://via.placeholder.com/80x80?text=Sin+Imagen" 
+              <img src="https://via.placeholder.com/80x80?text=Sin+Imagen"
                    alt="{{ producto.nombre }}">
             {% endif %}
             <div class="producto-detalles">
@@ -336,7 +336,7 @@
       // Mostrar spinner en el campo de cantidad
       const textoOriginal = cantidadSpan.textContent;
       cantidadSpan.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
-      
+
       // Deshabilitar botones durante la operación
       botones.forEach(btn => btn.disabled = true);
 
@@ -349,43 +349,43 @@
         },
         body: `action=post&producto_id=${productoId}&cantidad=${nuevaCantidad}`
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
           // Actualizar la cantidad mostrada
-          cantidadSpan.textContent = nuevaCantidad;
-          
+            cantidadSpan.textContent = nuevaCantidad;
+
           // Recalcular subtotal del producto
-          const precio = parseInt(productoDiv.querySelector('.precio').textContent);
-          const subtotalProducto = precio * nuevaCantidad;
-          productoDiv.querySelector('.subtotal-producto').textContent = subtotalProducto;
-          
+            const precio = parseInt(productoDiv.querySelector('.precio').textContent);
+            const subtotalProducto = precio * nuevaCantidad;
+            productoDiv.querySelector('.subtotal-producto').textContent = subtotalProducto;
+
           // Actualizar totales
-          document.getElementById('subtotal').textContent = data.subtotal;
-          document.getElementById('granTotal').textContent = data.total;
-          
+            document.getElementById('subtotal').textContent = data.subtotal;
+            document.getElementById('granTotal').textContent = data.total;
+
           // Mostrar efecto de éxito
-          cantidadSpan.style.backgroundColor = '#d4edda';
-          cantidadSpan.style.borderColor = '#28a745';
-          setTimeout(() => {
-            cantidadSpan.style.backgroundColor = 'white';
-            cantidadSpan.style.borderColor = '#ccc';
-          }, 1000);
-        } else {
+            cantidadSpan.style.backgroundColor = '#d4edda';
+            cantidadSpan.style.borderColor = '#28a745';
+            setTimeout(() => {
+              cantidadSpan.style.backgroundColor = 'white';
+              cantidadSpan.style.borderColor = '#ccc';
+            }, 1000);
+          } else {
           // Restaurar valor original en caso de error
+            cantidadSpan.textContent = textoOriginal;
+            alert('Error al actualizar la cantidad.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
           cantidadSpan.textContent = textoOriginal;
-          alert('Error al actualizar la cantidad.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        cantidadSpan.textContent = textoOriginal;
-        alert('Hubo un error al actualizar la cantidad. Inténtalo de nuevo.');
-      })
-      .finally(() => {
+          alert('Hubo un error al actualizar la cantidad. Inténtalo de nuevo.');
+        })
+        .finally(() => {
         // Rehabilitar botones
-        botones.forEach(btn => btn.disabled = false);
-      });
+          botones.forEach(btn => btn.disabled = false);
+        });
     }
 
     function eliminarProducto(productoId) {
@@ -396,14 +396,14 @@
       const productoDiv = document.querySelector(`[data-producto-id="${productoId}"]`);
       const btnEliminar = productoDiv.querySelector('.btn-eliminar');
       const todosLosBotones = productoDiv.querySelectorAll('button');
-      
+
       // Mostrar spinner en el botón eliminar
       const textoOriginalBtn = btnEliminar.innerHTML;
       btnEliminar.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
-      
+
       // Deshabilitar todos los botones del producto
       todosLosBotones.forEach(btn => btn.disabled = true);
-      
+
       // Añadir efecto visual de que se está eliminando
       productoDiv.style.opacity = '0.6';
       productoDiv.style.pointerEvents = 'none';
@@ -416,39 +416,39 @@
         },
         body: `action=post&producto_id=${productoId}`
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
           // Efecto de desvanecimiento antes de eliminar
-          productoDiv.style.transition = 'all 0.5s ease-out';
-          productoDiv.style.transform = 'scale(0.9)';
-          productoDiv.style.opacity = '0';
-          
-          setTimeout(() => {
+            productoDiv.style.transition = 'all 0.5s ease-out';
+            productoDiv.style.transform = 'scale(0.9)';
+            productoDiv.style.opacity = '0';
+
+            setTimeout(() => {
             // Eliminar el producto del DOM
-            productoDiv.remove();
-            
+              productoDiv.remove();
+
             // Si no quedan productos, recargar la página para mostrar el carrito vacío
-            if (data.total_productos === 0) {
-              location.reload();
-            } else {
+              if (data.total_productos === 0) {
+                location.reload();
+              } else {
               // Actualizar totales
-              document.getElementById('subtotal').textContent = data.subtotal;
-              document.getElementById('granTotal').textContent = data.total;
-            }
-          }, 500);
-        } else {
+                document.getElementById('subtotal').textContent = data.subtotal;
+                document.getElementById('granTotal').textContent = data.total;
+              }
+            }, 500);
+          } else {
           // Restaurar en caso de error
+            restaurarEstadoProducto();
+            alert('Error al eliminar el producto.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
           restaurarEstadoProducto();
-          alert('Error al eliminar el producto.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        restaurarEstadoProducto();
-        alert('Hubo un error al eliminar el producto. Inténtalo de nuevo.');
-      });
-      
+          alert('Hubo un error al eliminar el producto. Inténtalo de nuevo.');
+        });
+
       function restaurarEstadoProducto() {
         btnEliminar.innerHTML = textoOriginalBtn;
         todosLosBotones.forEach(btn => btn.disabled = false);

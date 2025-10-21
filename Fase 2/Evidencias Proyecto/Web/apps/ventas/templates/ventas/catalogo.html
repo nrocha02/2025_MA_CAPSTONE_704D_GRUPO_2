@@ -185,7 +185,7 @@
         // Encontrar el botón para mostrar feedback visual
         const boton = document.querySelector(`button[onclick="agregarAlCarrito(${productoId})"]`);
         const textoOriginal = boton.innerHTML;
-        
+
         // Cambiar el botón a estado de carga
         boton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Agregando...';
         boton.disabled = true;
@@ -199,38 +199,38 @@
           },
           body: `action=post&producto_id=${productoId}&cantidad=1`
         })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
             // Mostrar mensaje de éxito
-            boton.innerHTML = '✓ Agregado';
-            boton.className = 'btn btn-success btn-sm';
-            
-            // Actualizar contador del carrito si existe
-            const contadorCarrito = document.querySelector('.cart-count, .carrito-count, #cart-count');
-            if (contadorCarrito) {
-              contadorCarrito.textContent = data.total_productos;
-            }
-            
-            // Mostrar notificación
-            mostrarNotificacion(`${data.nombre_producto} agregado al carrito`, 'success');
-            
-            // Restaurar botón después de 2 segundos
-            setTimeout(() => {
-              boton.innerHTML = textoOriginal;
+              boton.innerHTML = '✓ Agregado';
               boton.className = 'btn btn-success btn-sm';
-              boton.disabled = false;
-            }, 2000);
-          } else {
-            throw new Error('Error al agregar producto');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          boton.innerHTML = textoOriginal;
-          boton.disabled = false;
-          mostrarNotificacion('Error al agregar producto al carrito', 'error');
-        });
+
+            // Actualizar contador del carrito si existe
+              const contadorCarrito = document.querySelector('.cart-count, .carrito-count, #cart-count');
+              if (contadorCarrito) {
+                contadorCarrito.textContent = data.total_productos;
+              }
+
+            // Mostrar notificación
+              mostrarNotificacion(`${data.nombre_producto} agregado al carrito`, 'success');
+
+            // Restaurar botón después de 2 segundos
+              setTimeout(() => {
+                boton.innerHTML = textoOriginal;
+                boton.className = 'btn btn-success btn-sm';
+                boton.disabled = false;
+              }, 2000);
+            } else {
+              throw new Error('Error al agregar producto');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            boton.innerHTML = textoOriginal;
+            boton.disabled = false;
+            mostrarNotificacion('Error al agregar producto al carrito', 'error');
+          });
       }
 
       function mostrarNotificacion(mensaje, tipo) {
@@ -330,7 +330,7 @@
   <script>
     // La función agregarAlCarrito ya está definida arriba
     // Aquí se pueden agregar más funciones específicas del catálogo
-    
+
     document.addEventListener('DOMContentLoaded', function() {
       // Manejar el envío del formulario de filtros
       const form = document.querySelector('form[method="GET"]');
@@ -342,7 +342,7 @@
             const textoOriginal = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Filtrando...';
             submitBtn.disabled = true;
-            
+
             // En caso de que la página no cambie, restaurar después de un tiempo
             setTimeout(() => {
               if (submitBtn) {
@@ -361,7 +361,7 @@
           this.style.transform = 'translateY(-5px)';
           this.style.transition = 'transform 0.3s ease';
         });
-        
+
         card.addEventListener('mouseleave', function() {
           this.style.transform = 'translateY(0)';
         });
@@ -374,7 +374,7 @@
           this.style.transform = 'scale(1.05)';
           this.style.transition = 'transform 0.3s ease';
         });
-        
+
         link.addEventListener('mouseleave', function() {
           this.style.transform = 'scale(1)';
         });
