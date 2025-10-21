@@ -19,8 +19,9 @@ Esta vista permite entender:
 1. [Procesos Principales](#procesos-principales)
 2. [Flujos de Trabajo](#flujos-de-trabajo)
 3. [Diagramas de Secuencia](#diagramas-de-secuencia)
-4. [Diagrama de Estados](#diagrama-de-estados)
-5. [Concurrencia y Performance](#concurrencia-y-performance)
+4. [Diagramas de Actividades](#diagramas-de-actividades)
+5. [Diagrama de Estados](#diagrama-de-estados)
+6. [Concurrencia y Performance](#concurrencia-y-performance)
 
 ---
 
@@ -156,6 +157,239 @@ carrito = {
     }
 }
 ```
+
+---
+
+## Diagramas de Actividades
+
+Los diagramas de actividades muestran el flujo de control completo de los procesos principales del sistema, incluyendo todas las decisiones, validaciones y acciones en cada fase.
+
+### Actividad: Proceso de Compra Completa
+
+📄 **[Ver diagrama completo: Proceso de Compra](./diagrama-actividad-compra-completa.md)**
+
+Flujo end-to-end desde que el cliente navega el catálogo hasta que recibe la confirmación del pedido.
+
+**Fases del proceso:**
+
+1. **Navegación y Selección**: Explorar catálogo, buscar, filtrar productos
+2. **Gestión del Carrito**: Agregar, modificar cantidades, eliminar items
+3. **Checkout**: Datos de envío (registrado o invitado)
+4. **Transacción de Stock**: Verificación y bloqueo con SELECT FOR UPDATE
+5. **Procesamiento de Pago**: Integración con Transbank
+6. **Confirmación**: Generación de documento o reversión de stock
+
+**Puntos de decisión críticos:**
+
+- ¿Stock disponible? (3 niveles de validación)
+- ¿Usuario registrado o invitado?
+- ¿Stock final disponible? (con row locks)
+- Resultado del pago: Aprobado / Rechazado / Timeout
+
+### Actividad: Gestión de Productos (Dashboard)
+
+📄 **[Ver diagrama completo: Gestión de Productos](./diagrama-actividad-gestion-productos.md)**
+
+Flujo completo de administración de productos desde el dashboard con operaciones CRUD.
+
+**Operaciones implementadas:**
+
+- **Create**: Formulario → Validación → Upload imagen (Spaces) → INSERT BD → Movimiento stock inicial
+- **Read**: Listar con filtros (categoría, marca, estado) y búsqueda (SKU, nombre)
+- **Update**: Editar datos → Cambiar imagen (opcional) → Registrar cambio de stock
+- **Delete**: Verificar dependencias → Eliminar de BD → Eliminar imagen de Spaces
+
+**Validaciones clave:**
+
+- SKU único
+- Slug único (generado automáticamente)
+- Imagen válida (formato, tamaño)
+- No eliminar productos con pedidos asociados
+
+### Actividad: Autenticación y Registro
+
+📄 **[Ver diagrama completo: Autenticación](./diagrama-actividad-autenticacion.md)**
+
+Flujos de seguridad para gestión de usuarios y accesos.
+
+**Flujos incluidos:**
+
+1. **Inicio de Sesión**:
+
+   - Validación de credenciales (email/RUT + contraseña)
+   - Protección contra fuerza bruta (máx. 5 intentos)
+   - Bloqueo temporal (15 minutos)
+   - Creación de sesión Django
+
+2. **Registro de Usuario**:
+
+   - Validación de RUT chileno (formato y dígito verificador)
+   - Validación de email único
+   - Validación de contraseña segura (8+ chars, mayúsc, minúsc, números, especiales)
+   - Hashing SHA-256
+   - Creación de cuenta
+
+3. **Recuperación de Contraseña**:
+   - Generación de token único (expira en 1 hora)
+   - Envío de email con enlace
+   - Protección contra enumeración de usuarios
+
+**Seguridad implementada:**
+
+- Hashing de contraseñas (SHA-256)
+- Límite de intentos fallidos
+- Bloqueo temporal de cuenta
+- Tokens de recuperación con expiración
+- Auditoría de accesos
+
+### Actividad: Gestión de Inventario y Stock
+
+📄 **[Ver diagrama completo: Gestión de Inventario](./diagrama-actividad-gestion-inventario.md)**
+
+Gestión completa de inventario con movimientos de stock, alertas y auditoría.
+
+**Operaciones de inventario:**
+
+1. **Consultar Inventario**:
+
+   - Listar productos con stock actual
+   - Aplicar filtros (categoría, marca, estado)
+   - Detectar productos con stock bajo
+   - Resaltar alertas
+
+2. **Registrar Ingreso**:
+
+   - Seleccionar producto
+   - Ingresar cantidad y observaciones
+   - Transacción ACID: UPDATE stock + INSERT movimiento
+
+3. **Registrar Egreso**:
+
+   - Validar stock suficiente
+   - Restar cantidad con row lock
+   - Generar alerta si stock bajo
+   - Notificar administrador
+
+4. **Ajuste de Inventario**:
+
+   - Ingresar stock real (conteo físico)
+   - Calcular diferencia (real - sistema)
+   - Registrar ajuste positivo o negativo
+   - Notificar sobre discrepancias significativas
+
+5. **Ver Historial**:
+
+   - Listar movimientos por producto
+   - Filtrar por rango de fechas
+   - Calcular estadísticas (ingresos, egresos, saldo)
+   - Exportar a Excel (opcional)
+
+6. **Configurar Stock Mínimo**:
+   - Establecer umbral de alerta por producto
+   - Sistema genera alerta automática cuando stock <= mínimo
+
+**Sistema de Alertas:**
+
+| Tipo          | Condición                   | Acción                     |
+| ------------- | --------------------------- | -------------------------- | -------------- | ----------------------- |
+| Stock Bajo    | `stock <= stock_minimo`     | Notificación a admin       |
+| Stock Crítico | `stock <= stock_minimo / 2` | Email urgente              |
+| Stock Agotado | `stock == 0`                | Cambiar estado a "agotado" |
+| Discrepancia  | `                           | ajuste                     | > 10 unidades` | Investigación requerida |
+
+**Tabla de Auditoría: MovimientoStock**
+
+```python
+class MovimientoStock:
+    - producto: FK
+    - tipo: ingreso | egreso | ajuste_positivo | ajuste_negativo | venta | devolucion
+    - cantidad: int
+    - stock_anterior: int
+    - stock_nuevo: int
+    - motivo: str
+    - observaciones: text
+    - usuario: FK (quien realizó el movimiento)
+    - fecha: datetime
+```
+
+### Actividad: Navegación y Búsqueda en Catálogo
+
+📄 **[Ver diagrama completo: Navegación en Catálogo](./diagrama-actividad-navegacion-catalogo.md)**
+
+Flujo detallado de navegación por el catálogo con búsqueda, filtrado y visualización de productos.
+
+**Flujos de navegación:**
+
+1. **Ver Catálogo Completo**:
+
+   - Query optimizado con SELECT_RELATED
+   - Carga de categorías y marcas para filtros
+   - Renderizado de grid de productos
+   - Lazy loading de imágenes desde CDN
+
+2. **Buscar por Texto**:
+
+   - Búsqueda en nombre y descripción (case-insensitive)
+   - Validación de términos
+   - Sugerencias cuando no hay resultados
+   - Contador de resultados encontrados
+
+3. **Filtrar por Categoría/Marca**:
+
+   - Filtros individuales o combinados
+   - Parámetros en URL (?categoria=slug&marca=id)
+   - Resaltado de filtros activos en sidebar
+   - Botón para limpiar filtros
+
+4. **Ordenar Resultados**:
+
+   - Precio: Menor a Mayor / Mayor a Menor
+   - Nombre: A-Z
+   - Más Recientes (por fecha de creación)
+   - Más Vendidos (opcional)
+
+5. **Ver Detalle de Producto**:
+
+   - Validación de existencia y estado activo
+   - Carga de información completa
+   - Productos relacionados (misma categoría)
+   - Validación de stock antes de agregar al carrito
+
+6. **Agregar al Carrito**:
+   - Selección de cantidad
+   - Validación de stock disponible
+   - Request AJAX asíncrono
+   - Actualización de contador sin recargar página
+   - Toast de confirmación
+
+**Optimizaciones implementadas:**
+
+```python
+# 1. SELECT_RELATED para evitar N+1 queries
+productos = Producto.objects.select_related('categoria', 'marca')
+
+# 2. Paginación
+from django.core.paginator import Paginator
+paginator = Paginator(productos, 24)  # 24 por página
+
+# 3. Caché de listas estáticas
+from django.core.cache import cache
+categorias = cache.get_or_set('categorias_activas',
+                               lambda: list(Categoria.objects.filter(activa=True)),
+                               3600)
+
+# 4. Lazy loading de imágenes (JavaScript)
+<img data-src="{{ producto.imagen_url }}" class="lazy">
+```
+
+**Métricas de UX:**
+
+| Métrica                  | Objetivo     | Descripción                     |
+| ------------------------ | ------------ | ------------------------------- |
+| Tiempo Carga Catálogo    | < 1 segundo  | Request hasta render completo   |
+| Tiempo Carga Imágenes    | < 2 segundos | Imágenes visibles cargadas      |
+| Tasa Conversión Búsqueda | > 60%        | Búsquedas que resultan en click |
+| Productos por Sesión     | > 5          | Promedio de productos vistos    |
 
 ---
 

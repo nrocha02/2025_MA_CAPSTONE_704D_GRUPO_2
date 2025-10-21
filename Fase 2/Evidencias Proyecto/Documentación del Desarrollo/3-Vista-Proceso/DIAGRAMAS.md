@@ -145,6 +145,109 @@ Mecanismos de control de concurrencia para operaciones críticas.
 
 ---
 
+---
+
+## 🎬 Diagramas de Actividades
+
+### [Actividad: Proceso de Compra Completa](./diagrama-actividad-compra-completa.md)
+
+Flujo completo de una compra desde la navegación hasta la confirmación del pedido.
+
+**Fases incluidas:**
+
+1. Navegación y Selección de Productos
+2. Gestión del Carrito
+3. Proceso de Checkout
+4. Transacción y Actualización de Stock
+5. Procesamiento de Pago con Transbank
+6. Confirmación o Reversión
+
+**Puntos de decisión clave:**
+
+- ¿Stock disponible?
+- ¿Usuario registrado?
+- ¿Datos válidos?
+- Resultado del pago (aprobado/rechazado/timeout)
+
+### [Actividad: Gestión de Productos (Dashboard)](./diagrama-actividad-gestion-productos.md)
+
+Flujo de gestión administrativa de productos con operaciones CRUD completas.
+
+**Operaciones incluidas:**
+
+- **Crear**: Validación, generación de slug, upload de imagen, registro en BD
+- **Leer**: Listado con filtros y búsqueda
+- **Actualizar**: Edición de datos, cambio de imagen, ajuste de stock
+- **Eliminar**: Verificación de dependencias, eliminación física
+
+**Integración:**
+
+- DigitalOcean Spaces para manejo de imágenes
+- Transacciones ACID para integridad
+- Auditoría mediante movimientos de stock
+
+### [Actividad: Autenticación y Registro](./diagrama-actividad-autenticacion.md)
+
+Flujos de seguridad para inicio de sesión, registro de usuarios y recuperación de contraseña.
+
+**Flujos incluidos:**
+
+1. **Inicio de Sesión**: Validación de credenciales, protección contra fuerza bruta
+2. **Registro**: Validación de RUT, email, contraseña segura, creación de cuenta
+3. **Cerrar Sesión**: Persistencia de carrito, destrucción de sesión
+4. **Recuperar Contraseña**: Generación de token, protección contra enumeración
+
+**Seguridad:**
+
+- Hashing de contraseñas (SHA-256)
+- Límite de intentos fallidos (5)
+- Bloqueo temporal (15 minutos)
+- Validación de RUT chileno
+
+### [Actividad: Gestión de Inventario y Stock](./diagrama-actividad-gestion-inventario.md)
+
+Gestión completa de inventario con movimientos, alertas y auditoría.
+
+**Operaciones incluidas:**
+
+- **Consultar Inventario**: Listado con filtros, detección de stock bajo
+- **Registrar Ingreso**: Recepción de mercancía
+- **Registrar Egreso**: Salidas por devolución, daño, etc.
+- **Ajuste de Inventario**: Corrección según conteo físico
+- **Ver Historial**: Auditoría de movimientos
+- **Configurar Stock Mínimo**: Establecer alertas
+
+**Sistema de Alertas:**
+
+- Stock bajo
+- Stock crítico
+- Stock agotado
+- Discrepancias significativas
+
+### [Actividad: Navegación y Búsqueda en Catálogo](./diagrama-actividad-navegacion-catalogo.md)
+
+Flujo detallado de navegación por el catálogo con búsqueda, filtrado y visualización de productos.
+
+**Flujos incluidos:**
+
+- **Ver Catálogo Completo**: Carga inicial de productos activos
+- **Buscar por Texto**: Búsqueda en nombre y descripción (ICONTAINS)
+- **Filtrar por Categoría**: Aplicar filtro de categoría
+- **Filtrar por Marca**: Aplicar filtro de marca
+- **Combinar Filtros**: Múltiples filtros simultáneos
+- **Ordenar Resultados**: Por precio, nombre, fecha
+- **Ver Detalle de Producto**: Página de producto individual
+- **Agregar al Carrito**: AJAX desde detalle de producto
+
+**Optimizaciones:**
+
+- SELECT_RELATED para evitar N+1 queries
+- Lazy loading de imágenes
+- Caché de categorías y marcas
+- Paginación (24 productos por página)
+
+---
+
 ## 📈 Resumen
 
 | Categoría         | Cantidad de Diagramas |
@@ -154,7 +257,8 @@ Mecanismos de control de concurrencia para operaciones críticas.
 | Secuencias        | 2                     |
 | Estados           | 3 (en 1 archivo)      |
 | Concurrencia      | 2                     |
-| **Total**         | **10 archivos**       |
+| **Actividades**   | **5**                 |
+| **Total**         | **15 archivos**       |
 
 ---
 
