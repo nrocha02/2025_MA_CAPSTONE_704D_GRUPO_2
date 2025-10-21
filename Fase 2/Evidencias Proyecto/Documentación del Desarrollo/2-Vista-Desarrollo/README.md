@@ -110,7 +110,7 @@ Web/
 
 ## Diagrama de Paquetes
 
-📄 **[Ver diagrama completo](./diagrama-paquetes.md)**
+📄 **[Ver diagrama completo](./diagramas/diagrama-paquetes.md)**
 
 Este diagrama muestra la estructura de paquetes del proyecto y las dependencias entre las aplicaciones Django.
 
@@ -126,7 +126,7 @@ Este diagrama muestra la estructura de paquetes del proyecto y las dependencias 
 
 ## Arquitectura en Capas
 
-📄 **[Ver diagrama completo](./diagrama-arquitectura-capas.md)**
+📄 **[Ver diagrama completo](./diagramas/diagrama-arquitectura-capas.md)**
 
 El sistema implementa una arquitectura en capas clara de 5 niveles:
 
@@ -140,7 +140,7 @@ El sistema implementa una arquitectura en capas clara de 5 niveles:
 
 ## Módulos Django
 
-📄 **[Ver diagramas de todos los módulos](./diagrama-modulos-django.md)**
+📄 **[Ver diagramas de todos los módulos](./diagramas/diagrama-modulos-django.md)**
 
 ### 1. Módulo `pets` (Proyecto Principal)
 
@@ -197,9 +197,9 @@ El sistema implementa una arquitectura en capas clara de 5 niveles:
 
 ## Dependencias
 
-📄 **[Ver diagrama de dependencias](./diagrama-paquetes.md#dependencias-entre-módulos)**
+📄 **[Ver diagrama de dependencias](./diagramas/diagrama-paquetes.md#dependencias-entre-módulos)**
 
-### Diagrama NO ENCONTRADO - CONTINUANDO```mermaid
+### Dependencias Entre Módulos```mermaid
 
 graph TB
 subgraph "Proyecto pets"

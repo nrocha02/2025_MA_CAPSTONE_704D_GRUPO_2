@@ -4,7 +4,9 @@ Este archivo contiene el índice de todos los diagramas de la vista de Escenario
 
 ## 👥 Actores del Sistema
 
-### [Diagrama de Actores](./diagrama-actores.md)
+📁 **[Ver carpeta de Diagramas](./diagramas/)**
+
+### [Diagrama de Actores](./diagramas/diagrama-actores.md)
 
 Muestra todos los actores que interactúan con el sistema.
 
@@ -31,7 +33,7 @@ Muestra todos los actores que interactúan con el sistema.
 
 ## 🎯 Casos de Uso
 
-### [Diagrama General de Casos de Uso](./diagrama-casos-uso.md)
+### [Diagrama General de Casos de Uso](./diagramas/diagrama-casos-uso.md)
 
 Diagrama completo con todos los casos de uso del sistema y sus relaciones.
 
@@ -66,7 +68,9 @@ Diagrama completo con todos los casos de uso del sistema y sus relaciones.
 
 ## 📋 Escenarios Detallados
 
-### [Escenario 1: Compra de Producto por Cliente Anónimo](./escenario-compra-completa.md)
+📁 **[Ver carpeta de Escenarios](./escenarios/)**
+
+### [Escenario 1: Compra de Producto por Cliente Anónimo](./escenarios/escenario-compra-completa.md)
 
 Diagrama de secuencia completo del flujo de compra desde navegación hasta confirmación.
 
@@ -101,7 +105,7 @@ Diagrama de secuencia completo del flujo de compra desde navegación hasta confi
 
 ---
 
-### [Escenario 2: Gestión de Productos por Administrador](./escenario-gestion-productos.md)
+### [Escenario 2: Gestión de Productos por Administrador](./escenarios/escenario-gestion-productos.md)
 
 Flujo completo de operaciones CRUD en el dashboard administrativo.
 
@@ -159,7 +163,7 @@ Flujo completo de operaciones CRUD en el dashboard administrativo.
 
 ---
 
-### [Escenario 3: Control de Concurrencia en Stock](./escenario-concurrencia-stock.md)
+### [Escenario 3: Control de Concurrencia en Stock](./escenarios/escenario-concurrencia-stock.md)
 
 Validación del manejo de concurrencia cuando múltiples clientes compran simultáneamente.
 
@@ -210,7 +214,7 @@ T4: Cliente2 ERROR (1 < 2) ✓
 
 ## 🔄 Flujos de Trabajo
 
-### [Diagramas de Flujos](./diagramas-flujos.md)
+### [Diagramas de Flujos](./diagramas/diagramas-flujos.md)
 
 Diagramas de flujo para los principales procesos.
 

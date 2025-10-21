@@ -10,6 +10,17 @@
 
 Introducción general al proyecto y al modelo arquitectónico 4+1.
 
+### [📁 Estructura de Diagramas](./ESTRUCTURA-DIAGRAMAS.md)
+
+Guía completa de la organización de diagramas en subcarpetas. **Todos los diagramas han sido organizados en subcarpetas temáticas** para facilitar la navegación y el mantenimiento.
+
+**Resumen de organización:**
+
+- 11 subcarpetas creadas
+- 32 diagramas organizados
+- 11 archivos README en subcarpetas
+- Sistema de navegación bidireccional
+
 ---
 
 ## 🎯 Las 5 Vistas Arquitectónicas
@@ -168,16 +179,27 @@ Contenido:
 
 ## 📊 Resumen de Diagramas
 
-### Por Vista
+### Por Vista (Organizados en Subcarpetas)
 
-| Vista          | Cantidad de Diagramas | Tipos                                               |
-| -------------- | --------------------- | --------------------------------------------------- |
-| **Lógica**     | 6                     | Componentes, Dominio, Clases, Estados               |
-| **Desarrollo** | 4                     | Paquetes, Capas, Módulos, Dependencias              |
-| **Proceso**    | 10                    | Secuencias, Estados, Concurrencia, Transacciones    |
-| **Física**     | 8                     | Despliegue, Red, Hardware, Escalabilidad, Monitoreo |
-| **Escenarios** | 12                    | Casos de uso, Flujos, Secuencias, Actores           |
-| **TOTAL**      | **40**                | Diagramas Mermaid                                   |
+| Vista                  | Subcarpetas | Diagramas | Índices (README) | Ubicación                                                |
+| ---------------------- | ----------- | --------- | ---------------- | -------------------------------------------------------- |
+| **1-Vista-Lógica**     | 1           | 4         | 1                | `./1-Vista-Lógica/diagramas/`                            |
+| **2-Vista-Desarrollo** | 1           | 3         | 1                | `./2-Vista-Desarrollo/diagramas/`                        |
+| **3-Vista-Proceso**    | 6           | 15        | 6                | `./3-Vista-Proceso/diagramas-*/`                         |
+| **4-Vista-Física**     | 1           | 4         | 1                | `./4-Vista-Física/diagramas/`                            |
+| **5-Escenarios**       | 2           | 6         | 2                | `./5-Escenarios/{diagramas,escenarios}/`                 |
+| **TOTAL**              | **11**      | **32**    | **11**           | **[Ver estructura completa](./ESTRUCTURA-DIAGRAMAS.md)** |
+
+### Subcarpetas por Tipo (Vista de Proceso)
+
+La Vista de Proceso tiene la organización más compleja con 6 categorías:
+
+1. `diagramas-actividades/` - 5 diagramas de actividades + resumen
+2. `diagramas-arquitectura/` - 1 diagrama de arquitectura de procesos
+3. `diagramas-flujos/` - 4 diagramas de flujo de trabajo
+4. `diagramas-secuencia/` - 2 diagramas de secuencia
+5. `diagramas-estados/` - 1 archivo con 3 máquinas de estados
+6. `diagramas-concurrencia/` - 2 diagramas de concurrencia
 
 ---
 

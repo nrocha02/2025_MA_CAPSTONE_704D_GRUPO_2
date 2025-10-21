@@ -4,7 +4,9 @@ Este archivo contiene el índice de todos los diagramas de la Vista Física.
 
 ## 🚀 Arquitectura de Despliegue
 
-### [Diagramas de Despliegue](./diagramas-despliegue.md)
+📁 **[Ver carpeta completa de Diagramas](./diagramas/)**
+
+### [Diagramas de Despliegue](./diagramas/diagramas-despliegue.md)
 
 Contiene dos diagramas de arquitectura de despliegue:
 
@@ -35,7 +37,7 @@ Contiene dos diagramas de arquitectura de despliegue:
 
 ## 🌐 Topología de Red
 
-### [Diagrama de Topología de Red](./diagrama-topologia-red.md)
+### [Diagrama de Topología de Red](./diagramas/diagrama-topologia-red.md)
 
 Segmentación de red y políticas de firewall en producción.
 
@@ -65,7 +67,7 @@ Segmentación de red y políticas de firewall en producción.
 
 ## 💻 Componentes de Hardware
 
-### [Diagramas de Componentes de Hardware](./diagramas-componentes-hardware.md)
+### [Diagramas de Componentes de Hardware](./diagramas/diagramas-componentes-hardware.md)
 
 Especificaciones de hardware para cada componente del sistema.
 
@@ -120,7 +122,7 @@ Especificaciones de hardware para cada componente del sistema.
 
 ## 📈 Escalabilidad
 
-### [Diagrama de Escalabilidad](./diagrama-escalabilidad.md)
+### [Diagrama de Escalabilidad](./diagramas/diagrama-escalabilidad.md)
 
 Estrategias de escalabilidad horizontal y vertical.
 

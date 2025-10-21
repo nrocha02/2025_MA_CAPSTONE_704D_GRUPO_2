@@ -4,7 +4,9 @@ Este archivo contiene el índice de todos los diagramas de la Vista de Proceso.
 
 ## 🏗️ Arquitectura
 
-### [Arquitectura de Procesos del Sistema](./diagrama-arquitectura-procesos.md)
+📁 **[Ver carpeta de Diagramas de Arquitectura](./diagramas-arquitectura/)**
+
+### [Arquitectura de Procesos del Sistema](./diagramas-arquitectura/diagrama-arquitectura-procesos.md)
 
 Muestra la arquitectura completa desde el cliente web hasta los servicios externos, incluyendo workers de Gunicorn y servicios de terceros.
 
@@ -18,7 +20,9 @@ Muestra la arquitectura completa desde el cliente web hasta los servicios extern
 
 ## 🔄 Flujos de Trabajo
 
-### [Flujo de Navegación del Catálogo](./diagrama-flujo-catalogo.md)
+📁 **[Ver carpeta de Diagramas de Flujos](./diagramas-flujos/)**
+
+### [Flujo de Navegación del Catálogo](./diagramas-flujos/diagrama-flujo-catalogo.md)
 
 Secuencia completa del proceso de navegación por el catálogo de productos.
 
@@ -30,7 +34,7 @@ Secuencia completa del proceso de navegación por el catálogo de productos.
 4. Carga de imágenes desde Spaces
 5. Renderizado de template
 
-### [Flujo de Gestión del Carrito](./diagrama-flujo-carrito.md)
+### [Flujo de Gestión del Carrito](./diagramas-flujos/diagrama-flujo-carrito.md)
 
 Proceso de agregar productos al carrito con verificación de stock en tiempo real.
 
@@ -41,7 +45,7 @@ Proceso de agregar productos al carrito con verificación de stock en tiempo rea
 - Almacenamiento en sesión
 - Respuesta JSON
 
-### [Flujo de Creación de Producto](./diagrama-flujo-crear-producto.md)
+### [Flujo de Creación de Producto](./diagramas-flujos/diagrama-flujo-crear-producto.md)
 
 Proceso completo de creación de productos desde el dashboard administrativo.
 
@@ -53,7 +57,7 @@ Proceso completo de creación de productos desde el dashboard administrativo.
 4. Inserción en base de datos
 5. Registro de movimiento de stock
 
-### [Flujo de Checkout y Pago](./diagrama-flujo-checkout.md)
+### [Flujo de Checkout y Pago](./diagramas-flujos/diagrama-flujo-checkout.md)
 
 Diagrama de secuencia del proceso completo de checkout incluyendo integración con Transbank.
 
@@ -67,7 +71,9 @@ Diagrama de secuencia del proceso completo de checkout incluyendo integración c
 
 ## 📝 Diagramas de Secuencia
 
-### [Secuencia: Búsqueda y Filtrado](./diagrama-secuencia-busqueda.md)
+📁 **[Ver carpeta de Diagramas de Secuencia](./diagramas-secuencia/)**
+
+### [Secuencia: Búsqueda y Filtrado](./diagramas-secuencia/diagrama-secuencia-busqueda.md)
 
 Interacción entre capas del sistema (Vista, Controlador, Modelo, Base de Datos) durante búsqueda de productos.
 
@@ -78,7 +84,7 @@ Interacción entre capas del sistema (Vista, Controlador, Modelo, Base de Datos)
 - Modelo (ORM)
 - Base de Datos (PostgreSQL)
 
-### [Secuencia: Actualización de Carrito](./diagrama-secuencia-actualizar-carrito.md)
+### [Secuencia: Actualización de Carrito](./diagramas-secuencia/diagrama-secuencia-actualizar-carrito.md)
 
 Flujo detallado de actualización de cantidad de productos en el carrito.
 
@@ -93,7 +99,9 @@ Flujo detallado de actualización de cantidad de productos en el carrito.
 
 ## 🔀 Diagramas de Estados
 
-### [Diagramas de Estados](./diagramas-estados.md)
+📁 **[Ver carpeta de Diagramas de Estados](./diagramas-estados/)**
+
+### [Diagramas de Estados](./diagramas-estados/diagramas-estados.md)
 
 Máquinas de estados para las entidades principales del sistema.
 
@@ -119,7 +127,9 @@ Máquinas de estados para las entidades principales del sistema.
 
 ## ⚡ Concurrencia y Performance
 
-### [Modelo de Concurrencia](./diagrama-concurrencia.md)
+📁 **[Ver carpeta de Diagramas de Concurrencia](./diagramas-concurrencia/)**
+
+### [Modelo de Concurrencia](./diagramas-concurrencia/diagrama-concurrencia.md)
 
 Arquitectura de workers y estrategias de optimización de performance.
 
@@ -131,7 +141,7 @@ Arquitectura de workers y estrategias de optimización de performance.
 - Session storage
 - Static files serving
 
-### [Control de Sincronización](./diagrama-sincronizacion.md)
+### [Control de Sincronización](./diagramas-concurrencia/diagrama-sincronizacion.md)
 
 Mecanismos de control de concurrencia para operaciones críticas.
 
@@ -149,7 +159,9 @@ Mecanismos de control de concurrencia para operaciones críticas.
 
 ## 🎬 Diagramas de Actividades
 
-### [Actividad: Proceso de Compra Completa](./diagrama-actividad-compra-completa.md)
+📄 **[Ver carpeta completa de Diagramas de Actividades](./diagramas-actividades/)**
+
+### [Actividad: Proceso de Compra Completa](./diagramas-actividades/diagrama-actividad-compra-completa.md)
 
 Flujo completo de una compra desde la navegación hasta la confirmación del pedido.
 
@@ -169,7 +181,7 @@ Flujo completo de una compra desde la navegación hasta la confirmación del ped
 - ¿Datos válidos?
 - Resultado del pago (aprobado/rechazado/timeout)
 
-### [Actividad: Gestión de Productos (Dashboard)](./diagrama-actividad-gestion-productos.md)
+### [Actividad: Gestión de Productos (Dashboard)](./diagramas-actividades/diagrama-actividad-gestion-productos.md)
 
 Flujo de gestión administrativa de productos con operaciones CRUD completas.
 
@@ -186,7 +198,7 @@ Flujo de gestión administrativa de productos con operaciones CRUD completas.
 - Transacciones ACID para integridad
 - Auditoría mediante movimientos de stock
 
-### [Actividad: Autenticación y Registro](./diagrama-actividad-autenticacion.md)
+### [Actividad: Autenticación y Registro](./diagramas-actividades/diagrama-actividad-autenticacion.md)
 
 Flujos de seguridad para inicio de sesión, registro de usuarios y recuperación de contraseña.
 
@@ -204,7 +216,7 @@ Flujos de seguridad para inicio de sesión, registro de usuarios y recuperación
 - Bloqueo temporal (15 minutos)
 - Validación de RUT chileno
 
-### [Actividad: Gestión de Inventario y Stock](./diagrama-actividad-gestion-inventario.md)
+### [Actividad: Gestión de Inventario y Stock](./diagramas-actividades/diagrama-actividad-gestion-inventario.md)
 
 Gestión completa de inventario con movimientos, alertas y auditoría.
 
@@ -224,7 +236,7 @@ Gestión completa de inventario con movimientos, alertas y auditoría.
 - Stock agotado
 - Discrepancias significativas
 
-### [Actividad: Navegación y Búsqueda en Catálogo](./diagrama-actividad-navegacion-catalogo.md)
+### [Actividad: Navegación y Búsqueda en Catálogo](./diagramas-actividades/diagrama-actividad-navegacion-catalogo.md)
 
 Flujo detallado de navegación por el catálogo con búsqueda, filtrado y visualización de productos.
 
@@ -245,6 +257,8 @@ Flujo detallado de navegación por el catálogo con búsqueda, filtrado y visual
 - Lazy loading de imágenes
 - Caché de categorías y marcas
 - Paginación (24 productos por página)
+
+📄 **[Ver resumen completo de diagramas de actividades](./diagramas-actividades/RESUMEN-DIAGRAMAS-ACTIVIDADES.md)**
 
 ---
 

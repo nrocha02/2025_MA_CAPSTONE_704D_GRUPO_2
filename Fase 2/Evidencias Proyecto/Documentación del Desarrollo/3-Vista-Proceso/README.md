@@ -162,11 +162,13 @@ carrito = {
 
 ## Diagramas de Actividades
 
+📁 **[Ver carpeta completa: Diagramas de Actividades](./diagramas-actividades/)**
+
 Los diagramas de actividades muestran el flujo de control completo de los procesos principales del sistema, incluyendo todas las decisiones, validaciones y acciones en cada fase.
 
 ### Actividad: Proceso de Compra Completa
 
-📄 **[Ver diagrama completo: Proceso de Compra](./diagrama-actividad-compra-completa.md)**
+📄 **[Ver diagrama completo: Proceso de Compra](./diagramas-actividades/diagrama-actividad-compra-completa.md)**
 
 Flujo end-to-end desde que el cliente navega el catálogo hasta que recibe la confirmación del pedido.
 
@@ -188,7 +190,7 @@ Flujo end-to-end desde que el cliente navega el catálogo hasta que recibe la co
 
 ### Actividad: Gestión de Productos (Dashboard)
 
-📄 **[Ver diagrama completo: Gestión de Productos](./diagrama-actividad-gestion-productos.md)**
+📄 **[Ver diagrama completo: Gestión de Productos](./diagramas-actividades/diagrama-actividad-gestion-productos.md)**
 
 Flujo completo de administración de productos desde el dashboard con operaciones CRUD.
 
@@ -208,7 +210,7 @@ Flujo completo de administración de productos desde el dashboard con operacione
 
 ### Actividad: Autenticación y Registro
 
-📄 **[Ver diagrama completo: Autenticación](./diagrama-actividad-autenticacion.md)**
+📄 **[Ver diagrama completo: Autenticación](./diagramas-actividades/diagrama-actividad-autenticacion.md)**
 
 Flujos de seguridad para gestión de usuarios y accesos.
 
@@ -244,7 +246,7 @@ Flujos de seguridad para gestión de usuarios y accesos.
 
 ### Actividad: Gestión de Inventario y Stock
 
-📄 **[Ver diagrama completo: Gestión de Inventario](./diagrama-actividad-gestion-inventario.md)**
+📄 **[Ver diagrama completo: Gestión de Inventario](./diagramas-actividades/diagrama-actividad-gestion-inventario.md)**
 
 Gestión completa de inventario con movimientos de stock, alertas y auditoría.
 
@@ -314,7 +316,7 @@ class MovimientoStock:
 
 ### Actividad: Navegación y Búsqueda en Catálogo
 
-📄 **[Ver diagrama completo: Navegación en Catálogo](./diagrama-actividad-navegacion-catalogo.md)**
+📄 **[Ver diagrama completo: Navegación en Catálogo](./diagramas-actividades/diagrama-actividad-navegacion-catalogo.md)**
 
 Flujo detallado de navegación por el catálogo con búsqueda, filtrado y visualización de productos.
 
