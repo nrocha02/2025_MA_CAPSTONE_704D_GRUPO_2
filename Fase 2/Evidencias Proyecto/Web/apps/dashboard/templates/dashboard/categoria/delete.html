@@ -96,15 +96,13 @@
                     <strong
                     >{{ productos_count }} producto{{ productos_count|pluralize }}</strong
                       >
-                      asociado{{ productos_count|pluralize }}. Al eliminarla,
-                      estos productos quedarán huérfanos.
+                      asociado{{ productos_count|pluralize }}. Al eliminarla, estos productos quedarán huérfanos.
                     </li>
                 {% endif %} {% if subcategorias_count > 0 %}
                   <li>
                     Esta categoría tiene
                     <strong
-                    >{{ subcategorias_count }} subcategoría{{
-                      subcategorias_count|pluralize }}</strong
+                    >{{ subcategorias_count }} subcategoría {{ subcategorias_count|pluralize }}</strong
                       >. Al eliminarla, las subcategorías también se eliminarán.
                     </li>
                 {% endif %}
