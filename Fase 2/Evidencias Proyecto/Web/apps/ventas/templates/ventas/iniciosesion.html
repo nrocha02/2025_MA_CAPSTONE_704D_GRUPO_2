@@ -91,6 +91,14 @@
     .login-container a:hover {
       text-decoration: underline;
     }
+
+    /* --- Estilos para mensajes de alerta --- */
+    .login-container .alert {
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
@@ -118,6 +126,17 @@
   <!-- Formulario de inicio de sesión -->
   <div class="login-container">
     <h2>Iniciar Sesión</h2>
+    
+    <!-- Mensajes de error/éxito -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    
     <form action="{%url 'iniciosesion'%}" method="POST">
         {%csrf_token%}
       <input type="text" name="username" id="username" placeholder="Email" required>

@@ -125,12 +125,18 @@ def iniciosesion(request):
 
         if user is not None:
             login(request, user)
-            messages.success(request, f'¡Bienvenido, {user.first_name}!')
+            messages.success(request, f'¡Bienvenido, {user.first_name}! Has iniciado sesión correctamente.')
             return redirect ('index')
         else:
-            print(messages.error(request, 'Usuario o Contraseña Incorrecta'))
+            messages.error(request, 'Usuario o Contraseña Incorrecta')
 
     return render(request, 'ventas/iniciosesion.html')
+
+def logout_view(request):
+    """Vista para cerrar sesión"""
+    login_aut(request)
+    messages.success(request, '¡Has cerrado sesión exitosamente!')
+    return redirect('index')
 
 def registro_view(request):
     """Vista para registro de nuevos clientes"""
