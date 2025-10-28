@@ -67,16 +67,7 @@ class ClientePersona(models.Model):
 
 class SesionInvitado(models.Model):
     cliente_invitado_id = models.AutoField(primary_key=True)
-    session_id = models.CharField(max_length=255, unique=True)
-    nombres = models.CharField(max_length=25)
-    apellido_paterno = models.CharField(max_length=25)
-    apellido_materno = models.CharField(max_length=25, blank=True, null=True)
-    email = models.CharField(max_length=50)
-    telefono = models.CharField(max_length=10)
-    calle_envio = models.CharField(max_length=50)
-    ciudad_envio = models.CharField(max_length=50)
-    region_envio = models.CharField(max_length=50)
-    codigo_postal_envio = models.SmallIntegerField()
+    email = models.CharField(max_length=50, unique=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=50, default='activa')  # enum estado_sesion
 
@@ -85,7 +76,7 @@ class SesionInvitado(models.Model):
         managed = False
 
     def __str__(self):
-        return f"Invitado {self.nombres} ({self.session_id})"
+        return f"Invitado {self.email}"
 
 
 class UsuarioAdmin(models.Model):

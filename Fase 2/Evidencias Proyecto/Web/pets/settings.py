@@ -133,11 +133,11 @@ AUTHENTICATION_BACKENDS = [
 
 LANGUAGE_CODE = 'es-cl'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
-USE_I18N = True
+USE_I18N = False
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -151,6 +151,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CSRF Configuration
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
 # DigitalOcean Spaces Configuration
 # URL base del Space de DigitalOcean donde están almacenadas las imágenes
 DO_SPACES_URL = os.getenv('DO_SPACES_URL', '')
@@ -161,3 +166,8 @@ DO_SPACES_ACCESS_KEY = os.getenv('DO_SPACES_ACCESS_KEY', '')
 DO_SPACES_SECRET_KEY = os.getenv('DO_SPACES_SECRET_KEY', '')
 DO_SPACES_BUCKET = os.getenv('DO_SPACES_BUCKET', '')
 DO_SPACES_REGION = os.getenv('DO_SPACES_REGION', 'nyc3')
+
+# Transbank Configuration
+TRANSBANK_COMMERCE_CODE = os.getenv('TRANSBANK_COMMERCE_CODE', '597055555532')  # Default to test commerce code
+TRANSBANK_API_KEY = os.getenv('TRANSBANK_API_KEY', '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C')  # Default to test API key
+TRANSBANK_ENVIRONMENT = os.getenv('TRANSBANK_ENVIRONMENT', 'TEST')  # TEST or PRODUCTION

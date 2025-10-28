@@ -458,9 +458,8 @@
     }
 
     function hacerPedido() {
-      // Aquí puedes implementar la lógica para procesar el pedido
-      // Por ahora, solo mostramos un mensaje
-      alert('Funcionalidad de pedido en desarrollo. ¡Pronto estará disponible!');
+      // Redirigir a la página de checkout
+      window.location.href = "{% url 'carrito:checkout' %}";
     }
   </script>
 {% endblock %}
