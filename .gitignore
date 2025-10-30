@@ -21,6 +21,9 @@ ca-certificate.crt
 # Archivo de contraseña PostgreSQL
 .pgpass
 
+# Zed
+.zed
+
 # Prettier
 .prettierignore
 

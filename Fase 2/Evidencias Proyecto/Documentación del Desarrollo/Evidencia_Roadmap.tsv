@@ -1,0 +1,42 @@
+Title	URL	Assignees	Status	Sprint
+HU-E01-01: Visualizar catálogo de productos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/11	Carolinasaja, janizdesska, nrocha02	Done	Sprint 3
+HU-E01-02: Buscar y filtrar productos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/12	Carolinasaja, janizdesska	Done	Sprint 3
+HU-E01-03: Ver detalles del producto	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/13	Carolinasaja, janizdesska	Done	Sprint 3
+HU-E00-01: Presentación inicial del proyecto	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/58	Carolinasaja, janizdesska, nrocha02	Done	Sprint 3
+HU-E03-02: Visualizar carrito de compras	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/23	janizdesska, nrocha02	Done	Sprint 4
+HU-E01-04: Administrar catálogo de productos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/14	nrocha02	Done	Sprint 4
+HU-E00-02: Configuración de entorno de desarrollo	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/59	nrocha02	Done	Sprint 4
+HU-E02-01: Registro de nuevo cliente	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/16	Carolinasaja	Done	Sprint 5
+HU-E02-02: Inicio de sesión de cliente	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/17	Carolinasaja	Done	Sprint 5
+HU-E03-01: Agregar productos al carrito	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/22	nrocha02	Done	Sprint 5
+HU-E03-03: Modificar productos del carrito	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/24	nrocha02	Done	Sprint 5
+HU-E01-05: Gestionar stock de productos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/15	janizdesska, nrocha02	Done	Sprint 5
+HU-E03-05: Proceso de checkout	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/26	nrocha02	Ready	Sprint 6
+HU-E04-01: Integración con Transbank/Webpay	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/27	nrocha02	Ready	Sprint 6
+HU-E03-04: Calcular costos de despacho	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/25	nrocha02	Ready	Sprint 6
+HU-E04-02: Confirmación de pago	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/28	nrocha02	Backlog	Sprint 6
+HU-E05-02: Gestión de pedidos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/32		Backlog	Sprint 6
+HU-E07-01: Creación automática de pedidos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/39		Backlog	Sprint 6
+HU-E08-02: Gestionar promociones	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/44		Backlog	Sprint 6
+HU-E02-03: Recuperar contraseña	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/18		Backlog	Sprint 6
+HU-E02-06: Sistema de autenticación de administradores	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/21		Backlog	Sprint 6
+HU-E04-03: Gestión de transacciones fallidas	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/29		Backlog	Sprint 7
+HU-E05-03: Gestión de clientes	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/33	janizdesska	Backlog	Sprint 7
+HU-E05-04: Configuración del sistema	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/34	nrocha02	Backlog	Sprint 7
+HU-E06-01: Notificación de confirmación de pedido	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/35		Backlog	Sprint 7
+HU-E06-02: Notificación de cambio de estado	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/36		Backlog	Sprint 7
+HU-E07-02: Seguimiento de estado de pedidos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/40	janizdesska	Backlog	Sprint 7
+HU-E07-03: Gestión de despachos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/41		Backlog	Sprint 7
+HU-E07-04: Confirmación de entrega	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/42		Backlog	Sprint 7
+HU-E04-04: Seguridad en transacciones	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/30	Carolinasaja	Backlog	Sprint 8
+HU-E05-01: Dashboard con métricas del negocio	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/31	nrocha02	Backlog	Sprint 8
+HU-E06-03: Notificaciones administrativas	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/37		Backlog	Sprint 8
+HU-E06-04: Configuración de plantillas de email	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/38		Backlog	Sprint 8
+HU-E08-01: Modificar el carrusel del index	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/43		Backlog	Sprint 8
+HU-E09-01: Reporte de ventas mensuales	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/46		Backlog	Sprint 8
+HU-E09-03: Dashboard de KPIs	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/48		Backlog	Sprint 8
+HU-E10-02: Implementación de medidas de seguridad	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/50		Backlog	Sprint 8
+HU-E09-02: Análisis de productos más vendidos	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/47		Backlog	Sprint 9
+HU-E10-04: Monitoreo y logging	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/52		Backlog	Sprint 9
+HU-E02-04: Gestionar perfil de cliente	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/19		Backlog	Sprint 9
+HU-E02-05: Ver historial de compras	https://github.com/nrocha02/2025_MA_CAPSTONE_704D_GRUPO_2/issues/20		Backlog	Sprint 9
