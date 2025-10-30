@@ -1,429 +1,558 @@
-{% extends "ventas/ventas_base.html" %}
-{% load static %}
-{% load image_tags %}
-
-{% block title %}Checkout - Cordillera Pets{% endblock %}
-
-{% block extra_css %}
-  <style>
+{% extends "ventas/ventas_base.html" %} {% load static %} {% load image_tags %}
+{% block title %}Checkout - Cordillera Pets{% endblock %} {% block extra_css %}
+<style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
-      margin: 0;
-      padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
     }
 
     .checkout-container {
-      max-width: 1200px;
-      margin: 20px auto;
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 20px;
-      padding: 0 20px;
+        max-width: 1200px;
+        margin: 20px auto;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 20px;
+        padding: 0 20px;
     }
 
     .checkout-form {
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      padding: 30px;
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        padding: 30px;
     }
 
     .checkout-form h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      color: #0d4686;
-      border-bottom: 2px solid #0d4686;
-      padding-bottom: 10px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #0d4686;
+        border-bottom: 2px solid #0d4686;
+        padding-bottom: 10px;
     }
 
     .form-section {
-      margin-bottom: 30px;
+        margin-bottom: 30px;
     }
 
     .form-section h3 {
-      color: #333;
-      margin-bottom: 15px;
-      font-size: 18px;
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
     }
 
     .form-group {
-      margin-bottom: 15px;
+        margin-bottom: 15px;
     }
 
     .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      color: #333;
-      font-weight: 500;
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
     }
 
     .form-group label .required {
-      color: #dc3545;
+        color: #dc3545;
     }
 
     .form-group input,
     .form-group select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-      box-sizing: border-box;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
     }
 
     .form-group input:focus,
     .form-group select:focus {
-      outline: none;
-      border-color: #0d4686;
-      box-shadow: 0 0 0 3px rgba(13, 70, 134, 0.1);
+        outline: none;
+        border-color: #0d4686;
+        box-shadow: 0 0 0 3px rgba(13, 70, 134, 0.1);
     }
 
     .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
     }
 
     .order-summary {
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      padding: 30px;
-      height: fit-content;
-      position: sticky;
-      top: 20px;
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
     }
 
     .order-summary h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      color: #0d4686;
-      border-bottom: 2px solid #0d4686;
-      padding-bottom: 10px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #0d4686;
+        border-bottom: 2px solid #0d4686;
+        padding-bottom: 10px;
     }
 
     .summary-item {
-      display: flex;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
     }
 
     .summary-item img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 4px;
-      margin-right: 15px;
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 15px;
     }
 
     .summary-item-details {
-      flex: 1;
+        flex: 1;
     }
 
     .summary-item-name {
-      font-weight: 500;
-      margin-bottom: 5px;
+        font-weight: 500;
+        margin-bottom: 5px;
     }
 
     .summary-item-price {
-      color: #666;
-      font-size: 14px;
+        color: #666;
+        font-size: 14px;
     }
 
     .summary-totals {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 2px solid #eee;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid #eee;
     }
 
     .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 15px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 15px;
     }
 
     .summary-row.total {
-      font-weight: bold;
-      font-size: 18px;
-      color: #0d4686;
-      padding-top: 10px;
-      border-top: 2px solid #ddd;
-      margin-top: 10px;
+        font-weight: bold;
+        font-size: 18px;
+        color: #0d4686;
+        padding-top: 10px;
+        border-top: 2px solid #ddd;
+        margin-top: 10px;
     }
 
     .btn-pagar {
-      width: 100%;
-      padding: 15px;
-      background: #0d4686;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
+        width: 100%;
+        padding: 15px;
+        background: #0d4686;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
     }
 
     .btn-pagar:hover {
-      background: #0a3a6b;
+        background: #0a3a6b;
     }
 
     .btn-pagar:disabled {
-      background: #6c757d;
-      cursor: not-allowed;
+        background: #6c757d;
+        cursor: not-allowed;
     }
 
     .btn-volver {
-      display: inline-block;
-      padding: 10px 20px;
-      background: #6c757d;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-      margin-bottom: 20px;
+        display: inline-block;
+        padding: 10px 20px;
+        background: #6c757d;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-bottom: 20px;
     }
 
     .btn-volver:hover {
-      background: #5a6268;
+        background: #5a6268;
     }
 
     .alert {
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
     }
 
     .alert-danger {
-      background-color: #f8d7da;
-      border: 1px solid #f5c6cb;
-      color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
     }
 
     @media (max-width: 768px) {
-      .checkout-container {
-        grid-template-columns: 1fr;
-      }
+        .checkout-container {
+            grid-template-columns: 1fr;
+        }
 
-      .order-summary {
-        position: static;
-      }
+        .order-summary {
+            position: static;
+        }
 
-      .form-row {
-        grid-template-columns: 1fr;
-      }
+        .form-row {
+            grid-template-columns: 1fr;
+        }
     }
-  </style>
-{% endblock %}
-
-{% block content %}
-  <div class="checkout-container">
+</style>
+{% endblock %} {% block content %}
+<div class="checkout-container">
     <div class="checkout-form">
-      <a href="{% url 'carrito:ver_carrito' %}" class="btn-volver">← Volver al carrito</a>
-      
-      <h2>Datos de Envío y Facturación</h2>
+        <a href="{% url 'carrito:ver_carrito' %}" class="btn-volver"
+            >← Volver al carrito</a
+        >
 
-      {% if error %}
-        <div class="alert alert-danger">
-          {{ error }}
-        </div>
-      {% endif %}
+        <h2>Datos de Envío y Facturación</h2>
 
-      <form method="post" action="{% url 'carrito:iniciar_pago' %}" id="checkoutForm">
-        {% csrf_token %}
-        
-        <div class="form-section">
-          <h3>Información Personal</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="nombres">Nombres <span class="required">*</span></label>
-              <input type="text" id="nombres" name="nombres" required>
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form
+            method="post"
+            action="{% url 'carrito:iniciar_pago' %}"
+            id="checkoutForm"
+        >
+            {% csrf_token %}
+
+            <div class="form-section">
+                <h3>Información Personal</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombres"
+                            >Nombres <span class="required">*</span></label
+                        >
+                        <input
+                            type="text"
+                            id="nombres"
+                            name="nombres"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apellidos"
+                            >Apellidos <span class="required">*</span></label
+                        >
+                        <input
+                            type="text"
+                            id="apellidos"
+                            name="apellidos"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rut"
+                            >RUT <span class="required">*</span></label
+                        >
+                        <input
+                            type="text"
+                            id="rut"
+                            name="rut"
+                            required
+                            placeholder="12345678-9"
+                            maxlength="12"
+                        />
+                        <small style="color: #666; font-size: 12px"
+                            >Formato: XXXXXXXX-X</small
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono"
+                            >Teléfono <span class="required">*</span></label
+                        >
+                        <input
+                            type="tel"
+                            id="telefono"
+                            name="telefono"
+                            required
+                            placeholder="912345678"
+                            maxlength="9"
+                            pattern="[0-9]{9}"
+                        />
+                        <small style="color: #666; font-size: 12px"
+                            >9 dígitos, sin código de país</small
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email"
+                        >Email <span class="required">*</span></label
+                    >
+                    <input type="email" id="email" name="email" required />
+                </div>
             </div>
-            
-            <div class="form-group">
-              <label for="apellidos">Apellidos <span class="required">*</span></label>
-              <input type="text" id="apellidos" name="apellidos" required>
+
+            <div class="form-section">
+                <h3>Dirección de Envío</h3>
+
+                <div class="form-group">
+                    <label for="calle"
+                        >Calle y Número <span class="required">*</span></label
+                    >
+                    <input
+                        type="text"
+                        id="calle"
+                        name="calle"
+                        required
+                        placeholder="Av. Ejemplo 123, Depto 456"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="region"
+                        >Región <span class="required">*</span></label
+                    >
+                    <select id="region" name="region" required>
+                        <option value="">Selecciona una región</option>
+                        {% for region in regiones %}
+                        <option
+                            value="{{ region.codeRegion }}"
+                            data-code="{{ region.codeRegion }}"
+                        >
+                            {{ region.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ciudad"
+                        >Comuna <span class="required">*</span></label
+                    >
+                    <select id="ciudad" name="ciudad" required disabled>
+                        <option value="">Primero selecciona una región</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="codigo_postal">Código Postal</label>
+                    <input
+                        type="text"
+                        id="codigo_postal"
+                        name="codigo_postal"
+                        placeholder="1234567"
+                    />
+                </div>
             </div>
-          </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="rut">RUT <span class="required">*</span></label>
-              <input type="text" id="rut" name="rut" required placeholder="12345678-9" maxlength="12">
-              <small style="color: #666; font-size: 12px;">Formato: XXXXXXXX-X</small>
-            </div>
-            
-            <div class="form-group">
-              <label for="telefono">Teléfono <span class="required">*</span></label>
-              <input type="tel" id="telefono" name="telefono" required placeholder="912345678" maxlength="9" pattern="[0-9]{9}">
-              <small style="color: #666; font-size: 12px;">9 dígitos, sin código de país</small>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email <span class="required">*</span></label>
-            <input type="email" id="email" name="email" required>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Dirección de Envío</h3>
-          
-          <div class="form-group">
-            <label for="calle">Calle y Número <span class="required">*</span></label>
-            <input type="text" id="calle" name="calle" required placeholder="Av. Ejemplo 123, Depto 456">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="ciudad">Ciudad <span class="required">*</span></label>
-              <input type="text" id="ciudad" name="ciudad" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="region">Región <span class="required">*</span></label>
-              <select id="region" name="region" required>
-                <option value="">Selecciona una región</option>
-                {% for region in regiones %}
-                  <option value="{{ region }}">{{ region }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="codigo_postal">Código Postal</label>
-            <input type="text" id="codigo_postal" name="codigo_postal" placeholder="1234567">
-          </div>
-        </div>
-
-        <button type="submit" class="btn-pagar" id="btnPagar">
-          Proceder al Pago (${{ total|floatformat:0 }})
-        </button>
-      </form>
+            <button type="submit" class="btn-pagar" id="btnPagar">
+                Proceder al Pago (${{ total|floatformat:0 }})
+            </button>
+        </form>
     </div>
 
     <div class="order-summary">
-      <h2>Resumen del Pedido</h2>
-      
-      {% for producto in productos_carrito %}
+        <h2>Resumen del Pedido</h2>
+
+        {% for producto in productos_carrito %}
         <div class="summary-item">
-          {% if producto.imagen_url %}
-            <img src="{% product_image_url producto.imagen_url %}" alt="{{ producto.nombre }}">
-          {% else %}
-            <img src="https://via.placeholder.com/60x60?text=Sin+Imagen" alt="{{ producto.nombre }}">
-          {% endif %}
-          <div class="summary-item-details">
-            <div class="summary-item-name">{{ producto.nombre }}</div>
-            <div class="summary-item-price">
-              {{ producto.cantidad_carrito }} x ${{ producto.precio|floatformat:0 }}
+            {% if producto.imagen_url %}
+            <img
+                src="{% product_image_url producto.imagen_url %}"
+                alt="{{ producto.nombre }}"
+            />
+            {% else %}
+            <img
+                src="https://via.placeholder.com/60x60?text=Sin+Imagen"
+                alt="{{ producto.nombre }}"
+            />
+            {% endif %}
+            <div class="summary-item-details">
+                <div class="summary-item-name">{{ producto.nombre }}</div>
+                <div class="summary-item-price">
+                    {{ producto.cantidad_carrito }} x ${{
+                    producto.precio|floatformat:0 }}
+                </div>
             </div>
-          </div>
-          <div style="font-weight: bold;">
-            ${{ producto.subtotal|floatformat:0 }}
-          </div>
+            <div style="font-weight: bold">
+                ${{ producto.subtotal|floatformat:0 }}
+            </div>
         </div>
-      {% endfor %}
+        {% endfor %}
 
-      <div class="summary-totals">
-        <div class="summary-row">
-          <span>Subtotal:</span>
-          <span>${{ subtotal|floatformat:0 }}</span>
+        <div class="summary-totals">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>${{ subtotal|floatformat:0 }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Envío:</span>
+                <span>${{ costo_envio|floatformat:0 }}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span>${{ total|floatformat:0 }}</span>
+            </div>
         </div>
-        <div class="summary-row">
-          <span>Envío:</span>
-          <span>${{ costo_envio|floatformat:0 }}</span>
-        </div>
-        <div class="summary-row total">
-          <span>Total:</span>
-          <span>${{ total|floatformat:0 }}</span>
-        </div>
-      </div>
 
-      <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; font-size: 13px; color: #666;">
-        <strong>🔒 Pago seguro con Transbank</strong><br>
-        Tu información está protegida con encriptación SSL.
-      </div>
+        <div
+            style="
+                margin-top: 20px;
+                padding: 15px;
+                background: #f8f9fa;
+                border-radius: 4px;
+                font-size: 13px;
+                color: #666;
+            "
+        >
+            <strong>🔒 Pago seguro con Transbank</strong><br />
+            Tu información está protegida con encriptación SSL.
+        </div>
     </div>
-  </div>
-{% endblock %}
-
-{% block extra_js %}
-  <script>
-    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-      const btnPagar = document.getElementById('btnPagar');
-      btnPagar.disabled = true;
-      btnPagar.textContent = 'Procesando...';
-    });
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+    document
+        .getElementById("checkoutForm")
+        .addEventListener("submit", function (e) {
+            const btnPagar = document.getElementById("btnPagar");
+            btnPagar.disabled = true;
+            btnPagar.textContent = "Procesando...";
+        });
 
     // Auto-formatear RUT mientras se escribe
-    document.getElementById('rut').addEventListener('input', function(e) {
-      let value = e.target.value.replace(/[^\dkK]/g, ''); // Solo números y K
-      
-      if (value.length > 1) {
-        // Formatear como XXXXXXXX-X
-        const dv = value.slice(-1);
-        const numero = value.slice(0, -1);
-        value = numero + '-' + dv;
-      }
-      
-      e.target.value = value;
+    document.getElementById("rut").addEventListener("input", function (e) {
+        let value = e.target.value.replace(/[^\dkK]/g, ""); // Solo números y K
+
+        if (value.length > 1) {
+            // Formatear como XXXXXXXX-X
+            const dv = value.slice(-1);
+            const numero = value.slice(0, -1);
+            value = numero + "-" + dv;
+        }
+
+        e.target.value = value;
     });
 
     // Validación del RUT al perder el foco
-    document.getElementById('rut').addEventListener('blur', function(e) {
-      const rut = e.target.value.trim();
-      if (rut && !validarRut(rut)) {
-        e.target.setCustomValidity('RUT inválido. Verifica el dígito verificador.');
-        e.target.reportValidity();
-      } else {
-        e.target.setCustomValidity('');
-      }
+    document.getElementById("rut").addEventListener("blur", function (e) {
+        const rut = e.target.value.trim();
+        if (rut && !validarRut(rut)) {
+            e.target.setCustomValidity(
+                "RUT inválido. Verifica el dígito verificador.",
+            );
+            e.target.reportValidity();
+        } else {
+            e.target.setCustomValidity("");
+        }
     });
 
     // Validar que el teléfono solo tenga números
-    document.getElementById('telefono').addEventListener('input', function(e) {
-      e.target.value = e.target.value.replace(/[^\d]/g, ''); // Solo números
+    document.getElementById("telefono").addEventListener("input", function (e) {
+        e.target.value = e.target.value.replace(/[^\d]/g, ""); // Solo números
     });
 
     // Validación del teléfono
-    document.getElementById('telefono').addEventListener('blur', function(e) {
-      const telefono = e.target.value.trim();
-      if (telefono && telefono.length !== 9) {
-        e.target.setCustomValidity('El teléfono debe tener exactamente 9 dígitos');
-        e.target.reportValidity();
-      } else {
-        e.target.setCustomValidity('');
-      }
+    document.getElementById("telefono").addEventListener("blur", function (e) {
+        const telefono = e.target.value.trim();
+        if (telefono && telefono.length !== 9) {
+            e.target.setCustomValidity(
+                "El teléfono debe tener exactamente 9 dígitos",
+            );
+            e.target.reportValidity();
+        } else {
+            e.target.setCustomValidity("");
+        }
+    });
+
+    // Cargar comunas cuando se selecciona una región
+    document.getElementById("region").addEventListener("change", function (e) {
+        const codigoRegion = e.target.value;
+        const selectCiudad = document.getElementById("ciudad");
+
+        if (!codigoRegion) {
+            selectCiudad.disabled = true;
+            selectCiudad.innerHTML =
+                '<option value="">Primero selecciona una región</option>';
+            return;
+        }
+
+        // Mostrar estado de carga
+        selectCiudad.disabled = true;
+        selectCiudad.innerHTML =
+            '<option value="">Cargando comunas...</option>';
+
+        // Obtener comunas desde la API
+        fetch(
+            `{% url 'carrito:obtener_comunas' %}?codigo_region=${codigoRegion}`,
+        )
+            .then((response) => response.json())
+            .then((data) => {
+                selectCiudad.innerHTML =
+                    '<option value="">Selecciona una comuna</option>';
+
+                if (data.comunas && data.comunas.length > 0) {
+                    data.comunas.forEach((comuna) => {
+                        const option = document.createElement("option");
+                        option.value = comuna.name;
+                        option.textContent = comuna.name;
+                        selectCiudad.appendChild(option);
+                    });
+                    selectCiudad.disabled = false;
+                } else {
+                    selectCiudad.innerHTML =
+                        '<option value="">No hay comunas disponibles</option>';
+                }
+            })
+            .catch((error) => {
+                console.error("Error al cargar comunas:", error);
+                selectCiudad.innerHTML =
+                    '<option value="">Error al cargar comunas</option>';
+            });
     });
 
     function validarRut(rut) {
-      // Eliminar puntos y guión
-      rut = rut.replace(/\./g, '').replace('-', '').toUpperCase();
-      if (rut.length < 2) return false;
-      
-      const cuerpo = rut.slice(0, -1);
-      const dv = rut.slice(-1);
-      
-      // Verificar que el cuerpo tenga entre 7 y 8 dígitos
-      if (!/^\d{7,8}$/.test(cuerpo)) return false;
-      
-      // Calcular dígito verificador
-      let suma = 0;
-      let multiplo = 2;
-      
-      for (let i = cuerpo.length - 1; i >= 0; i--) {
-        suma += parseInt(cuerpo.charAt(i)) * multiplo;
-        multiplo = multiplo < 7 ? multiplo + 1 : 2;
-      }
-      
-      const dvEsperado = 11 - (suma % 11);
-      const dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
-      
-      return dv === dvCalculado;
+        // Eliminar puntos y guión
+        rut = rut.replace(/\./g, "").replace("-", "").toUpperCase();
+        if (rut.length < 2) return false;
+
+        const cuerpo = rut.slice(0, -1);
+        const dv = rut.slice(-1);
+
+        // Verificar que el cuerpo tenga entre 7 y 8 dígitos
+        if (!/^\d{7,8}$/.test(cuerpo)) return false;
+
+        // Calcular dígito verificador
+        let suma = 0;
+        let multiplo = 2;
+
+        for (let i = cuerpo.length - 1; i >= 0; i--) {
+            suma += parseInt(cuerpo.charAt(i)) * multiplo;
+            multiplo = multiplo < 7 ? multiplo + 1 : 2;
+        }
+
+        const dvEsperado = 11 - (suma % 11);
+        const dvCalculado =
+            dvEsperado === 11
+                ? "0"
+                : dvEsperado === 10
+                  ? "K"
+                  : dvEsperado.toString();
+
+        return dv === dvCalculado;
     }
-  </script>
+</script>
 {% endblock %}
