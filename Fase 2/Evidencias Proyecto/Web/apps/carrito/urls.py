@@ -10,6 +10,9 @@ urlpatterns = [
     path("update/", views.actualizar_carrito, name="actualizar_el_carrito"),
     path("checkout/", views.checkout, name="checkout"),
     path("obtener-comunas/", views.obtener_comunas_ajax, name="obtener_comunas"),
+    path(
+        "calcular-envio/", views.calcular_costo_envio_ajax, name="calcular_costo_envio"
+    ),
     path("iniciar-pago/", views.iniciar_pago, name="iniciar_pago"),
     path("confirmar-pago/", views.confirmar_pago, name="confirmar_pago"),
 ]

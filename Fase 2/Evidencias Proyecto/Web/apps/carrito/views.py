@@ -5,6 +5,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from .carrito import Carrito
 from .models import CheckoutSession
+from .shipping_service import calcular_costo_envio, obtener_opciones_envio
 from apps.ventas.models import Producto, Pedido, PedidoItem, Pago, SesionInvitado
 from transbank.webpay.webpay_plus.transaction import Transaction
 from transbank.common.integration_type import IntegrationType
@@ -122,8 +123,9 @@ def ver_carrito(request):
     carrito = Carrito(request)
     productos_carrito = carrito.get_productos()
     subtotal = carrito.get_subtotal()
-    costo_envio = 2990
-    total = carrito.get_total(costo_envio)
+    # El costo de envío se calculará dinámicamente en el checkout
+    costo_envio = 0
+    total = subtotal + costo_envio
 
     context = {
         "productos_carrito": productos_carrito,
@@ -191,8 +193,9 @@ def checkout(request):
         return redirect("carrito:ver_carrito")
 
     subtotal = carrito.get_subtotal()
-    costo_envio = 2990
-    total = carrito.get_total(costo_envio)
+    # El costo de envío se calculará cuando se seleccione la comuna
+    costo_envio = 0
+    total = subtotal
 
     # Obtener regiones desde la API
     regiones = obtener_regiones()
@@ -217,6 +220,28 @@ def obtener_comunas_ajax(request):
 
     comunas = obtener_comunas(codigo_region)
     return JsonResponse({"comunas": comunas})
+
+
+def calcular_costo_envio_ajax(request):
+    """Vista AJAX para calcular el costo de envío según la comuna"""
+    ciudad = request.GET.get("ciudad", "")
+
+    if not ciudad:
+        return JsonResponse({"error": "Ciudad no proporcionada"}, status=400)
+
+    try:
+        carrito = Carrito(request)
+        items_carrito = carrito.get_productos()
+
+        # Calcular costo de envío
+        costo_envio_valor = calcular_costo_envio(ciudad, items_carrito)
+
+        # Obtener opciones de envío disponibles
+        opciones = obtener_opciones_envio(ciudad, items_carrito)
+
+        return JsonResponse({"costo_envio": costo_envio_valor, "opciones": opciones})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 def iniciar_pago(request):
@@ -244,6 +269,11 @@ def iniciar_pago(request):
 
         # Validar datos básicos (sin código postal que ahora es opcional)
         if not all([nombres, apellidos, email, telefono, rut, calle, ciudad, region]):
+            # Calcular costo de envío dinámicamente
+            costo_envio_calculado = calcular_costo_envio(
+                ciudad if ciudad else "", productos_carrito
+            )
+
             return render(
                 request,
                 "carrito/checkout.html",
@@ -251,14 +281,17 @@ def iniciar_pago(request):
                     "error": "Por favor completa todos los campos obligatorios",
                     "productos_carrito": productos_carrito,
                     "subtotal": carrito.get_subtotal(),
-                    "costo_envio": 2990,
-                    "total": carrito.get_total(2990),
+                    "costo_envio": costo_envio_calculado,
+                    "total": carrito.get_subtotal() + costo_envio_calculado,
                     "regiones": obtener_regiones(),
                 },
             )
 
         # Validar formato de RUT
         if not validar_rut(rut):
+            # Calcular costo de envío dinámicamente
+            costo_envio_calculado = calcular_costo_envio(ciudad, productos_carrito)
+
             return render(
                 request,
                 "carrito/checkout.html",
@@ -266,14 +299,17 @@ def iniciar_pago(request):
                     "error": "El RUT ingresado no es válido. Formato esperado: XXXXXXXX-X",
                     "productos_carrito": productos_carrito,
                     "subtotal": carrito.get_subtotal(),
-                    "costo_envio": 2990,
-                    "total": carrito.get_total(2990),
+                    "costo_envio": costo_envio_calculado,
+                    "total": carrito.get_subtotal() + costo_envio_calculado,
                     "regiones": obtener_regiones(),
                 },
             )
 
         # Validar formato de teléfono
         if not validar_telefono(telefono):
+            # Calcular costo de envío dinámicamente
+            costo_envio_calculado = calcular_costo_envio(ciudad, productos_carrito)
+
             return render(
                 request,
                 "carrito/checkout.html",
@@ -281,8 +317,8 @@ def iniciar_pago(request):
                     "error": "El teléfono debe tener exactamente 9 dígitos (ej: 912345678)",
                     "productos_carrito": productos_carrito,
                     "subtotal": carrito.get_subtotal(),
-                    "costo_envio": 2990,
-                    "total": carrito.get_total(2990),
+                    "costo_envio": costo_envio_calculado,
+                    "total": carrito.get_subtotal() + costo_envio_calculado,
                     "regiones": obtener_regiones(),
                 },
             )
@@ -304,6 +340,10 @@ def iniciar_pago(request):
                 "subtotal": producto.subtotal,
             }
 
+        # Calcular costo de envío dinámicamente
+        costo_envio_calculado = calcular_costo_envio(ciudad, productos_carrito)
+        total_con_envio = carrito.get_subtotal() + costo_envio_calculado
+
         # Crear checkout session
         checkout_session = CheckoutSession.objects.create(
             session_id=session_id,
@@ -316,9 +356,9 @@ def iniciar_pago(request):
             ciudad=ciudad,
             region=region,
             codigo_postal=codigo_postal if codigo_postal else None,
-            total=carrito.get_total(2990),
+            total=total_con_envio,
             subtotal=carrito.get_subtotal(),
-            costo_envio=2990,
+            costo_envio=costo_envio_calculado,
             carrito_data=carrito_data,
             estado="pendiente",
         )
@@ -350,6 +390,11 @@ def iniciar_pago(request):
 
     except Exception as e:
         logger.error(f"Error al iniciar pago: {str(e)}", exc_info=True)
+        # Calcular costo de envío dinámicamente
+        costo_envio_calculado = calcular_costo_envio(
+            ciudad if ciudad else "", productos_carrito
+        )
+
         return render(
             request,
             "carrito/checkout.html",
@@ -357,8 +402,8 @@ def iniciar_pago(request):
                 "error": f"Error al procesar el pago: {str(e)}",
                 "productos_carrito": productos_carrito,
                 "subtotal": carrito.get_subtotal(),
-                "costo_envio": 2990,
-                "total": carrito.get_total(2990),
+                "costo_envio": costo_envio_calculado,
+                "total": carrito.get_subtotal() + costo_envio_calculado,
             },
         )
 
@@ -412,6 +457,7 @@ def confirmar_pago(request):
                 region=checkout_session.region,
                 codigo_postal=checkout_session.codigo_postal,
                 total=checkout_session.total,
+                precio_envio=checkout_session.costo_envio,
                 estado="Procesando",
                 cliente_persona_id=checkout_session.cliente_persona_id,
                 cliente_empresa_id=checkout_session.cliente_empresa_id,

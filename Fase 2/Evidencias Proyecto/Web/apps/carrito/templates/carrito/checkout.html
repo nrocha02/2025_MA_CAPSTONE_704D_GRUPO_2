@@ -399,11 +399,11 @@
             </div>
             <div class="summary-row">
                 <span>Envío:</span>
-                <span>${{ costo_envio|floatformat:0 }}</span>
+                <span id="costo-envio-display">${{ costo_envio|floatformat:0 }}</span>
             </div>
             <div class="summary-row total">
                 <span>Total:</span>
-                <span>${{ total|floatformat:0 }}</span>
+                <span id="total-display">${{ total|floatformat:0 }}</span>
             </div>
         </div>
 
@@ -520,6 +520,53 @@
                 console.error("Error al cargar comunas:", error);
                 selectCiudad.innerHTML =
                     '<option value="">Error al cargar comunas</option>';
+            });
+    });
+
+    // Calcular costo de envío cuando se selecciona una comuna
+    document.getElementById("ciudad").addEventListener("change", function (e) {
+        const ciudad = e.target.value;
+
+        if (!ciudad) {
+            return;
+        }
+
+        // Obtener subtotal desde el DOM
+        const subtotalElement = document.querySelector('.summary-row span:nth-child(2)');
+        const subtotalText = subtotalElement ? subtotalElement.textContent.replace(/[$.]/g, '').trim() : '0';
+        const subtotal = parseInt(subtotalText) || 0;
+
+        // Calcular costo de envío
+        fetch(`{% url 'carrito:calcular_costo_envio' %}?ciudad=${encodeURIComponent(ciudad)}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.costo_envio !== undefined) {
+                    const costoEnvio = parseInt(data.costo_envio);
+                    const total = subtotal + costoEnvio;
+
+                    // Actualizar display de costo de envío
+                    const costoEnvioDisplay = document.getElementById('costo-envio-display');
+                    if (costoEnvioDisplay) {
+                        costoEnvioDisplay.textContent = '$' + costoEnvio.toLocaleString('es-CL');
+                    }
+
+                    // Actualizar display de total
+                    const totalDisplay = document.getElementById('total-display');
+                    if (totalDisplay) {
+                        totalDisplay.textContent = '$' + total.toLocaleString('es-CL');
+                    }
+
+                    // Mostrar información de envío si está disponible
+                    if (data.opciones && data.opciones.length > 0) {
+                        const opcion = data.opciones[0];
+                        console.log('Opción de envío:', opcion.servicio, '-', opcion.tiempo_estimado);
+                    }
+                } else if (data.error) {
+                    console.error('Error al calcular costo de envío:', data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error al calcular costo de envío:', error);
             });
     });
 

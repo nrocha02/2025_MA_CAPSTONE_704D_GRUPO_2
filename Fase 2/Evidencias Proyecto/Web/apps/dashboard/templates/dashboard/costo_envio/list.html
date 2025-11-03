@@ -1,0 +1,206 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Costos de Envío - Cordillera Pets{% endblock %}
+
+{% block show_breadcrumb %}True{% endblock %}
+
+{% block breadcrumb %}
+  {{ block.super }}
+  <li class="breadcrumb-item active text-white">Costos de Envío</li>
+{% endblock %}
+
+{% block navbar_extra %}{% endblock %}
+
+{% block main_container_class %}-fluid{% endblock %}
+
+{% block page_title %}Gestión de Costos de Envío{% endblock %}
+
+{% block page_description %}Administra los costos de envío por comuna{% endblock %}
+
+{% block page_actions %}
+{% endblock %}
+
+{% block main_content %}
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Buscar Comuna</label>
+          <input type="text" class="form-control" name="search"
+                 value="{{ search }}"
+                 placeholder="Nombre de la comuna">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Estado</label>
+          <select class="form-select" name="estado">
+            <option value="">Todos</option>
+            <option value="activo" {% if estado == "activo" %}selected{% endif %}>Activo</option>
+            <option value="inactivo" {% if estado == "inactivo" %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">&nbsp;</label>
+          <div class="d-grid gap-2 d-md-flex">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-search"></i> Filtrar
+            </button>
+            <a href="{% url 'dashboard:costo_envio_list' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-times"></i> Limpiar
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla de costos -->
+  <div class="card">
+    <div class="card-body">
+      {% if page_obj %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>Comuna</th>
+                <th>Costo de Envío</th>
+                <th>Estado</th>
+                <th>Última Actualización</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for costo in page_obj %}
+                <tr>
+                  <td>
+                    <strong>{{ costo.comuna }}</strong>
+                  </td>
+                  <td>
+                    <strong class="text-success">${{ costo.costo|floatformat:0 }}</strong>
+                  </td>
+                  <td>
+                    {% if costo.activo %}
+                      <span class="badge bg-success">Activo</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactivo</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ costo.fecha_actualizacion|date:"d/m/Y H:i" }}</small>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <a href="{% url 'dashboard:costo_envio_edit' costo.id %}"
+                         class="btn btn-outline-primary" title="Editar">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="{% url 'dashboard:costo_envio_delete' costo.id %}"
+                         class="btn btn-outline-danger" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if page_obj.has_other_pages %}
+          <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i> Anterior
+                  </a>
+                </li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% else %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}">
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <div class="text-center py-5">
+          <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">No hay costos de envío registrados</h5>
+          <p class="text-muted">Contacta al administrador del sistema para cargar los costos de envío</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Información adicional -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Estadísticas</h6>
+          <ul class="list-unstyled mb-0">
+            <li><strong>Total de comunas:</strong> {{ total_costos }}</li>
+            <li><strong>En esta página:</strong> {{ page_obj.object_list|length|default:0 }}</li>
+            {% if search %}
+              <li><strong>Filtros aplicados:</strong> Sí</li>
+            {% elif estado %}
+              <li><strong>Filtros aplicados:</strong> Sí</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Información</h6>
+          <p class="mb-2 small">
+            <i class="fas fa-info-circle text-primary"></i>
+            Los costos de envío se aplican automáticamente según la comuna de destino.
+          </p>
+          <p class="mb-0 small">
+            <i class="fas fa-info-circle text-primary"></i>
+            Las comunas inactivas no se mostrarán en el checkout.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones rápidas -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Acciones rápidas</h6>
+          <div class="d-grid gap-2 d-md-flex">
+            <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-arrow-left"></i> Volver al Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
