@@ -1,0 +1,397 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Reportes de Productos - Dashboard Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+    }
+    .table-responsive {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.375rem;
+    }
+    .stock-badge {
+        font-size: 0.875rem;
+    }
+    .product-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Reportes de Productos{% endblock %}
+{% block page_description %}Análisis de rendimiento y stock de productos{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+    </a>
+    <a href="{% url 'dashboard:reportes_ventas' %}" class="btn btn-success">
+        <i class="fas fa-chart-line"></i> Reportes de Ventas
+    </a>
+    <a href="{% url 'dashboard:producto_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Producto
+    </a>
+</div>
+{% endblock %}
+
+{% block main_content %}
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Filtros y Ordenamiento</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="categoria" class="form-label">Categoría:</label>
+                <select name="categoria" id="categoria" class="form-select">
+                    <option value="">Todas las categorías</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.categoria_id }}" {% if categoria.categoria_id|stringformat:"s" == categoria_seleccionada %}selected{% endif %}>
+                        {{ categoria.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="marca" class="form-label">Marca:</label>
+                <select name="marca" id="marca" class="form-select">
+                    <option value="">Todas las marcas</option>
+                    {% for marca in marcas %}
+                    <option value="{{ marca.marca_id }}" {% if marca.marca_id|stringformat:"s" == marca_seleccionada %}selected{% endif %}>
+                        {{ marca.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="orden" class="form-label">Ordenar por:</label>
+                <select name="orden" id="orden" class="form-select">
+                    <option value="ventas" {% if orden_seleccionado == 'ventas' %}selected{% endif %}>Más vendidos</option>
+                    <option value="ingresos" {% if orden_seleccionado == 'ingresos' %}selected{% endif %}>Mayores ingresos</option>
+                    <option value="stock" {% if orden_seleccionado == 'stock' %}selected{% endif %}>Menor stock</option>
+                    <option value="precio" {% if orden_seleccionado == 'precio' %}selected{% endif %}>Mayor precio</option>
+                    <option value="nombre" {% if orden_seleccionado == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+                <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-refresh"></i> Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Métricas principales -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-primary">
+            <div class="card-body text-center">
+                <div class="text-primary">
+                    <i class="fas fa-box fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-primary">{{ total_productos }}</h3>
+                <p class="card-text text-muted">Total Productos</p>
+                <small class="text-muted">{{ productos_activos }} activos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-success">
+            <div class="card-body text-center">
+                <div class="text-success">
+                    <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-success">${{ valor_inventario|floatformat:0|intcomma }}</h3>
+                <p class="card-text text-muted">Valor Inventario</p>
+                <small class="text-muted">Productos activos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-warning">
+            <div class="card-body text-center">
+                <div class="text-warning">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-warning">{{ productos_stock_bajo }}</h3>
+                <p class="card-text text-muted">Stock Bajo</p>
+                <small class="text-muted">Menos de 10 unidades</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-danger">
+            <div class="card-body text-center">
+                <div class="text-danger">
+                    <i class="fas fa-times-circle fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-danger">{{ productos_sin_stock }}</h3>
+                <p class="card-text text-muted">Sin Stock</p>
+                <small class="text-muted">0 unidades</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top productos y categorías -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> Productos Más Vendidos (Todos los tiempos)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>SKU</th>
+                                <th class="text-end">Precio</th>
+                                <th class="text-end">Total Vendido</th>
+                                <th class="text-end">Ingresos Generados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_mas_vendidos %}
+                            <tr>
+                                <td>
+                                    <strong>{{ producto.producto__nombre }}</strong>
+                                </td>
+                                <td>
+                                    <code>{{ producto.producto__sku }}</code>
+                                </td>
+                                <td class="text-end">
+                                    <strong>${{ producto.producto__precio|floatformat:0|intcomma }}</strong>
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-primary stock-badge">{{ producto.total_vendido }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong class="text-success">${{ producto.ingresos|floatformat:0|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No hay datos de ventas disponibles</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-tags"></i> Estadísticas por Categoría</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Categoría</th>
+                                <th class="text-end">Productos</th>
+                                <th class="text-end">Stock Bajo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for categoria in categorias_stats %}
+                            <tr>
+                                <td>{{ categoria.nombre }}</td>
+                                <td class="text-end">
+                                    <span class="badge bg-info">{{ categoria.num_productos }}</span>
+                                </td>
+                                <td class="text-end">
+                                    {% if categoria.productos_stock_bajo > 0 %}
+                                        <span class="badge bg-warning">{{ categoria.productos_stock_bajo }}</span>
+                                    {% else %}
+                                        <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista detallada de productos -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list"></i> Lista Detallada de Productos
+            {% if categoria_seleccionada or marca_seleccionada %}
+                <small class="text-muted">(Filtrado)</small>
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Marca</th>
+                        <th class="text-end">Precio</th>
+                        <th class="text-end">Stock</th>
+                        <th class="text-end">Vendidos (30d)</th>
+                        <th class="text-end">Ingresos (30d)</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if producto.imagen_url %}
+                                    <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="product-image me-2">
+                                {% else %}
+                                    <div class="product-image me-2 bg-light d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ producto.nombre }}</strong><br>
+                                    <small class="text-muted">{{ producto.sku }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ producto.categoria.nombre|default:"Sin categoría" }}</td>
+                        <td>{{ producto.marca.nombre|default:"Sin marca" }}</td>
+                        <td class="text-end">
+                            <strong>${{ producto.precio|floatformat:0|intcomma }}</strong>
+                        </td>
+                        <td class="text-end">
+                            {% if producto.stock == 0 %}
+                                <span class="badge bg-danger stock-badge">Sin stock</span>
+                            {% elif producto.stock < 10 %}
+                                <span class="badge bg-warning stock-badge">{{ producto.stock }}</span>
+                            {% else %}
+                                <span class="badge bg-success stock-badge">{{ producto.stock }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <span class="badge bg-primary stock-badge">{{ producto.total_vendido }}</span>
+                        </td>
+                        <td class="text-end">
+                            <strong class="text-success">${{ producto.ingresos_generados|floatformat:0|intcomma }}</strong>
+                        </td>
+                        <td class="text-center">
+                            {% if producto.estado_producto == 'activo' %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ producto.estado_producto|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:producto_edit' producto.producto_id %}" 
+                                   class="btn btn-outline-primary btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'dashboard:producto_delete' producto.producto_id %}" 
+                                   class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            No se encontraron productos con los filtros seleccionados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if productos.has_other_pages %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Paginación de productos">
+                <ul class="pagination">
+                    {% if productos.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ productos.previous_page_number }}">Anterior</a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in productos.paginator.page_range %}
+                        {% if productos.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i == 1 or i == productos.paginator.num_pages or i >= productos.number|add:'-2' and i <= productos.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ i }}">{{ i }}</a>
+                            </li>
+                        {% elif i == 2 or i == productos.paginator.num_pages|add:'-1' %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if productos.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ productos.next_page_number }}">Siguiente</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        <!-- Info de paginación -->
+        <div class="text-center text-muted mt-3">
+            <small>
+                Mostrando {{ productos.start_index }} - {{ productos.end_index }} de {{ productos.paginator.count }} productos
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit del formulario cuando cambian los filtros
+document.getElementById('categoria').addEventListener('change', function() {
+    this.form.submit();
+});
+
+document.getElementById('marca').addEventListener('change', function() {
+    this.form.submit();
+});
+
+document.getElementById('orden').addEventListener('change', function() {
+    this.form.submit();
+});
+</script>
+{% endblock %}

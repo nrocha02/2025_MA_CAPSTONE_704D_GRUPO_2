@@ -1,0 +1,425 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Reportes de Ventas - Dashboard Admin{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 2rem;
+    }
+    .metric-card {
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+    }
+    .table-responsive {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.375rem;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Reportes de Ventas{% endblock %}
+{% block page_description %}Análisis detallado de ventas y rendimiento{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+    </a>
+    <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-info">
+        <i class="fas fa-box"></i> Reportes de Productos
+    </a>
+</div>
+{% endblock %}
+
+{% block main_content %}
+<!-- Filtros de período -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Filtros de Período</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="periodo" class="form-label">Período:</label>
+                <select name="periodo" id="periodo" class="form-select" onchange="toggleCustomDates()">
+                    <option value="dia" {% if periodo == 'dia' %}selected{% endif %}>Hoy</option>
+                    <option value="semana" {% if periodo == 'semana' %}selected{% endif %}>Esta Semana</option>
+                    <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Este Mes</option>
+                    <option value="trimestre" {% if periodo == 'trimestre' %}selected{% endif %}>Este Trimestre</option>
+                    <option value="año" {% if periodo == 'año' %}selected{% endif %}>Este Año</option>
+                    <option value="personalizado" {% if periodo == 'personalizado' %}selected{% endif %}>Personalizado</option>
+                </select>
+            </div>
+            <div class="col-md-3" id="fecha-inicio-group" style="display: {% if periodo == 'personalizado' %}block{% else %}none{% endif %};">
+                <label for="fecha_inicio" class="form-label">Fecha Inicio:</label>
+                <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+            </div>
+            <div class="col-md-3" id="fecha-fin-group" style="display: {% if periodo == 'personalizado' %}block{% else %}none{% endif %};">
+                <label for="fecha_fin" class="form-label">Fecha Fin:</label>
+                <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Métricas principales -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-primary">
+            <div class="card-body text-center">
+                <div class="text-primary">
+                    <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-primary">${{ ventas_stats.total_ventas|floatformat:0|intcomma }}</h3>
+                <p class="card-text text-muted">Total Ventas</p>
+                <small class="text-muted">{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-success">
+            <div class="card-body text-center">
+                <div class="text-success">
+                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-success">{{ ventas_stats.num_pedidos }}</h3>
+                <p class="card-text text-muted">Número de Pedidos</p>
+                <small class="text-muted">Completados y entregados</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-info">
+            <div class="card-body text-center">
+                <div class="text-info">
+                    <i class="fas fa-receipt fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-info">${{ ventas_stats.ticket_promedio|floatformat:0|intcomma }}</h3>
+                <p class="card-text text-muted">Ticket Promedio</p>
+                <small class="text-muted">Por pedido</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card metric-card h-100 border-warning">
+            <div class="card-body text-center">
+                <div class="text-warning">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                </div>
+                <h3 class="text-warning">
+                    {% if ventas_stats.num_pedidos > 0 %}
+                        ${{ ventas_stats.total_ventas|div:ventas_stats.num_pedidos|floatformat:0|intcomma }}
+                    {% else %}
+                        $0
+                    {% endif %}
+                </h3>
+                <p class="card-text text-muted">Venta Diaria Promedio</p>
+                <small class="text-muted">En el período</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de ventas -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-area"></i> Evolución de Ventas</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ventasChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Ventas por Categoría</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="categoriasChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top productos y clientes -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> Top Productos Vendidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_vendidos %}
+                            <tr>
+                                <td>
+                                    <strong>{{ producto.producto__nombre }}</strong><br>
+                                    <small class="text-muted">{{ producto.producto__sku }}</small>
+                                </td>
+                                <td>{{ producto.producto__categoria__nombre|default:"Sin categoría" }}</td>
+                                <td class="text-end">
+                                    <span class="badge bg-primary">{{ producto.cantidad_vendida }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>${{ producto.ingresos_totales|floatformat:0|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No hay datos de ventas en el período seleccionado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-users"></i> Top Clientes</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-end">Pedidos</th>
+                                <th class="text-end">Total Compras</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cliente in clientes_top %}
+                            <tr>
+                                <td>
+                                    {% if cliente.cliente_persona__nombres %}
+                                        <strong>{{ cliente.cliente_persona__nombres }} {{ cliente.cliente_persona__apellido_paterno }}</strong><br>
+                                        <small class="text-muted">{{ cliente.cliente_persona__email }}</small>
+                                    {% elif cliente.cliente_empresa__razon_social %}
+                                        <strong>{{ cliente.cliente_empresa__razon_social }}</strong><br>
+                                        <small class="text-muted">{{ cliente.cliente_empresa__email_contacto }}</small>
+                                    {% else %}
+                                        <span class="text-muted">Cliente invitado</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-info">{{ cliente.num_pedidos }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>${{ cliente.total_compras|floatformat:0|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No hay datos de clientes en el período seleccionado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estados de pedidos y ventas por categoría -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-list-alt"></i> Estados de Pedidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Estado</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Porcentaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estado in estados_pedidos %}
+                            <tr>
+                                <td>
+                                    {% if estado.estado == 'Completado' %}
+                                        <span class="badge bg-success">{{ estado.estado }}</span>
+                                    {% elif estado.estado == 'Pendiente de pago' %}
+                                        <span class="badge bg-warning">{{ estado.estado }}</span>
+                                    {% elif estado.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ estado.estado }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ estado.estado }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">{{ estado.count }}</td>
+                                <td class="text-end">
+                                    {% widthratio estado.count estados_pedidos|length:100 %}%
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-tags"></i> Ventas por Categoría</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Categoría</th>
+                                <th class="text-end">Unidades</th>
+                                <th class="text-end">Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for categoria in ventas_por_categoria %}
+                            <tr>
+                                <td>{{ categoria.producto__categoria__nombre|default:"Sin categoría" }}</td>
+                                <td class="text-end">
+                                    <span class="badge bg-primary">{{ categoria.cantidad_vendida }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>${{ categoria.total_ventas|floatformat:0|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleCustomDates() {
+    const periodo = document.getElementById('periodo').value;
+    const fechaInicioGroup = document.getElementById('fecha-inicio-group');
+    const fechaFinGroup = document.getElementById('fecha-fin-group');
+    
+    if (periodo === 'personalizado') {
+        fechaInicioGroup.style.display = 'block';
+        fechaFinGroup.style.display = 'block';
+    } else {
+        fechaInicioGroup.style.display = 'none';
+        fechaFinGroup.style.display = 'none';
+    }
+}
+
+// Gráfico de ventas
+const ventasData = {{ ventas_diarias|safe }};
+const ventasLabels = ventasData.map(item => {
+    const fecha = new Date(item.fecha__date);
+    return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+});
+const ventasValues = ventasData.map(item => item.total);
+
+const ventasCtx = document.getElementById('ventasChart').getContext('2d');
+new Chart(ventasCtx, {
+    type: 'line',
+    data: {
+        labels: ventasLabels,
+        datasets: [{
+            label: 'Ventas ($)',
+            data: ventasValues,
+            borderColor: 'rgb(13, 110, 253)',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de categorías
+fetch('{% url "dashboard:api_categorias_chart" %}')
+    .then(response => response.json())
+    .then(data => {
+        const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
+        new Chart(categoriasCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

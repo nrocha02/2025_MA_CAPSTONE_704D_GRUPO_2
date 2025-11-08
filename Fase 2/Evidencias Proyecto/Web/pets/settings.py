@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'apps.ventas',
     'apps.dashboard',
-    'apps.carrito'
+    'apps.carrito',
+    'django.contrib.humanize',
 ]
 
 
