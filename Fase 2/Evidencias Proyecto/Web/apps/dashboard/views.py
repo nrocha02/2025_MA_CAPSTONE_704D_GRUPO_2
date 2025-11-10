@@ -5,6 +5,10 @@ from django.utils.text import slugify
 from apps.ventas.models import Producto, Categoria, Marca
 from .storage import upload_product_image, delete_product_image, is_spaces_configured
 import logging
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from ..ventas.brevo_service import BrevoEmailService
 
 # Configurar logger
 logger = logging.getLogger(__name__)
@@ -412,3 +416,188 @@ def producto_delete(request, producto_id):
         'titulo': f'Eliminar: {producto.nombre}'
     }
     return render(request, 'dashboard/producto/delete.html', context)
+
+# ===== VISTAS PARA BREVO EMAIL SERVICE =====
+#gestión de correos
+def brevo_dashboard(request):
+    #Dashboard para gestión de correos con Brevo"""
+    try:
+        brevo_service = BrevoEmailService()
+        account_info = brevo_service.get_account_info()
+        
+        # Obtener estadísticas básicas
+        total_clientes = ClientePersona.objects.filter(estado=True).count()
+        productos_stock_bajo = Producto.objects.filter(
+            stock__lt=10, 
+            estado_producto='activo'
+        ).select_related('categoria')
+        
+        # Últimos clientes registrados
+        ultimos_clientes = ClientePersona.objects.filter(estado=True).order_by('-fecha_registro')[:5]
+        
+        context = {
+            'account_info': account_info,
+            'total_clientes': total_clientes,
+            'productos_stock_bajo': productos_stock_bajo,
+            'ultimos_clientes': ultimos_clientes,
+        }
+        
+        return render(request, 'ventas/brevo/dashboard.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error en brevo_dashboard: {e}")
+        messages.error(request, f'Error al cargar dashboard: {str(e)}')
+        return redirect('index')
+
+#
+def brevo_send_custom_email(request):
+    #Vista para enviar correos personalizados"""
+    if request.method == 'POST':
+        try:
+            recipient_email = request.POST.get('recipient_email')
+            recipient_name = request.POST.get('recipient_name', '')
+            subject = request.POST.get('subject')
+            message = request.POST.get('message')
+            
+            brevo_service = BrevoEmailService()
+            result = brevo_service.send_custom_email(
+                recipient_email=recipient_email,
+                recipient_name=recipient_name,
+                subject=subject,
+                message=message
+            )
+            
+            if result['success']:
+                messages.success(request, f'Correo enviado exitosamente a {recipient_email}')
+            else:
+                messages.error(request, f'Error al enviar correo: {result["message"]}')
+                
+        except Exception as e:
+            logger.error(f"Error al enviar correo personalizado: {e}")
+            messages.error(request, f'Error inesperado: {str(e)}')
+    
+    # Obtener lista de clientes para el formulario
+    clientes = ClientePersona.objects.filter(estado=True).order_by('nombres')
+    
+    context = {
+        'clientes': clientes,
+    }
+    
+    return render(request, 'ventas/brevo/send_custom_email.html', context)
+
+#Envia las alertas del stock bajo
+def brevo_send_stock_alert(request):
+    """Vista para enviar alertas de stock bajo"""
+    if request.method == 'POST':
+        try:
+            admin_email = request.POST.get('admin_email', 'cordillerapetschile@gmail.com')
+            
+            # Obtener productos con stock bajo
+            productos_bajo_stock = Producto.objects.filter(
+                stock__lt=10, 
+                estado_producto='activo'
+            ).select_related('categoria')
+            
+            if not productos_bajo_stock.exists():
+                messages.info(request, 'No hay productos con stock bajo en este momento.')
+                return redirect('brevo_dashboard')
+            
+            # Preparar datos para el email
+            productos_data = []
+            for producto in productos_bajo_stock:
+                productos_data.append({
+                    'nombre': producto.nombre,
+                    'sku': producto.sku,
+                    'stock': producto.stock,
+                    'categoria': producto.categoria.nombre if producto.categoria else 'Sin categoría'
+                })
+            
+            brevo_service = BrevoEmailService()
+            result = brevo_service.send_stock_alert(
+                admin_email=admin_email,
+                productos_bajo_stock=productos_data
+            )
+            
+            if result['success']:
+                messages.success(request, f'Alerta de stock enviada exitosamente a {admin_email}')
+            else:
+                messages.error(request, f'Error al enviar alerta: {result["message"]}')
+                
+        except Exception as e:
+            logger.error(f"Error al enviar alerta de stock: {e}")
+            messages.error(request, f'Error inesperado: {str(e)}')
+    
+    return redirect('brevo_dashboard')
+
+
+def brevo_send_order_confirmation(request):
+    #Vista para simular envío de confirmación de pedido"""
+    if request.method == 'POST':
+        try:
+            cliente_id = request.POST.get('cliente_id')
+            
+            # Obtener cliente
+            cliente = ClientePersona.objects.get(cliente_persona_id=cliente_id)
+            
+            # Simular datos de pedido
+            productos_simulados = Producto.objects.filter(estado_producto='activo')[:3]
+            items_simulados = []
+            total_simulado = 0
+            
+            for producto in productos_simulados:
+                cantidad = 2
+                subtotal = producto.precio * cantidad
+                total_simulado += subtotal
+                
+                items_simulados.append({
+                    'nombre': producto.nombre,
+                    'cantidad': cantidad,
+                    'precio_unitario': producto.precio,
+                    'subtotal': subtotal
+                })
+            
+            brevo_service = BrevoEmailService()
+            result = brevo_service.send_order_confirmation(
+                cliente_email=cliente.email,
+                cliente_nombre=f"{cliente.nombres} {cliente.apellido_paterno}",
+                pedido_id=99999,  # ID simulado
+                total=total_simulado,
+                items=items_simulados
+            )
+            
+            if result['success']:
+                messages.success(request, f'Confirmación de pedido simulada enviada a {cliente.email}')
+            else:
+                messages.error(request, f'Error al enviar confirmación: {result["message"]}')
+                
+        except ClientePersona.DoesNotExist:
+            messages.error(request, 'Cliente no encontrado.')
+        except Exception as e:
+            logger.error(f"Error al enviar confirmación de pedido: {e}")
+            messages.error(request, f'Error inesperado: {str(e)}')
+    
+    return redirect('brevo_dashboard')
+
+
+@csrf_exempt
+def brevo_test_api(request):
+    #Vista para probar conexión con API de Brevo"""
+    if request.method == 'POST':
+        try:
+            brevo_service = BrevoEmailService()
+            account_info = brevo_service.get_account_info()
+            
+            return JsonResponse({
+                'success': account_info['success'],
+                'data': account_info.get('data', {}).__dict__ if account_info['success'] else None,
+                'message': account_info.get('message', 'Conexión exitosa')
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al probar API: {e}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Error: {str(e)}'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido'})

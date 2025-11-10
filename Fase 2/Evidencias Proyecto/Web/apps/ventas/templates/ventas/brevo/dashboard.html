@@ -1,0 +1,381 @@
+{% extends 'ventas/ventas_base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Brevo - Cordillera Pets{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .brevo-dashboard {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .icon-large {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .btn-brevo {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    .btn-brevo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+    .api-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    .status-connected {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="brevo-dashboard">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-envelope-open-text me-3"></i>
+                    Dashboard Brevo Email Service
+                </h1>
+                <p class="lead">Gestión avanzada de correos electrónicos para Cordillera Pets</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Estado de la API -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plug me-2"></i>
+                        Estado de Conexión con Brevo
+                    </h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="testBrevoAPI()">
+                        <i class="fas fa-sync"></i> Probar Conexión
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="api-status">
+                        {% if account_info.success %}
+                            <span class="api-status status-connected">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Conectado exitosamente
+                            </span>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    Email configurado: <strong>cordillerapetschile@gmail.com</strong>
+                                </small>
+                            </div>
+                        {% else %}
+                            <span class="api-status status-error">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error de conexión
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-users icon-large text-primary"></i>
+                <h3 class="text-primary">{{ total_clientes }}</h3>
+                <p class="text-muted">Clientes Registrados</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-exclamation-triangle icon-large text-warning"></i>
+                <h3 class="text-warning">{{ productos_stock_bajo|length }}</h3>
+                <p class="text-muted">Productos Stock Bajo</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-envelope icon-large text-success"></i>
+                <h3 class="text-success">{{ ultimos_clientes|length }}</h3>
+                <p class="text-muted">Nuevos Clientes</p>
+                <small class="text-muted">(últimos 5)</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-paper-plane icon-large text-info"></i>
+                <h3 class="text-info">Activo</h3>
+                <p class="text-muted">Servicio Email</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones de Email -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-paper-plane me-2"></i>
+                Acciones de Email
+            </h3>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-edit icon-large text-primary"></i>
+                    <h5>Enviar Email Personalizado</h5>
+                    <p class="text-muted">Envía correos personalizados a clientes específicos</p>
+                    <a href="{% url 'brevo_send_custom_email' %}" class="btn btn-brevo">
+                        <i class="fas fa-edit me-2"></i>Crear Email
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle icon-large text-warning"></i>
+                    <h5>Alerta de Stock Bajo</h5>
+                    <p class="text-muted">Envía alertas automáticas sobre productos con stock bajo</p>
+                    <form method="post" action="{% url 'brevo_send_stock_alert' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="admin_email" value="cordillerapetschile@gmail.com">
+                        <button type="submit" class="btn btn-brevo">
+                            <i class="fas fa-bell me-2"></i>Enviar Alerta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart icon-large text-success"></i>
+                    <h5>Confirmación de Pedido</h5>
+                    <p class="text-muted">Simula envío de confirmación de pedido</p>
+                    <button type="button" class="btn btn-brevo" data-bs-toggle="modal" data-bs-target="#orderModal">
+                        <i class="fas fa-check me-2"></i>Simular Envío
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos con Stock Bajo -->
+    {% if productos_stock_bajo %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                Productos con Stock Bajo
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>SKU</th>
+                                    <th>Stock Actual</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for producto in productos_stock_bajo %}
+                                <tr>
+                                    <td>{{ producto.nombre }}</td>
+                                    <td><code>{{ producto.sku }}</code></td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ producto.stock }}</span>
+                                    </td>
+                                    <td>{{ producto.categoria.nombre|default:"Sin categoría" }}</td>
+                                    <td>${{ producto.precio|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Últimos Clientes -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-user-plus text-success me-2"></i>
+                Últimos Clientes Registrados
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cliente in ultimos_clientes %}
+                                <tr>
+                                    <td>{{ cliente.nombres }} {{ cliente.apellido_paterno }}</td>
+                                    <td>{{ cliente.email }}</td>
+                                    <td>{{ cliente.fecha_registro|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if cliente.estado %}
+                                            <span class="badge bg-success">Activo</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="selectClienteForOrder('{{ cliente.cliente_persona_id }}', '{{ cliente.nombres|escapejs }} {{ cliente.apellido_paterno|escapejs }}')">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Confirmación de Pedido -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Simular Confirmación de Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'brevo_send_order_confirmation' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="cliente_id" class="form-label">Seleccionar Cliente</label>
+                        <select class="form-select" name="cliente_id" id="cliente_id" required>
+                            <option value="">Seleccione un cliente...</option>
+                            {% for cliente in ultimos_clientes %}
+                            <option value="{{ cliente.cliente_persona_id }}">
+                                {{ cliente.nombres }} {{ cliente.apellido_paterno }} ({{ cliente.email }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <p class="text-muted">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Se enviará una confirmación de pedido simulada con productos de ejemplo.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-brevo">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Confirmación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+function testBrevoAPI() {
+    const statusDiv = document.getElementById('api-status');
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Probando conexión...';
+    
+    fetch('{% url "brevo_test_api" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusDiv.innerHTML = `
+                <span class="api-status status-connected">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Conectado exitosamente
+                </span>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        Email configurado: <strong>cordillerapetschile@gmail.com</strong>
+                    </small>
+                </div>
+            `;
+        } else {
+            statusDiv.innerHTML = `
+                <span class="api-status status-error">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error: ${data.message}
+                </span>
+            `;
+        }
+    })
+    .catch(error => {
+        statusDiv.innerHTML = `
+            <span class="api-status status-error">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error de conexión
+            </span>
+        `;
+    });
+}
+
+function selectClienteForOrder(clienteId, clienteNombre) {
+    document.getElementById('cliente_id').value = clienteId;
+    const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+    modal.show();
+}
+</script>
+{% endblock %}
