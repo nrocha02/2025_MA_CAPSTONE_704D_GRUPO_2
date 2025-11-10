@@ -1,0 +1,135 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Editar Costo de Envío - Cordillera Pets{% endblock %}
+
+{% block show_breadcrumb %}True{% endblock %}
+
+{% block breadcrumb %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'dashboard:costo_envio_list' %}" class="text-white-50">Costos de Envío</a>
+  </li>
+  <li class="breadcrumb-item active text-white">Editar {{ costo_envio.comuna }}</li>
+{% endblock %}
+
+{% block navbar_extra %}{% endblock %}
+
+{% block page_title %}Editar Costo de Envío{% endblock %}
+
+{% block page_description %}Modifica el costo de envío para {{ costo_envio.comuna }}{% endblock %}
+
+{% block page_actions %}
+  <a href="{% url 'dashboard:costo_envio_list' %}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Volver
+  </a>
+{% endblock %}
+
+{% block main_content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-edit"></i> Editar Costo de Envío
+          </h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="comuna" class="form-label">
+                Comuna <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="comuna"
+                name="comuna"
+                value="{{ costo_envio.comuna }}"
+                placeholder="Ej: San Miguel"
+                required
+              >
+              <div class="form-text">
+                Ingrese el nombre de la comuna. Se recomienda usar mayúsculas en la primera letra.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="costo" class="form-label">
+                Costo de Envío <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="costo"
+                  name="costo"
+                  value="{{ costo_envio.costo }}"
+                  placeholder="0"
+                  min="0"
+                  step="1"
+                  required
+                >
+              </div>
+              <div class="form-text">
+                Ingrese el costo de envío en pesos chilenos (sin decimales).
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="activo"
+                  name="activo"
+                  {% if costo_envio.activo %}checked{% endif %}
+                >
+                <label class="form-check-label" for="activo">
+                  Activo
+                </label>
+              </div>
+              <div class="form-text">
+                Los costos inactivos no se mostrarán en el checkout.
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="alert alert-info">
+              <i class="fas fa-clock"></i>
+              <strong>Última actualización:</strong> {{ costo_envio.fecha_actualizacion|date:"d/m/Y H:i" }}
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'dashboard:costo_envio_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-times"></i> Cancelar
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar Cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="card mt-3">
+        <div class="card-body">
+          <h6 class="card-title">
+            <i class="fas fa-info-circle text-primary"></i> Información
+          </h6>
+          <ul class="mb-0 small">
+            <li>Los campos marcados con <span class="text-danger">*</span> son obligatorios.</li>
+            <li>El nombre de la comuna debe ser único en el sistema.</li>
+            <li>El costo de envío debe ser un número entero positivo.</li>
+            <li>Al guardar, la fecha de última actualización se actualizará automáticamente.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
