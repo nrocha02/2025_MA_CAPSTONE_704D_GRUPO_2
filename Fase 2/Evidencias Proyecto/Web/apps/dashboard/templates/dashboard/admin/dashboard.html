@@ -1,143 +1,372 @@
 {% extends 'dashboard/base_dashboard.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Dashboard Admin - Cordillera Pets{% endblock %}
 
 {% block page_title %}Dashboard Administrativo{% endblock %}
 
-{% block page_description %}Panel de control para gestión de productos y categorías{% endblock %}
+{% block page_description %}Panel de control para gestión de productos, categorías y análisis de ventas{% endblock %}
 
 {% block page_actions %}
-  <a href="{% url 'catalogo' %}" class="btn btn-outline-primary">
-    <i class="fas fa-eye"></i> Ver Catálogo Público
-  </a>
+  <div class="btn-group" role="group">
+    <a href="{% url 'catalogo' %}" class="btn btn-outline-primary">
+      <i class="fas fa-eye"></i> Ver Catálogo Público
+    </a>
+    <a href="{% url 'dashboard:reportes_ventas' %}" class="btn btn-success">
+      <i class="fas fa-chart-line"></i> Reportes de Ventas
+    </a>
+    <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-info">
+      <i class="fas fa-chart-bar"></i> Reportes de Productos
+    </a>
+  </div>
 {% endblock %}
 
 {% block main_content %}
 
-      <!-- Tarjetas de estadísticas -->
-  <div class="row mb-4">
-    <div class="col-md-3">
-      <div class="card text-white bg-primary">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h4>{{ total_productos }}</h4>
-              <p class="mb-0">Total Productos</p>
-            </div>
-            <div class="align-self-center">
-              <i class="fas fa-box fa-2x"></i>
-            </div>
+<!-- Métricas de ventas del día/mes -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-chart-line text-success"></i> Resumen de Ventas</h5>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card text-white bg-success h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>${{ ventas_hoy.total_ventas|floatformat:0|intcomma }}</h4>
+            <p class="mb-0">Ventas Hoy</p>
           </div>
-          <small>{{ productos_activos }} activos</small>
+          <div class="align-self-center">
+            <i class="fas fa-dollar-sign fa-2x"></i>
+          </div>
         </div>
+        <small>{{ ventas_hoy.num_pedidos }} pedidos</small>
       </div>
     </div>
+  </div>
 
-    <div class="col-md-3">
-      <div class="card text-white bg-success">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h4>{{ total_categorias }}</h4>
-              <p class="mb-0">Categorías</p>
-            </div>
-            <div class="align-self-center">
-              <i class="fas fa-tags fa-2x"></i>
-            </div>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card text-white bg-primary h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>${{ ventas_semana.total_ventas|floatformat:0|intcomma }}</h4>
+            <p class="mb-0">Ventas Semana</p>
           </div>
-          <small>{{ categorias_activas }} activas</small>
+          <div class="align-self-center">
+            <i class="fas fa-calendar-week fa-2x"></i>
+          </div>
         </div>
+        <small>{{ ventas_semana.num_pedidos }} pedidos</small>
       </div>
     </div>
+  </div>
 
-    <div class="col-md-3">
-      <div class="card text-white bg-info">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h4>{{ total_marcas }}</h4>
-              <p class="mb-0">Marcas</p>
-            </div>
-            <div class="align-self-center">
-              <i class="fas fa-trademark fa-2x"></i>
-            </div>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card text-white bg-info h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>${{ ventas_mes.total_ventas|floatformat:0|intcomma }}</h4>
+            <p class="mb-0">Ventas del Mes</p>
           </div>
-          <small>{{ marcas_activas }} activas</small>
+          <div class="align-self-center">
+            <i class="fas fa-calendar-alt fa-2x"></i>
+          </div>
         </div>
+        <small>{{ ventas_mes.num_pedidos }} pedidos</small>
       </div>
     </div>
+  </div>
 
-    <div class="col-md-3">
-      <div class="card text-white bg-warning">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h4>{{ productos_stock_bajo }}</h4>
-              <p class="mb-0">Stock Bajo</p>
-            </div>
-            <div class="align-self-center">
-              <i class="fas fa-exclamation-triangle fa-2x"></i>
-            </div>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card text-white bg-dark h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>
+              {% if ventas_mes.num_pedidos > 0 %}
+                ${{ ventas_mes.total_ventas|floatformat:0|intcomma }}
+              {% else %}
+                $0
+              {% endif %}
+            </h4>
+            <p class="mb-0">Ticket Promedio</p>
           </div>
-          <small>Menos de 10 unidades</small>
+          <div class="align-self-center">
+            <i class="fas fa-receipt fa-2x"></i>
+          </div>
+        </div>
+        <small>Este mes</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Métricas de productos -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-box text-primary"></i> Resumen de Inventario</h5>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>{{ total_productos }}</h4>
+            <p class="mb-0">Total Productos</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-box fa-2x"></i>
+          </div>
+        </div>
+        <small>{{ productos_activos }} activos</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>{{ total_categorias }}</h4>
+            <p class="mb-0">Categorías</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-tags fa-2x"></i>
+          </div>
+        </div>
+        <small>{{ categorias_activas }} activas</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-white bg-info">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>{{ total_marcas }}</h4>
+            <p class="mb-0">Marcas</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-trademark fa-2x"></i>
+          </div>
+        </div>
+        <small>{{ marcas_activas }} activas</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-white bg-warning">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4>{{ stock_bajo }}</h4>
+            <p class="mb-0">Stock Bajo</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+          </div>
+        </div>
+        <small>Menos de 10 unidades</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Top productos vendidos y últimos pedidos -->
+<div class="row mb-4">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-trophy"></i> Top Productos del Mes
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if productos_top %}
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th class="text-end">Vendidos</th>
+                  <th class="text-end">Ingresos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for producto in productos_top %}
+                <tr>
+                  <td>
+                    <strong>{{ producto.producto__nombre }}</strong><br>
+                    <small class="text-muted">{{ producto.producto__sku }}</small>
+                  </td>
+                  <td class="text-end">
+                    <span class="badge bg-primary">{{ producto.total_vendido }}</span>
+                  </td>
+                  <td class="text-end">
+                    <strong>${{ producto.ingresos|floatformat:0|intcomma }}</strong>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">No hay ventas este mes.</p>
+        {% endif %}
+        <div class="mt-3">
+          <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-outline-success btn-sm">
+            <i class="fas fa-chart-bar"></i> Ver Reporte Completo
+          </a>
         </div>
       </div>
     </div>
   </div>
 
-      <!-- Menús de navegación -->
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">
-            <i class="fas fa-boxes"></i> Gestión de Productos
-          </h5>
-        </div>
-        <div class="card-body">
-          <p>Administra el catálogo de productos de la tienda.</p>
-          <div class="d-grid gap-2">
-            <a
-              href="{% url 'dashboard:producto_list' %}"
-              class="btn btn-outline-primary"
-            >
-              <i class="fas fa-list"></i> Ver Todos los Productos
-            </a>
-            <a
-              href="{% url 'dashboard:producto_create' %}"
-              class="btn btn-primary"
-            >
-              <i class="fas fa-plus"></i> Crear Nuevo Producto
-            </a>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-shopping-cart"></i> Últimos Pedidos
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if ultimos_pedidos %}
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Cliente</th>
+                  <th class="text-end">Total</th>
+                  <th class="text-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pedido in ultimos_pedidos %}
+                <tr>
+                  <td>
+                    <strong>#{{ pedido.pedido_id }}</strong><br>
+                    <small class="text-muted">{{ pedido.fecha|date:"d/m/Y H:i" }}</small>
+                  </td>
+                  <td>
+                    {% if pedido.cliente_persona %}
+                      {{ pedido.cliente_persona.nombres }} {{ pedido.cliente_persona.apellido_paterno }}
+                    {% elif pedido.cliente_empresa %}
+                      {{ pedido.cliente_empresa.razon_social }}
+                    {% else %}
+                      <span class="text-muted">Invitado</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <strong>${{ pedido.total|floatformat:0|intcomma }}</strong>
+                  </td>
+                  <td class="text-center">
+                    {% if pedido.estado == 'Completado' %}
+                      <span class="badge bg-success">{{ pedido.estado }}</span>
+                    {% elif pedido.estado == 'Pendiente de pago' %}
+                      <span class="badge bg-warning">Pendiente</span>
+                    {% elif pedido.estado == 'Cancelado' %}
+                      <span class="badge bg-danger">{{ pedido.estado }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ pedido.estado }}</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
+        {% else %}
+          <p class="text-muted mb-0">No hay pedidos recientes.</p>
+        {% endif %}
+        <div class="mt-3">
+          <a href="{% url 'dashboard:reportes_ventas' %}" class="btn btn-outline-info btn-sm">
+            <i class="fas fa-chart-line"></i> Ver Reporte de Ventas
+          </a>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-success text-white">
-          <h5 class="mb-0">
-            <i class="fas fa-sitemap"></i> Gestión de Categorías
-          </h5>
+<!-- Menús de navegación -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-cogs text-secondary"></i> Gestión y Administración</h5>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-boxes"></i> Gestión de Productos
+        </h5>
+      </div>
+      <div class="card-body">
+        <p>Administra el catálogo de productos de la tienda.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'dashboard:producto_list' %}" class="btn btn-outline-primary">
+            <i class="fas fa-list"></i> Ver Todos los Productos
+          </a>
+          <a href="{% url 'dashboard:producto_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Crear Nuevo Producto
+          </a>
         </div>
-        <div class="card-body">
-          <p>Organiza los productos en categorías y subcategorías.</p>
-          <div class="d-grid gap-2">
-            <a
-              href="{% url 'dashboard:categoria_list' %}"
-              class="btn btn-outline-success"
-            >
-              <i class="fas fa-list"></i> Ver Todas las Categorías
-            </a>
-            <a
-              href="{% url 'dashboard:categoria_create' %}"
-              class="btn btn-success"
-            >
-              <i class="fas fa-plus"></i> Crear Nueva Categoría
-            </a>
-          </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-sitemap"></i> Gestión de Categorías
+        </h5>
+      </div>
+      <div class="card-body">
+        <p>Organiza los productos en categorías y subcategorías.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'dashboard:categoria_list' %}" class="btn btn-outline-success">
+            <i class="fas fa-list"></i> Ver Todas las Categorías
+          </a>
+          <a href="{% url 'dashboard:categoria_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Crear Nueva Categoría
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-line"></i> Reportes y Análisis
+        </h5>
+      </div>
+      <div class="card-body">
+        <p>Analiza el rendimiento de ventas y productos.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'dashboard:reportes_ventas' %}" class="btn btn-outline-info">
+            <i class="fas fa-chart-area"></i> Reportes de Ventas
+          </a>
+          <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-info">
+            <i class="fas fa-chart-bar"></i> Reportes de Productos
+          </a>
         </div>
       </div>
     </div>
