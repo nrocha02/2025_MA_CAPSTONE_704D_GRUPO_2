@@ -108,7 +108,7 @@ class SpacesStorage:
         """
         import re
         import unicodedata
-        from datetime import datetime
+        from django.utils import timezone
         
         # Obtener nombre y extensión
         name = Path(original_filename).stem
@@ -129,7 +129,7 @@ class SpacesStorage:
             slug = 'imagen'
         
         # Generar timestamp único (más legible que UUID)
-        timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+        timestamp = timezone.now().strftime('%Y%m%d-%H%M%S')
         
         # Combinar slug + timestamp
         unique_name = f"{slug}-{timestamp}{ext}"
