@@ -5,6 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
     <title>{% block title %}Cordillera Pets{% endblock %}</title>
     {% bootstrap_css %}
     <link
@@ -117,6 +118,38 @@
                 </div>
               </footer>
 
-              {% bootstrap_javascript %} {% block extra_js %}{% endblock %}
+              {% bootstrap_javascript %}
+              
+              <script>
+                // Configuración global de CSRF para todas las peticiones AJAX
+                function getCookie(name) {
+                  let cookieValue = null;
+                  if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                      const cookie = cookies[i].trim();
+                      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                      }
+                    }
+                  }
+                  return cookieValue;
+                }
+
+                const csrftoken = getCookie('csrftoken');
+
+                // Configurar jQuery para enviar CSRF token en todas las peticiones AJAX
+                $.ajaxSetup({
+                  beforeSend: function(xhr, settings) {
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                      // Solo enviar el token a URLs relativas (misma origen)
+                      xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                  }
+                });
+              </script>
+              
+              {% block extra_js %}{% endblock %}
             </body>
           </html>
