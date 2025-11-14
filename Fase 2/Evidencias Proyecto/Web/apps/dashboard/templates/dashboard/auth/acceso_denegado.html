@@ -1,0 +1,85 @@
+{% load static %}
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso Denegado - Dashboard Admin | Cordillera Pets</title>
+    {% bootstrap_css %}
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .error-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .error-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+      }
+      .error-icon {
+        font-size: 5rem;
+        color: #dc3545;
+        margin-bottom: 2rem;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-container d-flex align-items-center justify-content-center">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+            <div class="card error-card">
+              <div class="card-body p-5 text-center">
+                <i class="fas fa-shield-alt error-icon"></i>
+                
+                <h1 class="display-4 text-danger mb-3">Acceso Denegado</h1>
+                
+                <p class="lead mb-4">
+                  No tienes permisos para acceder al panel de administración.
+                </p>
+                
+                <div class="alert alert-warning" role="alert">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Solo los usuarios con permisos de administrador pueden acceder a esta sección.
+                </div>
+                
+                <div class="d-grid gap-2 d-md-block">
+                  <a href="{% url 'dashboard:login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Iniciar Sesión
+                  </a>
+                  <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-home me-2"></i>
+                    Ir al Sitio Web
+                  </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <small class="text-muted">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Si crees que deberías tener acceso, contacta al administrador del sistema.
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% bootstrap_javascript %}
+  </body>
+</html>

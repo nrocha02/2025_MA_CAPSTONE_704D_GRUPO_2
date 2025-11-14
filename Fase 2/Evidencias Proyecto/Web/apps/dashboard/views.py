@@ -12,13 +12,64 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 import logging
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_http_methods
 import json
 from ..ventas.brevo_service import BrevoEmailService
 
 # Configurar logger
 logger = logging.getLogger(__name__)
+# Función para verificar si el usuario es staff (administrador)
+def is_staff_user(user):
+    return user.is_authenticated and user.is_staff
 
 
+# Vistas de autenticación
+def dashboard_login(request):
+    """Vista de login para el dashboard"""
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('dashboard:admin_dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                if user.is_staff:
+                    login(request, user)
+                    messages.success(request, f'Bienvenido {user.first_name or user.username}!')
+                    next_url = request.GET.get('next', 'dashboard:admin_dashboard')
+                    return redirect(next_url)
+                else:
+                    messages.error(request, 'No tienes permisos para acceder al panel de administración.')
+            else:
+                messages.error(request, 'Credenciales incorrectas. Por favor, verifica tu usuario y contraseña.')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'dashboard/auth/login.html')
+
+
+def dashboard_logout(request):
+    """Vista de logout para el dashboard"""
+    if request.user.is_authenticated:
+        user_name = request.user.first_name or request.user.username
+        logout(request)
+        messages.success(request, f'Sesión cerrada exitosamente. ¡Hasta pronto {user_name}!')
+    
+    return redirect('dashboard:login')
+
+
+def acceso_denegado(request):
+    """Vista para mostrar cuando el acceso es denegado"""
+    return render(request, 'dashboard/auth/acceso_denegado.html')
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(is_staff_user, login_url='dashboard:login')
 def admin_dashboard(request):
     """Dashboard principal de administración con métricas de ventas y productos"""
     # Métricas de productos
@@ -99,6 +150,9 @@ def admin_dashboard(request):
 
 # CRUD CATEGORÍAS
 
+#Con este codigo me ayuda a que solo el admin pueda ingresar:
+#@login_required(login_url='dashboard:login')
+#@user_passes_test(is_staff_user, login_url='dashboard:login')
 
 def categoria_list(request):
     """Lista todas las categorías"""
