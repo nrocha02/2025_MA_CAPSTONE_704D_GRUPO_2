@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils.text import slugify
-from django.db.models import Q, Sum, Count, Avg, F, Value, Case, When, DecimalField
+from django.db.models import Q, Sum, Count, Avg, F, Value, Case, When, DecimalField, FloatField, IntegerField
 from django.db.models.functions import Extract, TruncDate, TruncMonth, TruncWeek, Coalesce
 from apps.ventas.models import Producto, Categoria, Marca, Pedido, PedidoItem, Pago, MovimientoStock, ClientePersona, ClienteEmpresa, DocumentoTributario
 from .models import CostoEnvioComuna
@@ -753,7 +753,7 @@ def reportes_ventas(request):
     periodo = request.GET.get('periodo', 'mes')  # dia, semana, mes, trimestre, año
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
-    
+    print ('perdiodo: ' + periodo)
     # Calcular fechas según período
     today = timezone.now().date()
     
@@ -789,28 +789,30 @@ def reportes_ventas(request):
     ventas_stats = Pedido.objects.filter(
         fecha__date__gte=start_date,
         fecha__date__lte=end_date,
-        estado__in=['Completado', 'Entregado']
+        estado__in=['Entregado']
     ).aggregate(
-        total_ventas=Coalesce(Sum('total'), 0),
+        total_ventas=Coalesce(Sum('total'), Value(0)),
         num_pedidos=Count('pedido_id'),
-        ticket_promedio=Coalesce(Avg('total'), 0)
+        ticket_promedio=Coalesce(Avg('total'), Value(0.0))
     )
     
     # Ventas por día (para gráfico)
     ventas_diarias = Pedido.objects.filter(
         fecha__date__gte=start_date,
         fecha__date__lte=end_date,
-        estado__in=['Completado', 'Entregado']
+        estado__in=[ 'Entregado']
     ).values('fecha__date').annotate(
-        total=Coalesce(Sum('total'), 0),
+        total=Coalesce(Sum('total'), Value(0)),
         pedidos=Count('pedido_id')
     ).order_by('fecha__date')
     
-    # Top productos vendidos
+
+   # Top productos vendidos
     productos_vendidos = PedidoItem.objects.filter(
         pedido__fecha__date__gte=start_date,
-        pedido__fecha__date__lte=end_date,
-        pedido__estado__in=['Completado', 'Entregado']
+        pedido__fecha__date__lte=end_date
+    ).filter(
+        pedido__estado__in=['Entregado']
     ).values(
         'producto__nombre', 
         'producto__sku',
@@ -818,19 +820,20 @@ def reportes_ventas(request):
         'producto__categoria__nombre'
     ).annotate(
         cantidad_vendida=Sum('cantidad'),
-        ingresos_totales=Sum(F('cantidad') * F('precio_unitario')),
+        ingresos_totales=Sum(F('cantidad') * F('precio_unitario'), output_field=IntegerField()),
         num_pedidos=Count('pedido', distinct=True)
     ).order_by('-cantidad_vendida')[:10]
-    
-    # Ventas por categoría
+
+   # Ventas por categoría
     ventas_por_categoria = PedidoItem.objects.filter(
         pedido__fecha__date__gte=start_date,
-        pedido__fecha__date__lte=end_date,
-        pedido__estado__in=['Completado', 'Entregado']
+        pedido__fecha__date__lte=end_date
+    ).filter(
+        pedido__estado__in=['Entregado']
     ).values(
         'producto__categoria__nombre'
     ).annotate(
-        total_ventas=Sum(F('cantidad') * F('precio_unitario')),
+        total_ventas=Sum(F('cantidad') * F('precio_unitario'), output_field=IntegerField()),
         cantidad_vendida=Sum('cantidad')
     ).order_by('-total_ventas')
     
@@ -846,7 +849,7 @@ def reportes_ventas(request):
     clientes_top = Pedido.objects.filter(
         fecha__date__gte=start_date,
         fecha__date__lte=end_date,
-        estado__in=['Completado', 'Entregado']
+        estado__in=['Entregado']
     ).values(
         'cliente_persona__nombres',
         'cliente_persona__apellido_paterno',
@@ -858,12 +861,49 @@ def reportes_ventas(request):
         num_pedidos=Count('pedido_id')
     ).order_by('-total_compras')[:10]
     
+    # Serializar ventas_diarias a tipos JSON-serializables para evitar que
+    # objetos de Python (e.g., datetime.date o Decimal) se inyecten en JS
+    ventas_diarias_list = list(ventas_diarias)
+    ventas_diarias_serialized = []
+    for v in ventas_diarias_list:
+        fecha = v.get('fecha__date')
+        # convertir fecha a ISO string si es un objeto date/datetime
+        if hasattr(fecha, 'isoformat'):
+            fecha_str = fecha.isoformat()
+        else:
+            fecha_str = str(fecha) if fecha is not None else ''
+
+        total = v.get('total', 0)
+        try:
+            total_val = float(total)
+        except Exception:
+            # fallback a 0.0 si no es convertible
+            try:
+                total_val = float(str(total))
+            except Exception:
+                total_val = 0.0
+
+        pedidos = v.get('pedidos', 0)
+        try:
+            pedidos_val = int(pedidos)
+        except Exception:
+            try:
+                pedidos_val = int(str(pedidos))
+            except Exception:
+                pedidos_val = 0
+
+        ventas_diarias_serialized.append({
+            'fecha__date': fecha_str,
+            'total': total_val,
+            'pedidos': pedidos_val,
+        })
+
     context = {
         'periodo': periodo,
         'start_date': start_date,
         'end_date': end_date,
         'ventas_stats': ventas_stats,
-        'ventas_diarias': list(ventas_diarias),
+        'ventas_diarias': ventas_diarias_serialized,
         'productos_vendidos': productos_vendidos,
         'ventas_por_categoria': ventas_por_categoria,
         'estados_pedidos': estados_pedidos,
@@ -990,7 +1030,7 @@ def api_ventas_chart(request):
         start_datetime = timezone.now() - timedelta(hours=24)
         ventas = Pedido.objects.filter(
             fecha__gte=start_datetime,
-            estado__in=['Completado', 'Entregado']
+            estado__in=[ 'Entregado']
         ).extra(
             select={'hour': 'EXTRACT(hour FROM fecha)'}
         ).values('hour').annotate(
@@ -1008,7 +1048,7 @@ def api_ventas_chart(request):
         ventas = Pedido.objects.filter(
             fecha__date__gte=start_date,
             fecha__date__lte=today,
-            estado__in=['Completado', 'Entregado']
+            estado__in=[ 'Entregado']
         ).values('fecha__date').annotate(
             total=Coalesce(Sum('total'), 0)
         ).order_by('fecha__date')
@@ -1024,7 +1064,7 @@ def api_ventas_chart(request):
         ventas = Pedido.objects.filter(
             fecha__date__gte=start_date,
             fecha__date__lte=today,
-            estado__in=['Completado', 'Entregado']
+            estado__in=[ 'Entregado']
         ).values('fecha__date').annotate(
             total=Coalesce(Sum('total'), 0)
         ).order_by('fecha__date')
@@ -1038,7 +1078,7 @@ def api_ventas_chart(request):
         # Últimos 12 meses
         ventas = Pedido.objects.filter(
             fecha__gte=today.replace(day=1) - timedelta(days=365),
-            estado__in=['Completado', 'Entregado']
+            estado__in=[ 'Entregado']
         ).annotate(
             mes=TruncMonth('fecha')
         ).values('mes').annotate(
@@ -1060,7 +1100,7 @@ def api_categorias_chart(request):
     
     ventas_categoria = PedidoItem.objects.filter(
         pedido__fecha__date__gte=fecha_limite,
-        pedido__estado__in=['Completado', 'Entregado']
+        pedido__estado__in=[ 'Entregado']
     ).values(
         'producto__categoria__nombre'
     ).annotate(

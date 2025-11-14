@@ -97,7 +97,7 @@
                 </div>
                 <h3 class="text-success">{{ ventas_stats.num_pedidos }}</h3>
                 <p class="card-text text-muted">Número de Pedidos</p>
-                <small class="text-muted">Completados y entregados</small>
+                <small class="text-muted">Entregados</small>
             </div>
         </div>
     </div>
@@ -120,14 +120,10 @@
                     <i class="fas fa-chart-line fa-2x mb-2"></i>
                 </div>
                 <h3 class="text-warning">
-                    {% if ventas_stats.num_pedidos > 0 %}
-                        ${{ ventas_stats.total_ventas|div:ventas_stats.num_pedidos|floatformat:0|intcomma }}
-                    {% else %}
-                        $0
-                    {% endif %}
+                    ${{ ventas_stats.ticket_promedio|floatformat:0|intcomma }}
                 </h3>
-                <p class="card-text text-muted">Venta Diaria Promedio</p>
-                <small class="text-muted">En el período</small>
+                <p class="card-text text-muted">Ticket Promedio</p>
+                <small class="text-muted">Por pedido</small>
             </div>
         </div>
     </div>
@@ -303,7 +299,7 @@
                             {% for estado in estados_pedidos %}
                             <tr>
                                 <td>
-                                    {% if estado.estado == 'Completado' %}
+                                    {% if estado.estado == 'Entregado' %}
                                         <span class="badge bg-success">{{ estado.estado }}</span>
                                     {% elif estado.estado == 'Pendiente de pago' %}
                                         <span class="badge bg-warning">{{ estado.estado }}</span>
@@ -315,7 +311,11 @@
                                 </td>
                                 <td class="text-end">{{ estado.count }}</td>
                                 <td class="text-end">
-                                    {% widthratio estado.count estados_pedidos|length:100 %}%
+                                    {% if ventas_stats.num_pedidos > 0 %}
+                                        {% widthratio estado.count ventas_stats.num_pedidos 100 %}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -363,6 +363,10 @@
 
 {% block extra_js %}
 <script>
+console.log('Período seleccionado:', '{{ periodo }}');
+console.log('Fecha inicio:', '{{ start_date|date:"Y-m-d" }}');
+console.log('Fecha fin:', '{{ end_date|date:"Y-m-d" }}');
+
 function toggleCustomDates() {
     const periodo = document.getElementById('periodo').value;
     const fechaInicioGroup = document.getElementById('fecha-inicio-group');
@@ -378,53 +382,79 @@ function toggleCustomDates() {
 }
 
 // Gráfico de ventas
-const ventasData = '{{ ventas_diarias|safe }}';
-const ventasLabels = ventasData.map(item => {
-    const fecha = new Date(item.fecha__date);
-    return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-});
-const ventasValues = ventasData.map(item => item.total);
+const ventasData = {{ ventas_diarias|safe }};
+console.log('Datos de ventas recibidos:', ventasData);
+console.log('Tipo de ventasData:', typeof ventasData);
 
-const ventasCtx = document.getElementById('ventasChart').getContext('2d');
-new Chart(ventasCtx, {
-    type: 'line',
-    data: {
-        labels: ventasLabels,
-        datasets: [{
-            label: 'Ventas ($)',
-            data: ventasValues,
-            borderColor: 'rgb(13, 110, 253)',
-            backgroundColor: 'rgba(13, 110, 253, 0.1)',
-            tension: 0.4,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top'
-            }
+if (!ventasData || ventasData.length === 0) {
+    console.warn('No hay datos de ventas para mostrar');
+    document.getElementById('ventasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
+} else {
+    const ventasLabels = ventasData.map(item => {
+        const fecha = new Date(item.fecha__date);
+        return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+    });
+    const ventasValues = ventasData.map(item => item.total);
+
+    console.log('Labels:', ventasLabels);
+    console.log('Values:', ventasValues);
+
+    const ventasCtx = document.getElementById('ventasChart').getContext('2d');
+    new Chart(ventasCtx, {
+        type: 'line',
+        data: {
+            labels: ventasLabels,
+            datasets: [{
+                label: 'Ventas ($)',
+                data: ventasValues,
+                borderColor: 'rgb(13, 110, 253)',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
         },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return '$' + value.toLocaleString();
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
                     }
                 }
             }
         }
-    }
-});
+    });
+}
 
 // Gráfico de categorías
-fetch('{% url "dashboard:api_categorias_chart" %}')
-    .then(response => response.json())
+const urlParams = new URLSearchParams(window.location.search);
+const apiUrl = '{% url "dashboard:api_categorias_chart" %}' + '?' + urlParams.toString();
+console.log('URL API con parámetros:', apiUrl);
+
+fetch(apiUrl)
+    .then(response => {
+        console.log('Respuesta API categorías:', response);
+        return response.json();
+    })
     .then(data => {
+        console.log('Datos de categorías recibidos:', data);
+        
+        if (!data.labels || data.labels.length === 0) {
+            console.warn('No hay datos de categorías');
+            document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles</p>';
+            return;
+        }
+        
         const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
         new Chart(categoriasCtx, {
             type: 'doughnut',
@@ -461,11 +491,15 @@ fetch('{% url "dashboard:api_categorias_chart" %}')
                 }
             }
         });
+    })
+    .catch(error => {
+        console.error('Error al cargar datos de categorías:', error);
+        document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-danger">Error al cargar datos</p>';
     });
 
 // Gráfico de Top 10 Productos
 const productosTopData = [
-    '{% for producto in productos_vendidos %}'
+    {% for producto in productos_vendidos %}
     {
         nombre: "{{ producto.producto__nombre|escapejs }}",
         cantidad: {{ producto.cantidad_vendida }},
@@ -474,7 +508,10 @@ const productosTopData = [
     {% endfor %}
 ];
 
+console.log('Datos de productos top:', productosTopData);
+
 if (productosTopData.length > 0) {
+    console.log('Creando gráfico de productos top con', productosTopData.length, 'productos');
     const productosTopCtx = document.getElementById('productosTopChart').getContext('2d');
     new Chart(productosTopCtx, {
         type: 'bar',
@@ -538,6 +575,9 @@ if (productosTopData.length > 0) {
             }
         }
     });
+} else {
+    console.warn('No hay productos para mostrar en el gráfico');
+    document.getElementById('productosTopChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
 }
 
 // Gráfico de Estados de Pedidos
@@ -550,13 +590,15 @@ const estadosPedidosData = [
     {% endfor %}
 ];
 
+console.log('Datos de estados de pedidos:', estadosPedidosData);
+
 if (estadosPedidosData.length > 0) {
+    console.log('Creando gráfico de estados con', estadosPedidosData.length, 'estados');
     const estadosPedidosCtx = document.getElementById('estadosPedidosChart').getContext('2d');
     
     // Colores según el estado
     const coloresPorEstado = {
-        'Completado': '#28a745',
-        'Entregado': '#20c997',
+        'Entregado': '#28a745',
         'Pendiente de pago': '#ffc107',
         'En preparación': '#17a2b8',
         'En tránsito': '#6f42c1',
@@ -607,6 +649,9 @@ if (estadosPedidosData.length > 0) {
             }
         }
     });
+} else {
+    console.warn('No hay estados de pedidos para mostrar');
+    document.getElementById('estadosPedidosChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
 }
 </script>
 {% endblock %}

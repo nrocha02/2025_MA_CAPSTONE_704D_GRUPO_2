@@ -5,6 +5,7 @@
 {% block title %}Reportes de Productos - Dashboard Admin{% endblock %}
 
 {% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .metric-card {
         transition: transform 0.2s;
@@ -24,6 +25,11 @@
         height: 40px;
         object-fit: cover;
         border-radius: 4px;
+    }
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-bottom: 1rem;
     }
 </style>
 {% endblock %}
@@ -144,6 +150,50 @@
                 <h3 class="text-danger">{{ productos_sin_stock }}</h3>
                 <p class="card-text text-muted">Sin Stock</p>
                 <small class="text-muted">0 unidades</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos de análisis -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Distribución por Categoría</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="categoriaDistribucionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Estado del Inventario</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="estadoInventarioChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos de top productos -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> Top 10 Productos Más Vendidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="topProductosChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -393,5 +443,225 @@ document.getElementById('marca').addEventListener('change', function() {
 document.getElementById('orden').addEventListener('change', function() {
     this.form.submit();
 });
+
+// Gráfico de distribución por categoría
+const categoriasData = [
+    {% for categoria in categorias_stats %}
+    {
+        nombre: "{{ categoria.nombre|escapejs }}",
+        productos: {{ categoria.num_productos }},
+        stockBajo: {{ categoria.productos_stock_bajo }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+if (categoriasData.length > 0) {
+    const categoriaCtx = document.getElementById('categoriaDistribucionChart').getContext('2d');
+    
+    // Generar colores dinámicamente
+    const colores = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#FF6384', '#C9CBCF', '#E74C3C', '#3498DB'
+    ];
+    
+    new Chart(categoriaCtx, {
+        type: 'doughnut',
+        data: {
+            labels: categoriasData.map(c => c.nombre),
+            datasets: [{
+                label: 'Productos',
+                data: categoriasData.map(c => c.productos),
+                backgroundColor: colores,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 10
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const categoria = categoriasData[context.dataIndex];
+                            const label = context.label + ': ' + context.parsed + ' productos';
+                            const extra = categoria.stockBajo > 0 ? 
+                                ' (' + categoria.stockBajo + ' con stock bajo)' : '';
+                            return label + extra;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfico de estado del inventario
+const inventarioCtx = document.getElementById('estadoInventarioChart').getContext('2d');
+new Chart(inventarioCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Total Productos', 'Activos', 'Stock Bajo', 'Sin Stock'],
+        datasets: [{
+            label: 'Cantidad',
+            data: [
+                {{ total_productos }},
+                {{ productos_activos }},
+                {{ productos_stock_bajo }},
+                {{ productos_sin_stock }}
+            ],
+            backgroundColor: [
+                'rgba(13, 110, 253, 0.8)',
+                'rgba(25, 135, 84, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(220, 53, 69, 0.8)'
+            ],
+            borderColor: [
+                'rgb(13, 110, 253)',
+                'rgb(25, 135, 84)',
+                'rgb(255, 193, 7)',
+                'rgb(220, 53, 69)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += context.parsed.y + ' productos';
+                        return label;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de top productos más vendidos
+const topProductosData = [
+    {% for producto in productos_mas_vendidos %}
+    {
+        nombre: "{{ producto.producto__nombre|escapejs|truncatechars:30 }}",
+        vendidos: {{ producto.total_vendido }},
+        ingresos: {{ producto.ingresos }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+if (topProductosData.length > 0) {
+    const topProductosCtx = document.getElementById('topProductosChart').getContext('2d');
+    
+    new Chart(topProductosCtx, {
+        type: 'bar',
+        data: {
+            labels: topProductosData.map(p => p.nombre),
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: topProductosData.map(p => p.vendidos),
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                yAxisID: 'y',
+                order: 2
+            }, {
+                label: 'Ingresos ($)',
+                data: topProductosData.map(p => p.ingresos),
+                type: 'line',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 3,
+                yAxisID: 'y1',
+                tension: 0.4,
+                order: 1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.dataset.yAxisID === 'y1') {
+                                label += '$' + context.parsed.y.toLocaleString('es-CL');
+                            } else {
+                                label += context.parsed.y + ' unidades';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Unidades Vendidas'
+                    },
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Ingresos ($)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString('es-CL');
+                        }
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
 </script>
 {% endblock %}
