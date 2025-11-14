@@ -133,7 +133,7 @@
     </div>
 </div>
 
-<!-- Gráfico de ventas -->
+<!-- Gráficos principales -->
 <div class="row mb-4">
     <div class="col-lg-8">
         <div class="card">
@@ -155,6 +155,34 @@
             <div class="card-body">
                 <div class="chart-container">
                     <canvas id="categoriasChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos adicionales -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Top 10 Productos Más Vendidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="productosTopChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-doughnut"></i> Estados de Pedidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="estadosPedidosChart"></canvas>
                 </div>
             </div>
         </div>
@@ -350,7 +378,7 @@ function toggleCustomDates() {
 }
 
 // Gráfico de ventas
-const ventasData = {{ ventas_diarias|safe }};
+const ventasData = '{{ ventas_diarias|safe }}';
 const ventasLabels = ventasData.map(item => {
     const fecha = new Date(item.fecha__date);
     return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
@@ -406,7 +434,8 @@ fetch('{% url "dashboard:api_categorias_chart" %}')
                     data: data.data,
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                        '#E74C3C', '#3498DB'
                     ]
                 }]
             },
@@ -416,10 +445,168 @@ fetch('{% url "dashboard:api_categorias_chart" %}')
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += '$' + context.parsed.toLocaleString('es-CL');
+                                return label;
+                            }
+                        }
                     }
                 }
             }
         });
     });
+
+// Gráfico de Top 10 Productos
+const productosTopData = [
+    '{% for producto in productos_vendidos %}'
+    {
+        nombre: "{{ producto.producto__nombre|escapejs }}",
+        cantidad: {{ producto.cantidad_vendida }},
+        ingresos: {{ producto.ingresos_totales }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+if (productosTopData.length > 0) {
+    const productosTopCtx = document.getElementById('productosTopChart').getContext('2d');
+    new Chart(productosTopCtx, {
+        type: 'bar',
+        data: {
+            labels: productosTopData.map(p => p.nombre),
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: productosTopData.map(p => p.cantidad),
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                yAxisID: 'y'
+            }, {
+                label: 'Ingresos ($)',
+                data: productosTopData.map(p => p.ingresos),
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Unidades'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Ingresos ($)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString('es-CL');
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfico de Estados de Pedidos
+const estadosPedidosData = [
+    {% for estado in estados_pedidos %}
+    {
+        estado: "{{ estado.estado|escapejs }}",
+        count: {{ estado.count }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+if (estadosPedidosData.length > 0) {
+    const estadosPedidosCtx = document.getElementById('estadosPedidosChart').getContext('2d');
+    
+    // Colores según el estado
+    const coloresPorEstado = {
+        'Completado': '#28a745',
+        'Entregado': '#20c997',
+        'Pendiente de pago': '#ffc107',
+        'En preparación': '#17a2b8',
+        'En tránsito': '#6f42c1',
+        'Cancelado': '#dc3545',
+        'Rechazado': '#e74c3c'
+    };
+    
+    const colores = estadosPedidosData.map(item => 
+        coloresPorEstado[item.estado] || '#6c757d'
+    );
+    
+    new Chart(estadosPedidosCtx, {
+        type: 'doughnut',
+        data: {
+            labels: estadosPedidosData.map(item => item.estado),
+            datasets: [{
+                data: estadosPedidosData.map(item => item.count),
+                backgroundColor: colores,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += context.parsed + ' pedidos';
+                            
+                            // Calcular porcentaje
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            label += ' (' + percentage + '%)';
+                            
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
 </script>
 {% endblock %}
