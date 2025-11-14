@@ -43,11 +43,37 @@
         {% endblock %}
 
         {% block navbar_extra %}
-          <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="{% url 'index' %}">
-              <i class="fas fa-home"></i> Volver al sitio
-            </a>
-          </div>
+         <div class="navbar-nav ms-auto d-flex align-items-center">
+            {% if user.is_authenticated %}
+              <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-user-circle me-2"></i>
+                  <span>{{ user.first_name|default:user.username }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <h6 class="dropdown-header">
+                      <i class="fas fa-user me-2"></i>{{ user.username }}
+                    </h6>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'index' %}">
+                      <i class="fas fa-home me-2"></i>Volver al sitio
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item text-danger" href="{% url 'dashboard:logout' %}">
+                      <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            {% else %}
+              <a class="nav-link" href="{% url 'index' %}">
+                <i class="fas fa-home"></i> Volver al sitio
+              </a>
+            {% endif %}
         {% endblock %}
       </div>
     </nav>
