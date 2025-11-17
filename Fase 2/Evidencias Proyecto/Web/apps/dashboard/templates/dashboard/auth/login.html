@@ -1,0 +1,173 @@
+{% load static %}
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Dashboard Admin | Cordillera Pets</title>
+    {% bootstrap_css %}
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .login-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+      }
+      .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+      }
+      .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .btn-login:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+      .logo-container {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .logo-container img {
+        max-width: 120px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container d-flex align-items-center justify-content-center">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-4">
+            <div class="card login-card">
+              <div class="card-header login-header text-center py-4">
+                <h4 class="mb-0">
+                  <i class="fas fa-shield-alt me-2"></i>
+                  Panel de Administración
+                </h4>
+                <small class="opacity-75">Cordillera Pets</small>
+              </div>
+              <div class="card-body p-5">
+                <div class="logo-container">
+                  <img
+                    src="{% static 'blog/images/inicio/logo1.png' %}"
+                    alt="Cordillera Pets Logo"
+                    class="img-fluid"
+                  />
+                </div>
+
+                <!-- Mensajes de error/éxito -->
+                {% if messages %}
+                  {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                      <i class="fas fa-exclamation-circle me-2"></i>
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                  {% csrf_token %}
+                  <div class="mb-4">
+                    <label for="username" class="form-label">
+                      <i class="fas fa-user me-2"></i>Usuario
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="username"
+                      name="username"
+                      required
+                      autofocus
+                      placeholder="Ingresa tu nombre de usuario"
+                    />
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="password" class="form-label">
+                      <i class="fas fa-lock me-2"></i>Contraseña
+                    </label>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="password"
+                      name="password"
+                      required
+                      placeholder="Ingresa tu contraseña"
+                    />
+                  </div>
+
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-login">
+                      <i class="fas fa-sign-in-alt me-2"></i>
+                      Iniciar Sesión
+                    </button>
+                  </div>
+                </form>
+
+                <div class="text-center mt-4">
+                  <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Solo usuarios con permisos de administrador pueden acceder
+                  </small>
+                </div>
+
+                <div class="text-center mt-3">
+                  <a href="{% url 'index' %}" class="text-decoration-none">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Volver al sitio web
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% bootstrap_javascript %}
+
+    <script>
+      // Auto focus en el campo de usuario si está vacío
+      document.addEventListener('DOMContentLoaded', function() {
+        const usernameField = document.getElementById('username');
+        if (usernameField && !usernameField.value) {
+          usernameField.focus();
+        }
+      });
+
+      // Efecto de transición en el botón
+      document.querySelector('.btn-login').addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+      });
+
+      document.querySelector('.btn-login').addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    </script>
+  </body>
+</html>

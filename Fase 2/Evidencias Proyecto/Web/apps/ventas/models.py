@@ -51,8 +51,9 @@ class ClientePersona(models.Model):
     fecha_nacimiento = models.DateField()
     fecha_registro = models.DateTimeField(auto_now_add=True)
     estado = models.BooleanField(default=True)
-    password = models.CharField()
-    #    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    password = models.CharField(max_length=100)
+#    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
 
     class Meta:
         db_table = "cliente_persona"

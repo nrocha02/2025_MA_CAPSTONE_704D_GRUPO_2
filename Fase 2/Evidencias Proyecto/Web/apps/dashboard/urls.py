@@ -4,8 +4,15 @@ from . import views
 app_name = "dashboard"
 
 urlpatterns = [
+
+    # Autenticación
+    path("", views.dashboard_login, name="login"),
+    path("logout/", views.dashboard_logout, name="logout"),
+    path("acceso_denegado/", views.acceso_denegado, name="acceso_denegado"),
+
     # Dashboard principal
-    path("", views.admin_dashboard, name="admin_dashboard"),
+    path("index", views.admin_dashboard, name="admin_dashboard"),
+    
     # CRUD Categorías
     path("categorias/", views.categoria_list, name="categoria_list"),
     path("categorias/crear/", views.categoria_create, name="categoria_create"),
