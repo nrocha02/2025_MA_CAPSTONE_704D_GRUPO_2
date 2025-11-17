@@ -32,15 +32,6 @@ urlpatterns = [
     path("productos/crear/", views.producto_create, name="producto_create"),
     path("productos/<int:producto_id>/editar/", views.producto_edit, name="producto_edit"),
     path("productos/<int:producto_id>/eliminar/", views.producto_delete, name="producto_delete"),
-    #urls brevo servicio
-    path("brevo/", views.brevo_dashboard, name="brevo_dashboard"),
-    path("brevo/send-custom/", views.brevo_send_custom_email, name="brevo_send_custom_email"),
-    path("brevo/send-stock-alert/", views.brevo_send_stock_alert, name="brevo_send_stock_alert"),
-    path("brevo/send-order-confirmation/", views.brevo_send_order_confirmation, name="brevo_send_order_confirmation"),
-    path("brevo/test-api/", views.brevo_test_api, name="brevo_test_api"),
-    
-    
-]
   
     # Reportes
     path("reportes/ventas/", views.reportes_ventas, name="reportes_ventas"),

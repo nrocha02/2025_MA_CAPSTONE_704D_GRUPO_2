@@ -7,16 +7,6 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.contrib.auth.forms import UserCreationForm
 from .models import *
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-import logging
-from .brevo_service import BrevoEmailService
-# Configurar logger
-logger = logging.getLogger(__name__)
-
-
-
 
 def index(request):
     # Obtener productos recomendados (los primeros 8 productos activos)
@@ -98,13 +88,13 @@ def iniciosesion(request):
     return render(request, 'ventas/iniciosesion.html')
 
 def logout_view(request):
-    #Vista para cerrar sesión"""
+    """Vista para cerrar sesión"""
     login_aut(request)
     messages.success(request, '¡Has cerrado sesión exitosamente!')
     return redirect('index')
 
 def registro_view(request):
-    #Vista para registro de nuevos clientes"""
+    """Vista para registro de nuevos clientes"""
     if request.method == 'POST':
 
         rut = request.POST.get('rut')
@@ -137,29 +127,10 @@ def registro_view(request):
                     password=password_hash
                 )
 
-                try:
-                    brevo_service = BrevoEmailService()
-                    email_result = brevo_service.send_welcome_email(
-                        cliente_email=email,
-                        cliente_nombre=f"{nombres} {apellido_paterno}"
-                    )
-
-                    if email_result['success']:
-                        logger.info(f"Email de bienvenida enviado a {email}")
-                        messages.success(request, 'Cliente registrado exitosamente. Se ha enviado un correo de bienvenida. Ya puede iniciar sesión.')
-                    else:
-                        logger.warning(f"No se pudo enviar email de bienvenida: {email_result['message']}")
-                        messages.success(request, 'Cliente registrado exitosamente. Ya puede iniciar sesión.')
-                        messages.warning(request, 'No se pudo enviar el correo de bienvenida.')
-
-                except Exception as e:
-                    logger.error(f"Error al enviar email de bienvenida: {e}")
-                    messages.success(request, 'Cliente registrado exitosamente. Ya puede iniciar sesión.')
-                    messages.warning(request, 'No se pudo enviar el correo de bienvenida.')
-                return redirect('iniciosesion')
+                messages.success(request, 'Cliente registrado exitosamente. Ya puede iniciar sesión.')
+                return redirect('login')
 
             except Exception as e:
                 messages.error(request, f'Error al registrar cliente: {str(e)}')
 
     return render(request, 'ventas/registro.html')
-
