@@ -634,6 +634,23 @@ botocore = ">=1.37.4,<2.0a.0"
 crt = ["botocore[crt] (>=1.37.4,<2.0a.0)"]
 
 [[package]]
+name = "sib-api-v3-sdk"
+version = "7.6.0"
+description = "SendinBlue API"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "sib-api-v3-sdk-7.6.0.tar.gz", hash = "sha256:8975108c4a66ca2280532017190150f98ac826eacdda6c2f859ff104d2828266"},
+]
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+python-dateutil = ">=2.1"
+six = ">=1.10"
+urllib3 = ">=1.23"
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -724,4 +741,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "0c3e3f47a9495725ce9d0c0b67cddce483b3d1e39acf9872216edee2ae974ccf"
+content-hash = "a7602191a0c5fd7882b7b9c22eef26d632bbdfb5bd0905303844a00ab9001710"

@@ -70,7 +70,7 @@
                                 <div class="mt-auto">
                                     <a href="{% url 'producto_detalle' producto.producto_id %}" class="btn btn-outline-primary btn-sm me-2">Ver detalle</a>
                                     {% if producto.stock > 0 %}
-                                        <button type="button" class="btn btn-success btn-sm" onclick="agregarAlCarrito({{ producto.producto_id }})">Añadir al Carrito</button>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="agregarAlCarrito('{{ producto.producto_id }}')">Añadir al Carrito</button>
                                     {% else %}
                                         <button type="button" class="btn btn-secondary btn-sm" disabled>Sin stock</button>
                                     {% endif %}
