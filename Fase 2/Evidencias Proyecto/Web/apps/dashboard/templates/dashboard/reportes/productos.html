@@ -288,145 +288,7 @@
 </div>
 
 <!-- Lista detallada de productos -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-list"></i> Lista Detallada de Productos
-            {% if categoria_seleccionada or marca_seleccionada %}
-                <small class="text-muted">(Filtrado)</small>
-            {% endif %}
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Producto</th>
-                        <th>Categoría</th>
-                        <th>Marca</th>
-                        <th class="text-end">Precio</th>
-                        <th class="text-end">Stock</th>
-                        <th class="text-end">Vendidos (30d)</th>
-                        <th class="text-end">Ingresos (30d)</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                {% if producto.imagen_url %}
-                                    <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="product-image me-2">
-                                {% else %}
-                                    <div class="product-image me-2 bg-light d-flex align-items-center justify-content-center">
-                                        <i class="fas fa-image text-muted"></i>
-                                    </div>
-                                {% endif %}
-                                <div>
-                                    <strong>{{ producto.nombre }}</strong><br>
-                                    <small class="text-muted">{{ producto.sku }}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>{{ producto.categoria.nombre|default:"Sin categoría" }}</td>
-                        <td>{{ producto.marca.nombre|default:"Sin marca" }}</td>
-                        <td class="text-end">
-                            <strong>${{ producto.precio|floatformat:0|intcomma }}</strong>
-                        </td>
-                        <td class="text-end">
-                            {% if producto.stock == 0 %}
-                                <span class="badge bg-danger stock-badge">Sin stock</span>
-                            {% elif producto.stock < 10 %}
-                                <span class="badge bg-warning stock-badge">{{ producto.stock }}</span>
-                            {% else %}
-                                <span class="badge bg-success stock-badge">{{ producto.stock }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end">
-                            <span class="badge bg-primary stock-badge">{{ producto.total_vendido }}</span>
-                        </td>
-                        <td class="text-end">
-                            <strong class="text-success">${{ producto.ingresos_generados|floatformat:0|intcomma }}</strong>
-                        </td>
-                        <td class="text-center">
-                            {% if producto.estado_producto == 'activo' %}
-                                <span class="badge bg-success">Activo</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ producto.estado_producto|title }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{% url 'dashboard:producto_edit' producto.producto_id %}" 
-                                   class="btn btn-outline-primary btn-sm" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'dashboard:producto_delete' producto.producto_id %}" 
-                                   class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-4">
-                            No se encontraron productos con los filtros seleccionados.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
 
-        <!-- Paginación -->
-        {% if productos.has_other_pages %}
-        <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Paginación de productos">
-                <ul class="pagination">
-                    {% if productos.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ productos.previous_page_number }}">Anterior</a>
-                        </li>
-                    {% endif %}
-
-                    {% for i in productos.paginator.page_range %}
-                        {% if productos.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
-                        {% elif i == 1 or i == productos.paginator.num_pages or i >= productos.number|add:'-2' and i <= productos.number|add:'2' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ i }}">{{ i }}</a>
-                            </li>
-                        {% elif i == 2 or i == productos.paginator.num_pages|add:'-1' %}
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if productos.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ productos.next_page_number }}">Siguiente</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-        {% endif %}
-
-        <!-- Info de paginación -->
-        <div class="text-center text-muted mt-3">
-            <small>
-                Mostrando {{ productos.start_index }} - {{ productos.end_index }} de {{ productos.paginator.count }} productos
-            </small>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -457,13 +319,13 @@ const categoriasData = [
 
 if (categoriasData.length > 0) {
     const categoriaCtx = document.getElementById('categoriaDistribucionChart').getContext('2d');
-    
+
     // Generar colores dinámicamente
     const colores = [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
         '#FF9F40', '#FF6384', '#C9CBCF', '#E74C3C', '#3498DB'
     ];
-    
+
     new Chart(categoriaCtx, {
         type: 'doughnut',
         data: {
@@ -492,7 +354,7 @@ if (categoriasData.length > 0) {
                         label: function(context) {
                             const categoria = categoriasData[context.dataIndex];
                             const label = context.label + ': ' + context.parsed + ' productos';
-                            const extra = categoria.stockBajo > 0 ? 
+                            const extra = categoria.stockBajo > 0 ?
                                 ' (' + categoria.stockBajo + ' con stock bajo)' : '';
                             return label + extra;
                         }
@@ -568,15 +430,14 @@ const topProductosData = [
     {% for producto in productos_mas_vendidos %}
     {
         nombre: "{{ producto.producto__nombre|escapejs|truncatechars:30 }}",
-        vendidos: {{ producto.total_vendido }},
-        ingresos: {{ producto.ingresos }}
+        vendidos: {{ producto.total_vendido }}
     }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
 
 if (topProductosData.length > 0) {
     const topProductosCtx = document.getElementById('topProductosChart').getContext('2d');
-    
+
     new Chart(topProductosCtx, {
         type: 'bar',
         data: {
@@ -586,29 +447,12 @@ if (topProductosData.length > 0) {
                 data: topProductosData.map(p => p.vendidos),
                 backgroundColor: 'rgba(54, 162, 235, 0.8)',
                 borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2,
-                yAxisID: 'y',
-                order: 2
-            }, {
-                label: 'Ingresos ($)',
-                data: topProductosData.map(p => p.ingresos),
-                type: 'line',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 3,
-                yAxisID: 'y1',
-                tension: 0.4,
-                order: 1,
-                fill: true
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
             plugins: {
                 legend: {
                     position: 'top'
@@ -620,11 +464,7 @@ if (topProductosData.length > 0) {
                             if (label) {
                                 label += ': ';
                             }
-                            if (context.dataset.yAxisID === 'y1') {
-                                label += '$' + context.parsed.y.toLocaleString('es-CL');
-                            } else {
-                                label += context.parsed.y + ' unidades';
-                            }
+                            label += context.parsed.y + ' unidades';
                             return label;
                         }
                     }
@@ -632,32 +472,15 @@ if (topProductosData.length > 0) {
             },
             scales: {
                 y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
+                    beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Unidades Vendidas'
                     },
-                    beginAtZero: true
-                },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: 'Ingresos ($)'
-                    },
-                    grid: {
-                        drawOnChartArea: false
-                    },
                     ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString('es-CL');
-                        }
-                    },
-                    beginAtZero: true
+                        stepSize: 1,
+                        precision: 0
+                    }
                 }
             }
         }
