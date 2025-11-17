@@ -10,23 +10,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from pathlib import Path
+
 import dj_database_url
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
-load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
@@ -38,50 +39,50 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split("
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_bootstrap5',
-    'apps.ventas',
-    'apps.dashboard',
-    'apps.carrito',
-    'django.contrib.humanize',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_bootstrap5",
+    "apps.ventas",
+    "apps.dashboard",
+    "apps.carrito",
+    "django.contrib.humanize",
 ]
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'pets.urls'
+ROOT_URLCONF = "pets.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'apps.carrito.context_processors.carrito', 
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "apps.carrito.context_processors.carrito",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'pets.wsgi.application'
+WSGI_APPLICATION = "pets.wsgi.application"
 
 
 # Database
@@ -89,9 +90,9 @@ WSGI_APPLICATION = 'pets.wsgi.application'
 
 if DEVELOPMENT_MODE:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'OPTIONS': {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "OPTIONS": {
                 "service": "cordillerapets_pgdb",
                 "passfile": ".pgpass",
             },
@@ -99,10 +100,8 @@ if DEVELOPMENT_MODE:
     }
 else:
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
+        "default": dj_database_url.config(
+            default=os.getenv("DATABASE_URL"), conn_max_age=600, ssl_require=True
         )
     }
 
@@ -111,30 +110,30 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'apps.ventas.auth_backends.ClientePersonaBackend',
-    'django.contrib.auth.backends.ModelBackend',  # Keep default backend as fallback
+    "apps.ventas.auth_backends.ClientePersonaBackend",
+    "django.contrib.auth.backends.ModelBackend",  # Keep default backend as fallback
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'es-cl'
+LANGUAGE_CODE = "es-cl"
 
-TIME_ZONE = 'America/Santiago'
+TIME_ZONE = "America/Santiago"
 
 USE_I18N = False
 
@@ -144,31 +143,31 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CSRF Configuration
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
 
 # DigitalOcean Spaces Configuration
 # URL base del Space de DigitalOcean donde están almacenadas las imágenes
-DO_SPACES_URL = os.getenv('DO_SPACES_URL', '')
-DO_SPACES_CDN_URL = os.getenv('DO_SPACES_CDN_URL', '')
+DO_SPACES_URL = os.getenv("DO_SPACES_URL", "")
+DO_SPACES_CDN_URL = os.getenv("DO_SPACES_CDN_URL", "")
 
 # Credenciales para subir archivos (solo necesarias para carga desde dashboard)
-DO_SPACES_ACCESS_KEY = os.getenv('DO_SPACES_ACCESS_KEY', '')
-DO_SPACES_SECRET_KEY = os.getenv('DO_SPACES_SECRET_KEY', '')
-DO_SPACES_BUCKET = os.getenv('DO_SPACES_BUCKET', '')
-DO_SPACES_REGION = os.getenv('DO_SPACES_REGION', 'nyc3')
+DO_SPACES_ACCESS_KEY = os.getenv("DO_SPACES_ACCESS_KEY", "")
+DO_SPACES_SECRET_KEY = os.getenv("DO_SPACES_SECRET_KEY", "")
+DO_SPACES_BUCKET = os.getenv("DO_SPACES_BUCKET", "")
+DO_SPACES_REGION = os.getenv("DO_SPACES_REGION", "")
 
 # Transbank Configuration
-TRANSBANK_COMMERCE_CODE = os.getenv('TRANSBANK_COMMERCE_CODE', '597055555532')  # Default to test commerce code
-TRANSBANK_API_KEY = os.getenv('TRANSBANK_API_KEY', '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C')  # Default to test API key
-TRANSBANK_ENVIRONMENT = os.getenv('TRANSBANK_ENVIRONMENT', 'TEST')  # TEST or PRODUCTION
+TRANSBANK_COMMERCE_CODE = os.getenv("TRANSBANK_COMMERCE_CODE", "")
+TRANSBANK_API_KEY = os.getenv("TRANSBANK_API_KEY", "")
+TRANSBANK_ENVIRONMENT = os.getenv("TRANSBANK_ENVIRONMENT", "")
