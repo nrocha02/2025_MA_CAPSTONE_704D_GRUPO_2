@@ -66,10 +66,20 @@
                 <label for="fecha_fin" class="form-label">Fecha Fin:</label>
                 <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
             </div>
-            <div class="col-md-3 d-flex align-items-end">
+            <div class="col-md-3 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Filtrar
                 </button>
+            </div>
+            <div class="col-12 mt-2">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-info" onclick="exportarCSV()">
+                        <i class="fas fa-file-csv"></i> Exportar CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="exportarPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -362,6 +372,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 console.log('Período seleccionado:', '{{ periodo }}');
 console.log('Fecha inicio:', '{{ start_date|date:"Y-m-d" }}');
@@ -371,7 +384,7 @@ function toggleCustomDates() {
     const periodo = document.getElementById('periodo').value;
     const fechaInicioGroup = document.getElementById('fecha-inicio-group');
     const fechaFinGroup = document.getElementById('fecha-fin-group');
-    
+
     if (periodo === 'personalizado') {
         fechaInicioGroup.style.display = 'block';
         fechaFinGroup.style.display = 'block';
@@ -448,13 +461,13 @@ fetch(apiUrl)
     })
     .then(data => {
         console.log('Datos de categorías recibidos:', data);
-        
+
         if (!data.labels || data.labels.length === 0) {
             console.warn('No hay datos de categorías');
             document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles</p>';
             return;
         }
-        
+
         const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
         new Chart(categoriasCtx, {
             type: 'doughnut',
@@ -595,7 +608,7 @@ console.log('Datos de estados de pedidos:', estadosPedidosData);
 if (estadosPedidosData.length > 0) {
     console.log('Creando gráfico de estados con', estadosPedidosData.length, 'estados');
     const estadosPedidosCtx = document.getElementById('estadosPedidosChart').getContext('2d');
-    
+
     // Colores según el estado
     const coloresPorEstado = {
         'Entregado': '#28a745',
@@ -605,11 +618,11 @@ if (estadosPedidosData.length > 0) {
         'Cancelado': '#dc3545',
         'Rechazado': '#e74c3c'
     };
-    
-    const colores = estadosPedidosData.map(item => 
+
+    const colores = estadosPedidosData.map(item =>
         coloresPorEstado[item.estado] || '#6c757d'
     );
-    
+
     new Chart(estadosPedidosCtx, {
         type: 'doughnut',
         data: {
@@ -636,12 +649,12 @@ if (estadosPedidosData.length > 0) {
                                 label += ': ';
                             }
                             label += context.parsed + ' pedidos';
-                            
+
                             // Calcular porcentaje
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const percentage = ((context.parsed / total) * 100).toFixed(1);
                             label += ' (' + percentage + '%)';
-                            
+
                             return label;
                         }
                     }
@@ -652,6 +665,252 @@ if (estadosPedidosData.length > 0) {
 } else {
     console.warn('No hay estados de pedidos para mostrar');
     document.getElementById('estadosPedidosChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
+}
+
+// Función para exportar a CSV
+function exportarCSV() {
+    let csv = [];
+
+    // Encabezado
+    csv.push(['REPORTE DE VENTAS']);
+    csv.push(['Período: {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}']);
+    csv.push(['Generado el: ' + new Date().toLocaleString('es-CL')]);
+    csv.push([]);
+
+    // Métricas principales
+    csv.push(['MÉTRICAS PRINCIPALES']);
+    csv.push(['Total Ventas', '${{ ventas_stats.total_ventas|floatformat:0 }}']);
+    csv.push(['Número de Pedidos', '{{ ventas_stats.num_pedidos }}']);
+    csv.push(['Promedio por Pedido', '${{ ventas_stats.promedio_pedido|floatformat:0 }}']);
+    csv.push(['Productos Vendidos', '{{ ventas_stats.productos_vendidos }}']);
+    csv.push([]);
+
+    // Top 10 productos más vendidos
+    csv.push(['TOP 10 PRODUCTOS MÁS VENDIDOS']);
+    csv.push(['Producto', 'Cantidad Vendida', 'Ingresos Generados']);
+    {% for producto in productos_top %}
+    csv.push(['{{ producto.producto__nombre|escapejs }}', '{{ producto.total_vendido }}', '${{ producto.ingresos|floatformat:0 }}']);
+    {% endfor %}
+    csv.push([]);
+
+    // Top 10 clientes
+    csv.push(['TOP 10 CLIENTES']);
+    csv.push(['Cliente', 'Total Pedidos', 'Total Gastado']);
+    {% for cliente in clientes_top %}
+    {% if cliente.pedido__usuario__first_name %}
+    csv.push(['{{ cliente.pedido__usuario__first_name|escapejs }} {{ cliente.pedido__usuario__last_name|escapejs }}', '{{ cliente.num_pedidos }}', '${{ cliente.total_gastado|floatformat:0 }}']);
+    {% else %}
+    csv.push(['{{ cliente.pedido__email|escapejs }}', '{{ cliente.num_pedidos }}', '${{ cliente.total_gastado|floatformat:0 }}']);
+    {% endif %}
+    {% endfor %}
+    csv.push([]);
+
+    // Estados de pedidos
+    csv.push(['ESTADOS DE PEDIDOS']);
+    csv.push(['Estado', 'Cantidad']);
+    {% for estado in estados_pedidos %}
+    csv.push(['{{ estado.estado|escapejs }}', '{{ estado.count }}']);
+    {% endfor %}
+    csv.push([]);
+
+    // Ventas por categoría
+    csv.push(['VENTAS POR CATEGORÍA']);
+    csv.push(['Categoría', 'Productos Vendidos', 'Total Ventas']);
+    {% for categoria in categorias_ventas %}
+    csv.push(['{{ categoria.nombre|escapejs }}', '{{ categoria.productos_vendidos }}', '${{ categoria.total_ventas|floatformat:0 }}']);
+    {% endfor %}
+
+    // Convertir a string CSV
+    let csvContent = csv.map(row => row.join(',')).join('\n');
+
+    // Descargar archivo
+    let blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'reporte_ventas_' + new Date().getTime() + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Función para exportar a PDF
+async function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    let yPos = 20;
+    const margin = 15;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // Título
+    pdf.setFontSize(18);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('REPORTE DE VENTAS', margin, yPos);
+
+    yPos += 8;
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'normal');
+    pdf.text('Período: {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}', margin, yPos);
+    yPos += 5;
+    pdf.text('Generado el: ' + new Date().toLocaleString('es-CL'), margin, yPos);
+
+    yPos += 15;
+
+    // Métricas principales
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Métricas Principales', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'normal');
+    pdf.text('Total Ventas: ${{ ventas_stats.total_ventas|floatformat:0 }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Número de Pedidos: {{ ventas_stats.num_pedidos }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Promedio por Pedido: ${{ ventas_stats.promedio_pedido|floatformat:0 }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Productos Vendidos: {{ ventas_stats.productos_vendidos }}', margin, yPos);
+
+    yPos += 15;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Top 10 productos más vendidos
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Top 10 Productos Más Vendidos', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Producto', margin, yPos);
+    pdf.text('Cantidad', margin + 100, yPos);
+    pdf.text('Ingresos', margin + 140, yPos);
+    yPos += 5;
+
+    pdf.setFont(undefined, 'normal');
+    {% for producto in productos_top %}
+    if (yPos > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    pdf.text('{{ producto.producto__nombre|escapejs|truncatechars:40 }}', margin, yPos);
+    pdf.text('{{ producto.total_vendido }}', margin + 100, yPos);
+    pdf.text('${{ producto.ingresos|floatformat:0 }}', margin + 140, yPos);
+    yPos += 5;
+    {% endfor %}
+
+    yPos += 10;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Top 10 clientes
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Top 10 Clientes', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Cliente', margin, yPos);
+    pdf.text('Pedidos', margin + 100, yPos);
+    pdf.text('Total', margin + 140, yPos);
+    yPos += 5;
+
+    pdf.setFont(undefined, 'normal');
+    {% for cliente in clientes_top %}
+    if (yPos > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    {% if cliente.pedido__usuario__first_name %}
+    pdf.text('{{ cliente.pedido__usuario__first_name|escapejs }} {{ cliente.pedido__usuario__last_name|escapejs|truncatechars:30 }}', margin, yPos);
+    {% else %}
+    pdf.text('{{ cliente.pedido__email|escapejs|truncatechars:40 }}', margin, yPos);
+    {% endif %}
+    pdf.text('{{ cliente.num_pedidos }}', margin + 100, yPos);
+    pdf.text('${{ cliente.total_gastado|floatformat:0 }}', margin + 140, yPos);
+    yPos += 5;
+    {% endfor %}
+
+    yPos += 10;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Estados de pedidos
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Estados de Pedidos', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Estado', margin, yPos);
+    pdf.text('Cantidad', margin + 100, yPos);
+    yPos += 5;
+
+    pdf.setFont(undefined, 'normal');
+    {% for estado in estados_pedidos %}
+    if (yPos > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    pdf.text('{{ estado.estado|escapejs }}', margin, yPos);
+    pdf.text('{{ estado.count }}', margin + 100, yPos);
+    yPos += 5;
+    {% endfor %}
+
+    yPos += 10;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Ventas por categoría
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Ventas por Categoría', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Categoría', margin, yPos);
+    pdf.text('Productos', margin + 80, yPos);
+    pdf.text('Total', margin + 130, yPos);
+    yPos += 5;
+
+    pdf.setFont(undefined, 'normal');
+    {% for categoria in categorias_ventas %}
+    if (yPos > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    pdf.text('{{ categoria.nombre|escapejs|truncatechars:35 }}', margin, yPos);
+    pdf.text('{{ categoria.productos_vendidos }}', margin + 80, yPos);
+    pdf.text('${{ categoria.total_ventas|floatformat:0 }}', margin + 130, yPos);
+    yPos += 5;
+    {% endfor %}
+
+    // Guardar PDF
+    pdf.save('reporte_ventas_' + new Date().getTime() + '.pdf');
 }
 </script>
 {% endblock %}

@@ -91,13 +91,23 @@
                     <option value="nombre" {% if orden_seleccionado == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
                 </select>
             </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Filtrar
                 </button>
                 <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-refresh"></i> Limpiar
+                    <i class="fas fa-redo"></i> Limpiar
                 </a>
+            </div>
+            <div class="col-12 mt-2">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-info" onclick="exportarCSV()">
+                        <i class="fas fa-file-csv"></i> Exportar CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="exportarPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -292,6 +302,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 // Auto-submit del formulario cuando cambian los filtros
 document.getElementById('categoria').addEventListener('change', function() {
@@ -485,6 +498,185 @@ if (topProductosData.length > 0) {
             }
         }
     });
+}
+
+// Función para exportar a CSV
+function exportarCSV() {
+    let csv = [];
+
+    // Encabezado
+    csv.push(['REPORTE DE PRODUCTOS']);
+    csv.push(['Generado el: ' + new Date().toLocaleString('es-CL')]);
+    csv.push([]);
+
+    // Métricas generales
+    csv.push(['MÉTRICAS GENERALES']);
+    csv.push(['Total Productos', '{{ total_productos }}']);
+    csv.push(['Productos Activos', '{{ productos_activos }}']);
+    csv.push(['Productos con Stock Bajo', '{{ productos_stock_bajo }}']);
+    csv.push(['Valor Total Inventario', '${{ valor_inventario|floatformat:0 }}']);
+    csv.push([]);
+
+    // Distribución por categorías
+    csv.push(['DISTRIBUCIÓN POR CATEGORÍAS']);
+    csv.push(['Categoría', 'Total Productos', 'Stock Bajo']);
+    {% for cat in categorias_stats %}
+    csv.push(['{{ cat.nombre|escapejs }}', '{{ cat.total_productos }}', '{{ cat.stock_bajo }}']);
+    {% endfor %}
+    csv.push([]);
+
+    // Top 10 productos más vendidos
+    csv.push(['TOP 10 PRODUCTOS MÁS VENDIDOS']);
+    csv.push(['Producto', 'Unidades Vendidas']);
+    {% for producto in productos_mas_vendidos %}
+    csv.push(['{{ producto.producto__nombre|escapejs }}', '{{ producto.total_vendido }}']);
+    {% endfor %}
+    csv.push([]);
+
+    // Resumen de stock bajo
+    csv.push(['RESUMEN DE STOCK']);
+    csv.push(['Total Productos con Stock Bajo', '{{ productos_stock_bajo }}']);
+    csv.push(['Total Productos Sin Stock', '{{ productos_sin_stock }}']);
+
+    // Convertir a string CSV
+    let csvContent = csv.map(row => row.join(',')).join('\n');
+
+    // Descargar archivo
+    let blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'reporte_productos_' + new Date().getTime() + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Función para exportar a PDF
+async function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    let yPos = 20;
+    const margin = 15;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // Título
+    pdf.setFontSize(18);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('REPORTE DE PRODUCTOS', margin, yPos);
+
+    yPos += 8;
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'normal');
+    pdf.text('Generado el: ' + new Date().toLocaleString('es-CL'), margin, yPos);
+
+    yPos += 15;
+
+    // Métricas generales
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Métricas Generales', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'normal');
+    pdf.text('Total Productos: {{ total_productos }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Productos Activos: {{ productos_activos }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Productos con Stock Bajo: {{ productos_stock_bajo }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Valor Total Inventario: ${{ valor_inventario|floatformat:0 }}', margin, yPos);
+
+    yPos += 15;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Distribución por categorías
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Distribución por Categorías', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Categoría', margin, yPos);
+    pdf.text('Productos', margin + 80, yPos);
+    pdf.text('Stock Bajo', margin + 120, yPos);
+    yPos += 5;
+
+    pdf.setFont(undefined, 'normal');
+    {% for cat in categorias_stats %}
+    if (yPos > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    pdf.text('{{ cat.nombre|escapejs|truncatechars:35 }}', margin, yPos);
+    pdf.text('{{ cat.total_productos }}', margin + 80, yPos);
+    pdf.text('{{ cat.stock_bajo }}', margin + 120, yPos);
+    yPos += 5;
+    {% endfor %}
+
+    yPos += 10;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Top 10 productos más vendidos
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Top 10 Productos Más Vendidos', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Producto', margin, yPos);
+    pdf.text('Unidades', margin + 120, yPos);
+    yPos += 5;
+
+    pdf.setFont(undefined, 'normal');
+    {% for producto in productos_mas_vendidos %}
+    if (yPos > pageHeight - 20) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    pdf.text('{{ producto.producto__nombre|escapejs|truncatechars:50 }}', margin, yPos);
+    pdf.text('{{ producto.total_vendido }}', margin + 120, yPos);
+    yPos += 5;
+    {% endfor %}
+
+    yPos += 10;
+
+    // Verificar si necesitamos nueva página
+    if (yPos > pageHeight - 40) {
+        pdf.addPage();
+        yPos = 20;
+    }
+
+    // Resumen de stock
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Resumen de Stock', margin, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'normal');
+    pdf.text('Total Productos con Stock Bajo: {{ productos_stock_bajo }}', margin, yPos);
+    yPos += 6;
+    pdf.text('Total Productos Sin Stock: {{ productos_sin_stock }}', margin, yPos);
+
+    // Guardar PDF
+    pdf.save('reporte_productos_' + new Date().getTime() + '.pdf');
 }
 </script>
 {% endblock %}
