@@ -178,28 +178,28 @@
     <div class="success-icon">
       ✓
     </div>
-    
+
     <h1>¡Pago Exitoso!</h1>
     <p>Tu compra ha sido procesada correctamente. Recibirás un correo de confirmación en breve.</p>
 
     <div class="order-details">
       <h2>Detalles del Pedido</h2>
-      
+
       <div class="detail-row">
         <span class="detail-label">Número de Pedido:</span>
         <span class="detail-value"><strong>#{{ pedido.pedido_id }}</strong></span>
       </div>
-      
+
       <div class="detail-row">
         <span class="detail-label">Fecha:</span>
         <span class="detail-value">{{ pedido.fecha|date:"d/m/Y H:i" }}</span>
       </div>
-      
+
       <div class="detail-row">
         <span class="detail-label">Total Pagado:</span>
         <span class="detail-value"><strong>${{ pedido.total|floatformat:0 }}</strong></span>
       </div>
-      
+
       <div class="detail-row">
         <span class="detail-label">Estado:</span>
         <span class="detail-value" style="color: #28a745;"><strong>{{ pedido.estado }}</strong></span>
@@ -218,22 +218,22 @@
 
     <div class="transaction-info">
       <h3>💳 Información de la Transacción</h3>
-      
+
       <div class="detail-row">
         <span class="detail-label">Código de Autorización:</span>
         <span class="detail-value">{{ transbank_response.authorization_code }}</span>
       </div>
-      
+
       <div class="detail-row">
         <span class="detail-label">Tipo de Pago:</span>
         <span class="detail-value">{{ transbank_response.payment_type_code }}</span>
       </div>
-      
+
       <div class="detail-row">
         <span class="detail-label">Monto:</span>
         <span class="detail-value">${{ transbank_response.amount|floatformat:0 }}</span>
       </div>
-      
+
       <div class="detail-row">
         <span class="detail-label">Fecha Transacción:</span>
         <span class="detail-value">{{ transbank_response.transaction_date }}</span>

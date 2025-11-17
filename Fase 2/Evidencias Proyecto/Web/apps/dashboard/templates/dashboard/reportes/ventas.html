@@ -5,912 +5,912 @@
 {% block title %}Reportes de Ventas - Dashboard Admin{% endblock %}
 
 {% block extra_css %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    .chart-container {
-        position: relative;
-        height: 400px;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        transition: transform 0.2s;
-    }
-    .metric-card:hover {
-        transform: translateY(-2px);
-    }
-    .table-responsive {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border-radius: 0.375rem;
-    }
-</style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .table-responsive {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.375rem;
+        }
+    </style>
 {% endblock %}
 
 {% block page_title %}Reportes de Ventas{% endblock %}
 {% block page_description %}Análisis detallado de ventas y rendimiento{% endblock %}
 
 {% block page_actions %}
-<div class="btn-group" role="group">
-    <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Volver al Dashboard
-    </a>
-    <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-info">
-        <i class="fas fa-box"></i> Reportes de Productos
-    </a>
-</div>
+    <div class="btn-group" role="group">
+        <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
+        <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-info">
+            <i class="fas fa-box"></i> Reportes de Productos
+        </a>
+    </div>
 {% endblock %}
 
 {% block main_content %}
 <!-- Filtros de período -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Filtros de Período</h5>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-3">
-                <label for="periodo" class="form-label">Período:</label>
-                <select name="periodo" id="periodo" class="form-select" onchange="toggleCustomDates()">
-                    <option value="dia" {% if periodo == 'dia' %}selected{% endif %}>Hoy</option>
-                    <option value="semana" {% if periodo == 'semana' %}selected{% endif %}>Esta Semana</option>
-                    <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Este Mes</option>
-                    <option value="trimestre" {% if periodo == 'trimestre' %}selected{% endif %}>Este Trimestre</option>
-                    <option value="año" {% if periodo == 'año' %}selected{% endif %}>Este Año</option>
-                    <option value="personalizado" {% if periodo == 'personalizado' %}selected{% endif %}>Personalizado</option>
-                </select>
-            </div>
-            <div class="col-md-3" id="fecha-inicio-group" style="display: {% if periodo == 'personalizado' %}block{% else %}none{% endif %};">
-                <label for="fecha_inicio" class="form-label">Fecha Inicio:</label>
-                <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
-            </div>
-            <div class="col-md-3" id="fecha-fin-group" style="display: {% if periodo == 'personalizado' %}block{% else %}none{% endif %};">
-                <label for="fecha_fin" class="form-label">Fecha Fin:</label>
-                <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
-            </div>
-            <div class="col-md-3 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i> Filtrar
-                </button>
-            </div>
-            <div class="col-12 mt-2">
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-info" onclick="exportarCSV()">
-                        <i class="fas fa-file-csv"></i> Exportar CSV
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="exportarPDF()">
-                        <i class="fas fa-file-pdf"></i> Exportar PDF
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Filtros de Período</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="periodo" class="form-label">Período:</label>
+                    <select name="periodo" id="periodo" class="form-select" onchange="toggleCustomDates()">
+                        <option value="dia" {% if periodo == 'dia' %}selected{% endif %}>Hoy</option>
+                        <option value="semana" {% if periodo == 'semana' %}selected{% endif %}>Esta Semana</option>
+                        <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Este Mes</option>
+                        <option value="trimestre" {% if periodo == 'trimestre' %}selected{% endif %}>Este Trimestre</option>
+                        <option value="año" {% if periodo == 'año' %}selected{% endif %}>Este Año</option>
+                        <option value="personalizado" {% if periodo == 'personalizado' %}selected{% endif %}>Personalizado</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="fecha-inicio-group" style="display: {% if periodo == 'personalizado' %}block{% else %}none{% endif %};">
+                    <label for="fecha_inicio" class="form-label">Fecha Inicio:</label>
+                    <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+                </div>
+                <div class="col-md-3" id="fecha-fin-group" style="display: {% if periodo == 'personalizado' %}block{% else %}none{% endif %};">
+                    <label for="fecha_fin" class="form-label">Fecha Fin:</label>
+                    <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filtrar
                     </button>
                 </div>
-            </div>
-        </form>
+                <div class="col-12 mt-2">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info" onclick="exportarCSV()">
+                            <i class="fas fa-file-csv"></i> Exportar CSV
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="exportarPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 <!-- Métricas principales -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-primary">
-            <div class="card-body text-center">
-                <div class="text-primary">
-                    <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-primary">
+                <div class="card-body text-center">
+                    <div class="text-primary">
+                        <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-primary">${{ ventas_stats.total_ventas|floatformat:0|intcomma }}</h3>
+                    <p class="card-text text-muted">Total Ventas</p>
+                    <small class="text-muted">{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</small>
                 </div>
-                <h3 class="text-primary">${{ ventas_stats.total_ventas|floatformat:0|intcomma }}</h3>
-                <p class="card-text text-muted">Total Ventas</p>
-                <small class="text-muted">{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</small>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-success">
+                <div class="card-body text-center">
+                    <div class="text-success">
+                        <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-success">{{ ventas_stats.num_pedidos }}</h3>
+                    <p class="card-text text-muted">Número de Pedidos</p>
+                    <small class="text-muted">Entregados</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-info">
+                <div class="card-body text-center">
+                    <div class="text-info">
+                        <i class="fas fa-receipt fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-info">${{ ventas_stats.ticket_promedio|floatformat:0|intcomma }}</h3>
+                    <p class="card-text text-muted">Ticket Promedio</p>
+                    <small class="text-muted">Por pedido</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-warning">
+                <div class="card-body text-center">
+                    <div class="text-warning">
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-warning">
+                        ${{ ventas_stats.ticket_promedio|floatformat:0|intcomma }}
+                    </h3>
+                    <p class="card-text text-muted">Ticket Promedio</p>
+                    <small class="text-muted">Por pedido</small>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-success">
-            <div class="card-body text-center">
-                <div class="text-success">
-                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
-                </div>
-                <h3 class="text-success">{{ ventas_stats.num_pedidos }}</h3>
-                <p class="card-text text-muted">Número de Pedidos</p>
-                <small class="text-muted">Entregados</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-info">
-            <div class="card-body text-center">
-                <div class="text-info">
-                    <i class="fas fa-receipt fa-2x mb-2"></i>
-                </div>
-                <h3 class="text-info">${{ ventas_stats.ticket_promedio|floatformat:0|intcomma }}</h3>
-                <p class="card-text text-muted">Ticket Promedio</p>
-                <small class="text-muted">Por pedido</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-warning">
-            <div class="card-body text-center">
-                <div class="text-warning">
-                    <i class="fas fa-chart-line fa-2x mb-2"></i>
-                </div>
-                <h3 class="text-warning">
-                    ${{ ventas_stats.ticket_promedio|floatformat:0|intcomma }}
-                </h3>
-                <p class="card-text text-muted">Ticket Promedio</p>
-                <small class="text-muted">Por pedido</small>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Gráficos principales -->
-<div class="row mb-4">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-area"></i> Evolución de Ventas</h5>
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-area"></i> Evolución de Ventas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="ventasChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="ventasChart"></canvas>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Ventas por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="categoriasChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Ventas por Categoría</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="categoriasChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Gráficos adicionales -->
-<div class="row mb-4">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Top 10 Productos Más Vendidos</h5>
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Top 10 Productos Más Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="productosTopChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="productosTopChart"></canvas>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-doughnut"></i> Estados de Pedidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="estadosPedidosChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-doughnut"></i> Estados de Pedidos</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="estadosPedidosChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Top productos y clientes -->
-<div class="row mb-4">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> Top Productos Vendidos</h5>
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> Top Productos Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Ingresos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for producto in productos_vendidos %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ producto.producto__nombre }}</strong><br>
+                                            <small class="text-muted">{{ producto.producto__sku }}</small>
+                                        </td>
+                                        <td>{{ producto.producto__categoria__nombre|default:"Sin categoría" }}</td>
+                                        <td class="text-end">
+                                            <span class="badge bg-primary">{{ producto.cantidad_vendida }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>${{ producto.ingresos_totales|floatformat:0|intcomma }}</strong>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No hay datos de ventas en el período seleccionado</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th class="text-end">Cantidad</th>
-                                <th class="text-end">Ingresos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for producto in productos_vendidos %}
-                            <tr>
-                                <td>
-                                    <strong>{{ producto.producto__nombre }}</strong><br>
-                                    <small class="text-muted">{{ producto.producto__sku }}</small>
-                                </td>
-                                <td>{{ producto.producto__categoria__nombre|default:"Sin categoría" }}</td>
-                                <td class="text-end">
-                                    <span class="badge bg-primary">{{ producto.cantidad_vendida }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <strong>${{ producto.ingresos_totales|floatformat:0|intcomma }}</strong>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted">No hay datos de ventas en el período seleccionado</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-users"></i> Top Clientes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th class="text-end">Pedidos</th>
+                                    <th class="text-end">Total Compras</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cliente in clientes_top %}
+                                    <tr>
+                                        <td>
+                                            {% if cliente.cliente_persona__nombres %}
+                                                <strong>{{ cliente.cliente_persona__nombres }} {{ cliente.cliente_persona__apellido_paterno }}</strong><br>
+                                                <small class="text-muted">{{ cliente.cliente_persona__email }}</small>
+                                            {% elif cliente.cliente_empresa__razon_social %}
+                                                <strong>{{ cliente.cliente_empresa__razon_social }}</strong><br>
+                                                <small class="text-muted">{{ cliente.cliente_empresa__email_contacto }}</small>
+                                            {% else %}
+                                                <span class="text-muted">Cliente invitado</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-info">{{ cliente.num_pedidos }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>${{ cliente.total_compras|floatformat:0|intcomma }}</strong>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No hay datos de clientes en el período seleccionado</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-users"></i> Top Clientes</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Cliente</th>
-                                <th class="text-end">Pedidos</th>
-                                <th class="text-end">Total Compras</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cliente in clientes_top %}
-                            <tr>
-                                <td>
-                                    {% if cliente.cliente_persona__nombres %}
-                                        <strong>{{ cliente.cliente_persona__nombres }} {{ cliente.cliente_persona__apellido_paterno }}</strong><br>
-                                        <small class="text-muted">{{ cliente.cliente_persona__email }}</small>
-                                    {% elif cliente.cliente_empresa__razon_social %}
-                                        <strong>{{ cliente.cliente_empresa__razon_social }}</strong><br>
-                                        <small class="text-muted">{{ cliente.cliente_empresa__email_contacto }}</small>
-                                    {% else %}
-                                        <span class="text-muted">Cliente invitado</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end">
-                                    <span class="badge bg-info">{{ cliente.num_pedidos }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <strong>${{ cliente.total_compras|floatformat:0|intcomma }}</strong>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">No hay datos de clientes en el período seleccionado</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Estados de pedidos y ventas por categoría -->
-<div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-list-alt"></i> Estados de Pedidos</h5>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-list-alt"></i> Estados de Pedidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Estado</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for estado in estados_pedidos %}
+                                    <tr>
+                                        <td>
+                                            {% if estado.estado == 'Entregado' %}
+                                                <span class="badge bg-success">{{ estado.estado }}</span>
+                                            {% elif estado.estado == 'Pendiente de pago' %}
+                                                <span class="badge bg-warning">{{ estado.estado }}</span>
+                                            {% elif estado.estado == 'Cancelado' %}
+                                                <span class="badge bg-danger">{{ estado.estado }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ estado.estado }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">{{ estado.count }}</td>
+                                        <td class="text-end">
+                                            {% if ventas_stats.num_pedidos > 0 %}
+                                                {% widthratio estado.count ventas_stats.num_pedidos 100 %}%
+                                            {% else %}
+                                                0%
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Estado</th>
-                                <th class="text-end">Cantidad</th>
-                                <th class="text-end">Porcentaje</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for estado in estados_pedidos %}
-                            <tr>
-                                <td>
-                                    {% if estado.estado == 'Entregado' %}
-                                        <span class="badge bg-success">{{ estado.estado }}</span>
-                                    {% elif estado.estado == 'Pendiente de pago' %}
-                                        <span class="badge bg-warning">{{ estado.estado }}</span>
-                                    {% elif estado.estado == 'Cancelado' %}
-                                        <span class="badge bg-danger">{{ estado.estado }}</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">{{ estado.estado }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end">{{ estado.count }}</td>
-                                <td class="text-end">
-                                    {% if ventas_stats.num_pedidos > 0 %}
-                                        {% widthratio estado.count ventas_stats.num_pedidos 100 %}%
-                                    {% else %}
-                                        0%
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-tags"></i> Ventas por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Categoría</th>
+                                    <th class="text-end">Unidades</th>
+                                    <th class="text-end">Ingresos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for categoria in ventas_por_categoria %}
+                                    <tr>
+                                        <td>{{ categoria.producto__categoria__nombre|default:"Sin categoría" }}</td>
+                                        <td class="text-end">
+                                            <span class="badge bg-primary">{{ categoria.cantidad_vendida }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>${{ categoria.total_ventas|floatformat:0|intcomma }}</strong>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-tags"></i> Ventas por Categoría</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Categoría</th>
-                                <th class="text-end">Unidades</th>
-                                <th class="text-end">Ingresos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for categoria in ventas_por_categoria %}
-                            <tr>
-                                <td>{{ categoria.producto__categoria__nombre|default:"Sin categoría" }}</td>
-                                <td class="text-end">
-                                    <span class="badge bg-primary">{{ categoria.cantidad_vendida }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <strong>${{ categoria.total_ventas|floatformat:0|intcomma }}</strong>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-console.log('Período seleccionado:', '{{ periodo }}');
-console.log('Fecha inicio:', '{{ start_date|date:"Y-m-d" }}');
-console.log('Fecha fin:', '{{ end_date|date:"Y-m-d" }}');
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        console.log('Período seleccionado:', '{{ periodo }}');
+        console.log('Fecha inicio:', '{{ start_date|date:"Y-m-d" }}');
+        console.log('Fecha fin:', '{{ end_date|date:"Y-m-d" }}');
 
-function toggleCustomDates() {
-    const periodo = document.getElementById('periodo').value;
-    const fechaInicioGroup = document.getElementById('fecha-inicio-group');
-    const fechaFinGroup = document.getElementById('fecha-fin-group');
+        function toggleCustomDates() {
+            const periodo = document.getElementById('periodo').value;
+            const fechaInicioGroup = document.getElementById('fecha-inicio-group');
+            const fechaFinGroup = document.getElementById('fecha-fin-group');
 
-    if (periodo === 'personalizado') {
-        fechaInicioGroup.style.display = 'block';
-        fechaFinGroup.style.display = 'block';
-    } else {
-        fechaInicioGroup.style.display = 'none';
-        fechaFinGroup.style.display = 'none';
-    }
-}
+            if (periodo === 'personalizado') {
+                fechaInicioGroup.style.display = 'block';
+                fechaFinGroup.style.display = 'block';
+            } else {
+                fechaInicioGroup.style.display = 'none';
+                fechaFinGroup.style.display = 'none';
+            }
+        }
 
 // Gráfico de ventas
-const ventasData = {{ ventas_diarias|safe }};
-console.log('Datos de ventas recibidos:', ventasData);
-console.log('Tipo de ventasData:', typeof ventasData);
+        const ventasData = {{ ventas_diarias|safe }};
+        console.log('Datos de ventas recibidos:', ventasData);
+        console.log('Tipo de ventasData:', typeof ventasData);
 
-if (!ventasData || ventasData.length === 0) {
-    console.warn('No hay datos de ventas para mostrar');
-    document.getElementById('ventasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
-} else {
-    const ventasLabels = ventasData.map(item => {
-        const fecha = new Date(item.fecha__date);
-        return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-    });
-    const ventasValues = ventasData.map(item => item.total);
+        if (!ventasData || ventasData.length === 0) {
+            console.warn('No hay datos de ventas para mostrar');
+            document.getElementById('ventasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
+        } else {
+            const ventasLabels = ventasData.map(item => {
+                const fecha = new Date(item.fecha__date);
+                return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+            });
+            const ventasValues = ventasData.map(item => item.total);
 
-    console.log('Labels:', ventasLabels);
-    console.log('Values:', ventasValues);
+            console.log('Labels:', ventasLabels);
+            console.log('Values:', ventasValues);
 
-    const ventasCtx = document.getElementById('ventasChart').getContext('2d');
-    new Chart(ventasCtx, {
-        type: 'line',
-        data: {
-            labels: ventasLabels,
-            datasets: [{
-                label: 'Ventas ($)',
-                data: ventasValues,
-                borderColor: 'rgb(13, 110, 253)',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString();
+            const ventasCtx = document.getElementById('ventasChart').getContext('2d');
+            new Chart(ventasCtx, {
+                type: 'line',
+                data: {
+                    labels: ventasLabels,
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: ventasValues,
+                        borderColor: 'rgb(13, 110, 253)',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
                         }
                     }
                 }
-            }
+            });
         }
-    });
-}
 
 // Gráfico de categorías
-const urlParams = new URLSearchParams(window.location.search);
-const apiUrl = '{% url "dashboard:api_categorias_chart" %}' + '?' + urlParams.toString();
-console.log('URL API con parámetros:', apiUrl);
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiUrl = '{% url "dashboard:api_categorias_chart" %}' + '?' + urlParams.toString();
+        console.log('URL API con parámetros:', apiUrl);
 
-fetch(apiUrl)
-    .then(response => {
-        console.log('Respuesta API categorías:', response);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Datos de categorías recibidos:', data);
+        fetch(apiUrl)
+            .then(response => {
+                console.log('Respuesta API categorías:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos de categorías recibidos:', data);
 
-        if (!data.labels || data.labels.length === 0) {
-            console.warn('No hay datos de categorías');
-            document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles</p>';
-            return;
-        }
+                if (!data.labels || data.labels.length === 0) {
+                    console.warn('No hay datos de categorías');
+                    document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles</p>';
+                    return;
+                }
 
-        const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
-        new Chart(categoriasCtx, {
-            type: 'doughnut',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    data: data.data,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
-                        '#E74C3C', '#3498DB'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+                const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
+                new Chart(categoriasCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.data,
+                            backgroundColor: [
+                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                                '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                                '#E74C3C', '#3498DB'
+                            ]
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += '$' + context.parsed.toLocaleString('es-CL');
+                                        return label;
+                                    }
                                 }
-                                label += '$' + context.parsed.toLocaleString('es-CL');
-                                return label;
                             }
                         }
                     }
-                }
-            }
-        });
-    })
-    .catch(error => {
-        console.error('Error al cargar datos de categorías:', error);
-        document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-danger">Error al cargar datos</p>';
-    });
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar datos de categorías:', error);
+                document.getElementById('categoriasChart').parentElement.innerHTML = '<p class="text-center text-danger">Error al cargar datos</p>';
+            });
 
 // Gráfico de Top 10 Productos
-const productosTopData = [
-    {% for producto in productos_vendidos %}
-    {
-        nombre: "{{ producto.producto__nombre|escapejs }}",
-        cantidad: {{ producto.cantidad_vendida }},
-        ingresos: {{ producto.ingresos_totales }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-];
+        const productosTopData = [
+            {% for producto in productos_vendidos %}
+                {
+                    nombre: "{{ producto.producto__nombre|escapejs }}",
+                    cantidad: {{ producto.cantidad_vendida }},
+                    ingresos: {{ producto.ingresos_totales }}
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
 
-console.log('Datos de productos top:', productosTopData);
+        console.log('Datos de productos top:', productosTopData);
 
-if (productosTopData.length > 0) {
-    console.log('Creando gráfico de productos top con', productosTopData.length, 'productos');
-    const productosTopCtx = document.getElementById('productosTopChart').getContext('2d');
-    new Chart(productosTopCtx, {
-        type: 'bar',
-        data: {
-            labels: productosTopData.map(p => p.nombre),
-            datasets: [{
-                label: 'Unidades Vendidas',
-                data: productosTopData.map(p => p.cantidad),
-                backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                yAxisID: 'y'
-            }, {
-                label: 'Ingresos ($)',
-                data: productosTopData.map(p => p.ingresos),
-                backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-                yAxisID: 'y1'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
-            plugins: {
-                legend: {
-                    position: 'top'
-                }
-            },
-            scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    title: {
-                        display: true,
-                        text: 'Unidades'
-                    }
+        if (productosTopData.length > 0) {
+            console.log('Creando gráfico de productos top con', productosTopData.length, 'productos');
+            const productosTopCtx = document.getElementById('productosTopChart').getContext('2d');
+            new Chart(productosTopCtx, {
+                type: 'bar',
+                data: {
+                    labels: productosTopData.map(p => p.nombre),
+                    datasets: [{
+                        label: 'Unidades Vendidas',
+                        data: productosTopData.map(p => p.cantidad),
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Ingresos ($)',
+                        data: productosTopData.map(p => p.ingresos),
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }]
                 },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: 'Ingresos ($)'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
                     },
-                    grid: {
-                        drawOnChartArea: false
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
                     },
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString('es-CL');
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Unidades'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Ingresos ($)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString('es-CL');
+                                }
+                            }
                         }
                     }
                 }
-            }
+            });
+        } else {
+            console.warn('No hay productos para mostrar en el gráfico');
+            document.getElementById('productosTopChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
         }
-    });
-} else {
-    console.warn('No hay productos para mostrar en el gráfico');
-    document.getElementById('productosTopChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
-}
 
 // Gráfico de Estados de Pedidos
-const estadosPedidosData = [
-    {% for estado in estados_pedidos %}
-    {
-        estado: "{{ estado.estado|escapejs }}",
-        count: {{ estado.count }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-];
+        const estadosPedidosData = [
+            {% for estado in estados_pedidos %}
+                {
+                    estado: "{{ estado.estado|escapejs }}",
+                    count: {{ estado.count }}
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
 
-console.log('Datos de estados de pedidos:', estadosPedidosData);
+        console.log('Datos de estados de pedidos:', estadosPedidosData);
 
-if (estadosPedidosData.length > 0) {
-    console.log('Creando gráfico de estados con', estadosPedidosData.length, 'estados');
-    const estadosPedidosCtx = document.getElementById('estadosPedidosChart').getContext('2d');
+        if (estadosPedidosData.length > 0) {
+            console.log('Creando gráfico de estados con', estadosPedidosData.length, 'estados');
+            const estadosPedidosCtx = document.getElementById('estadosPedidosChart').getContext('2d');
 
     // Colores según el estado
-    const coloresPorEstado = {
-        'Entregado': '#28a745',
-        'Pendiente de pago': '#ffc107',
-        'En preparación': '#17a2b8',
-        'En tránsito': '#6f42c1',
-        'Cancelado': '#dc3545',
-        'Rechazado': '#e74c3c'
-    };
+            const coloresPorEstado = {
+                'Entregado': '#28a745',
+                'Pendiente de pago': '#ffc107',
+                'En preparación': '#17a2b8',
+                'En tránsito': '#6f42c1',
+                'Cancelado': '#dc3545',
+                'Rechazado': '#e74c3c'
+            };
 
-    const colores = estadosPedidosData.map(item =>
-        coloresPorEstado[item.estado] || '#6c757d'
-    );
+            const colores = estadosPedidosData.map(item =>
+                coloresPorEstado[item.estado] || '#6c757d'
+            );
 
-    new Chart(estadosPedidosCtx, {
-        type: 'doughnut',
-        data: {
-            labels: estadosPedidosData.map(item => item.estado),
-            datasets: [{
-                data: estadosPedidosData.map(item => item.count),
-                backgroundColor: colores,
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+            new Chart(estadosPedidosCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: estadosPedidosData.map(item => item.estado),
+                    datasets: [{
+                        data: estadosPedidosData.map(item => item.count),
+                        backgroundColor: colores,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            label += context.parsed + ' pedidos';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed + ' pedidos';
 
                             // Calcular porcentaje
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((context.parsed / total) * 100).toFixed(1);
-                            label += ' (' + percentage + '%)';
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    label += ' (' + percentage + '%)';
 
-                            return label;
+                                    return label;
+                                }
+                            }
                         }
                     }
                 }
-            }
+            });
+        } else {
+            console.warn('No hay estados de pedidos para mostrar');
+            document.getElementById('estadosPedidosChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
         }
-    });
-} else {
-    console.warn('No hay estados de pedidos para mostrar');
-    document.getElementById('estadosPedidosChart').parentElement.innerHTML = '<p class="text-center text-muted">No hay datos disponibles para el período seleccionado</p>';
-}
 
 // Función para exportar a CSV
-function exportarCSV() {
-    let csv = [];
+        function exportarCSV() {
+            let csv = [];
 
     // Encabezado
-    csv.push(['REPORTE DE VENTAS']);
-    csv.push(['Período: {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}']);
-    csv.push(['Generado el: ' + new Date().toLocaleString('es-CL')]);
-    csv.push([]);
+            csv.push(['REPORTE DE VENTAS']);
+            csv.push(['Período: {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}']);
+            csv.push(['Generado el: ' + new Date().toLocaleString('es-CL')]);
+            csv.push([]);
 
     // Métricas principales
-    csv.push(['MÉTRICAS PRINCIPALES']);
-    csv.push(['Total Ventas', '${{ ventas_stats.total_ventas|floatformat:0 }}']);
-    csv.push(['Número de Pedidos', '{{ ventas_stats.num_pedidos }}']);
-    csv.push(['Promedio por Pedido', '${{ ventas_stats.promedio_pedido|floatformat:0 }}']);
-    csv.push(['Productos Vendidos', '{{ ventas_stats.productos_vendidos }}']);
-    csv.push([]);
+            csv.push(['MÉTRICAS PRINCIPALES']);
+            csv.push(['Total Ventas', '${{ ventas_stats.total_ventas|floatformat:0 }}']);
+            csv.push(['Número de Pedidos', '{{ ventas_stats.num_pedidos }}']);
+            csv.push(['Promedio por Pedido', '${{ ventas_stats.promedio_pedido|floatformat:0 }}']);
+            csv.push(['Productos Vendidos', '{{ ventas_stats.productos_vendidos }}']);
+            csv.push([]);
 
     // Top 10 productos más vendidos
-    csv.push(['TOP 10 PRODUCTOS MÁS VENDIDOS']);
-    csv.push(['Producto', 'Cantidad Vendida', 'Ingresos Generados']);
-    {% for producto in productos_top %}
-    csv.push(['{{ producto.producto__nombre|escapejs }}', '{{ producto.total_vendido }}', '${{ producto.ingresos|floatformat:0 }}']);
-    {% endfor %}
-    csv.push([]);
+            csv.push(['TOP 10 PRODUCTOS MÁS VENDIDOS']);
+            csv.push(['Producto', 'Cantidad Vendida', 'Ingresos Generados']);
+            {% for producto in productos_top %}
+                csv.push(['{{ producto.producto__nombre|escapejs }}', '{{ producto.total_vendido }}', '${{ producto.ingresos|floatformat:0 }}']);
+            {% endfor %}
+            csv.push([]);
 
     // Top 10 clientes
-    csv.push(['TOP 10 CLIENTES']);
-    csv.push(['Cliente', 'Total Pedidos', 'Total Gastado']);
-    {% for cliente in clientes_top %}
-    {% if cliente.pedido__usuario__first_name %}
-    csv.push(['{{ cliente.pedido__usuario__first_name|escapejs }} {{ cliente.pedido__usuario__last_name|escapejs }}', '{{ cliente.num_pedidos }}', '${{ cliente.total_gastado|floatformat:0 }}']);
-    {% else %}
-    csv.push(['{{ cliente.pedido__email|escapejs }}', '{{ cliente.num_pedidos }}', '${{ cliente.total_gastado|floatformat:0 }}']);
-    {% endif %}
-    {% endfor %}
-    csv.push([]);
+            csv.push(['TOP 10 CLIENTES']);
+            csv.push(['Cliente', 'Total Pedidos', 'Total Gastado']);
+            {% for cliente in clientes_top %}
+                {% if cliente.pedido__usuario__first_name %}
+                    csv.push(['{{ cliente.pedido__usuario__first_name|escapejs }} {{ cliente.pedido__usuario__last_name|escapejs }}', '{{ cliente.num_pedidos }}', '${{ cliente.total_gastado|floatformat:0 }}']);
+                {% else %}
+                    csv.push(['{{ cliente.pedido__email|escapejs }}', '{{ cliente.num_pedidos }}', '${{ cliente.total_gastado|floatformat:0 }}']);
+                {% endif %}
+            {% endfor %}
+            csv.push([]);
 
     // Estados de pedidos
-    csv.push(['ESTADOS DE PEDIDOS']);
-    csv.push(['Estado', 'Cantidad']);
-    {% for estado in estados_pedidos %}
-    csv.push(['{{ estado.estado|escapejs }}', '{{ estado.count }}']);
-    {% endfor %}
-    csv.push([]);
+            csv.push(['ESTADOS DE PEDIDOS']);
+            csv.push(['Estado', 'Cantidad']);
+            {% for estado in estados_pedidos %}
+                csv.push(['{{ estado.estado|escapejs }}', '{{ estado.count }}']);
+            {% endfor %}
+            csv.push([]);
 
     // Ventas por categoría
-    csv.push(['VENTAS POR CATEGORÍA']);
-    csv.push(['Categoría', 'Productos Vendidos', 'Total Ventas']);
-    {% for categoria in categorias_ventas %}
-    csv.push(['{{ categoria.nombre|escapejs }}', '{{ categoria.productos_vendidos }}', '${{ categoria.total_ventas|floatformat:0 }}']);
-    {% endfor %}
+            csv.push(['VENTAS POR CATEGORÍA']);
+            csv.push(['Categoría', 'Productos Vendidos', 'Total Ventas']);
+            {% for categoria in categorias_ventas %}
+                csv.push(['{{ categoria.nombre|escapejs }}', '{{ categoria.productos_vendidos }}', '${{ categoria.total_ventas|floatformat:0 }}']);
+            {% endfor %}
 
     // Convertir a string CSV
-    let csvContent = csv.map(row => row.join(',')).join('\n');
+            let csvContent = csv.map(row => row.join(',')).join('\n');
 
     // Descargar archivo
-    let blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    let link = document.createElement('a');
-    let url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'reporte_ventas_' + new Date().getTime() + '.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
+            let blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement('a');
+            let url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'reporte_ventas_' + new Date().getTime() + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
 // Función para exportar a PDF
-async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
+        async function exportarPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
 
-    let yPos = 20;
-    const margin = 15;
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+            let yPos = 20;
+            const margin = 15;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
 
     // Título
-    pdf.setFontSize(18);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('REPORTE DE VENTAS', margin, yPos);
+            pdf.setFontSize(18);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('REPORTE DE VENTAS', margin, yPos);
 
-    yPos += 8;
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    pdf.text('Período: {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}', margin, yPos);
-    yPos += 5;
-    pdf.text('Generado el: ' + new Date().toLocaleString('es-CL'), margin, yPos);
+            yPos += 8;
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Período: {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}', margin, yPos);
+            yPos += 5;
+            pdf.text('Generado el: ' + new Date().toLocaleString('es-CL'), margin, yPos);
 
-    yPos += 15;
+            yPos += 15;
 
     // Métricas principales
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Métricas Principales', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Métricas Principales', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    pdf.text('Total Ventas: ${{ ventas_stats.total_ventas|floatformat:0 }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Número de Pedidos: {{ ventas_stats.num_pedidos }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Promedio por Pedido: ${{ ventas_stats.promedio_pedido|floatformat:0 }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Productos Vendidos: {{ ventas_stats.productos_vendidos }}', margin, yPos);
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Total Ventas: ${{ ventas_stats.total_ventas|floatformat:0 }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Número de Pedidos: {{ ventas_stats.num_pedidos }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Promedio por Pedido: ${{ ventas_stats.promedio_pedido|floatformat:0 }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Productos Vendidos: {{ ventas_stats.productos_vendidos }}', margin, yPos);
 
-    yPos += 15;
+            yPos += 15;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Top 10 productos más vendidos
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Top 10 Productos Más Vendidos', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Top 10 Productos Más Vendidos', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Producto', margin, yPos);
-    pdf.text('Cantidad', margin + 100, yPos);
-    pdf.text('Ingresos', margin + 140, yPos);
-    yPos += 5;
+            pdf.setFontSize(9);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Producto', margin, yPos);
+            pdf.text('Cantidad', margin + 100, yPos);
+            pdf.text('Ingresos', margin + 140, yPos);
+            yPos += 5;
 
-    pdf.setFont(undefined, 'normal');
-    {% for producto in productos_top %}
-    if (yPos > pageHeight - 20) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    pdf.text('{{ producto.producto__nombre|escapejs|truncatechars:40 }}', margin, yPos);
-    pdf.text('{{ producto.total_vendido }}', margin + 100, yPos);
-    pdf.text('${{ producto.ingresos|floatformat:0 }}', margin + 140, yPos);
-    yPos += 5;
-    {% endfor %}
+            pdf.setFont(undefined, 'normal');
+            {% for producto in productos_top %}
+                if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text('{{ producto.producto__nombre|escapejs|truncatechars:40 }}', margin, yPos);
+                pdf.text('{{ producto.total_vendido }}', margin + 100, yPos);
+                pdf.text('${{ producto.ingresos|floatformat:0 }}', margin + 140, yPos);
+                yPos += 5;
+            {% endfor %}
 
-    yPos += 10;
+            yPos += 10;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Top 10 clientes
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Top 10 Clientes', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Top 10 Clientes', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Cliente', margin, yPos);
-    pdf.text('Pedidos', margin + 100, yPos);
-    pdf.text('Total', margin + 140, yPos);
-    yPos += 5;
+            pdf.setFontSize(9);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Cliente', margin, yPos);
+            pdf.text('Pedidos', margin + 100, yPos);
+            pdf.text('Total', margin + 140, yPos);
+            yPos += 5;
 
-    pdf.setFont(undefined, 'normal');
-    {% for cliente in clientes_top %}
-    if (yPos > pageHeight - 20) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    {% if cliente.pedido__usuario__first_name %}
-    pdf.text('{{ cliente.pedido__usuario__first_name|escapejs }} {{ cliente.pedido__usuario__last_name|escapejs|truncatechars:30 }}', margin, yPos);
-    {% else %}
-    pdf.text('{{ cliente.pedido__email|escapejs|truncatechars:40 }}', margin, yPos);
-    {% endif %}
-    pdf.text('{{ cliente.num_pedidos }}', margin + 100, yPos);
-    pdf.text('${{ cliente.total_gastado|floatformat:0 }}', margin + 140, yPos);
-    yPos += 5;
-    {% endfor %}
+            pdf.setFont(undefined, 'normal');
+            {% for cliente in clientes_top %}
+                if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                {% if cliente.pedido__usuario__first_name %}
+                    pdf.text('{{ cliente.pedido__usuario__first_name|escapejs }} {{ cliente.pedido__usuario__last_name|escapejs|truncatechars:30 }}', margin, yPos);
+                {% else %}
+                    pdf.text('{{ cliente.pedido__email|escapejs|truncatechars:40 }}', margin, yPos);
+                {% endif %}
+                pdf.text('{{ cliente.num_pedidos }}', margin + 100, yPos);
+                pdf.text('${{ cliente.total_gastado|floatformat:0 }}', margin + 140, yPos);
+                yPos += 5;
+            {% endfor %}
 
-    yPos += 10;
+            yPos += 10;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Estados de pedidos
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Estados de Pedidos', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Estados de Pedidos', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Estado', margin, yPos);
-    pdf.text('Cantidad', margin + 100, yPos);
-    yPos += 5;
+            pdf.setFontSize(9);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Estado', margin, yPos);
+            pdf.text('Cantidad', margin + 100, yPos);
+            yPos += 5;
 
-    pdf.setFont(undefined, 'normal');
-    {% for estado in estados_pedidos %}
-    if (yPos > pageHeight - 20) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    pdf.text('{{ estado.estado|escapejs }}', margin, yPos);
-    pdf.text('{{ estado.count }}', margin + 100, yPos);
-    yPos += 5;
-    {% endfor %}
+            pdf.setFont(undefined, 'normal');
+            {% for estado in estados_pedidos %}
+                if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text('{{ estado.estado|escapejs }}', margin, yPos);
+                pdf.text('{{ estado.count }}', margin + 100, yPos);
+                yPos += 5;
+            {% endfor %}
 
-    yPos += 10;
+            yPos += 10;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Ventas por categoría
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Ventas por Categoría', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Ventas por Categoría', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Categoría', margin, yPos);
-    pdf.text('Productos', margin + 80, yPos);
-    pdf.text('Total', margin + 130, yPos);
-    yPos += 5;
+            pdf.setFontSize(9);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Categoría', margin, yPos);
+            pdf.text('Productos', margin + 80, yPos);
+            pdf.text('Total', margin + 130, yPos);
+            yPos += 5;
 
-    pdf.setFont(undefined, 'normal');
-    {% for categoria in categorias_ventas %}
-    if (yPos > pageHeight - 20) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    pdf.text('{{ categoria.nombre|escapejs|truncatechars:35 }}', margin, yPos);
-    pdf.text('{{ categoria.productos_vendidos }}', margin + 80, yPos);
-    pdf.text('${{ categoria.total_ventas|floatformat:0 }}', margin + 130, yPos);
-    yPos += 5;
-    {% endfor %}
+            pdf.setFont(undefined, 'normal');
+            {% for categoria in categorias_ventas %}
+                if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text('{{ categoria.nombre|escapejs|truncatechars:35 }}', margin, yPos);
+                pdf.text('{{ categoria.productos_vendidos }}', margin + 80, yPos);
+                pdf.text('${{ categoria.total_ventas|floatformat:0 }}', margin + 130, yPos);
+                yPos += 5;
+            {% endfor %}
 
     // Guardar PDF
-    pdf.save('reporte_ventas_' + new Date().getTime() + '.pdf');
-}
-</script>
+            pdf.save('reporte_ventas_' + new Date().getTime() + '.pdf');
+        }
+    </script>
 {% endblock %}

@@ -72,84 +72,84 @@
       </div>
 
     <!-- Mensajes de confirmación -->
-            {% if messages %}
-              <div class="container mt-3">
-                {% for message in messages %}
-                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {% endfor %}
-              </div>
-            {% endif %}
+      {% if messages %}
+        <div class="container mt-3">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
     <!-- Contenido principal -->
-            <main>{% block content %} {% endblock %}</main>
+      <main>{% block content %} {% endblock %}</main>
 
     <!-- Footer -->
-            <footer class="bg-light border-top mt-5 py-4">
-              <div class="container d-flex flex-wrap justify-content-between">
-                <div>
-                  <h6>Productos</h6>
-                  <a href="{% url 'catalogo' %}" class="d-block text-muted">Catálogo</a>
-                </div>
-                  <div>
-                    <h6>Mi cuenta</h6>
-                    <a href="#" class="d-block text-muted">Entrar a mi cuenta</a>
-                    <a href="#" class="d-block text-muted">Mis pedidos</a>
-                  </div>
-                  <div>
-                    <h6>Nosotros</h6>
-                    <a href="#" class="d-block text-muted">Quiénes somos</a>
-                    <a href="#" class="d-block text-muted">Trabaja con nosotros</a>
-                    <a href="#" class="d-block text-muted">Términos y condiciones</a>
-                  </div>
-                  <div>
-                    <h6>Contacto</h6>
-                    <p class="text-muted mb-1">📧 ventas@cordillerapets.cl</p>
-                    <p class="text-muted mb-1">📞 +56999999999</p>
-                    <p class="text-muted">📲 WhatsApp: +56999999999</p>
-                  </div>
-                </div>
-                <div class="text-center mt-3">
-                  <small class="text-muted">
-                    © 2025 Cordillera Pets - Todos los derechos reservados
-                  </small>
-                </div>
-              </footer>
+      <footer class="bg-light border-top mt-5 py-4">
+        <div class="container d-flex flex-wrap justify-content-between">
+          <div>
+            <h6>Productos</h6>
+            <a href="{% url 'catalogo' %}" class="d-block text-muted">Catálogo</a>
+          </div>
+          <div>
+            <h6>Mi cuenta</h6>
+            <a href="#" class="d-block text-muted">Entrar a mi cuenta</a>
+            <a href="#" class="d-block text-muted">Mis pedidos</a>
+          </div>
+          <div>
+            <h6>Nosotros</h6>
+            <a href="#" class="d-block text-muted">Quiénes somos</a>
+            <a href="#" class="d-block text-muted">Trabaja con nosotros</a>
+            <a href="#" class="d-block text-muted">Términos y condiciones</a>
+          </div>
+          <div>
+            <h6>Contacto</h6>
+            <p class="text-muted mb-1">📧 ventas@cordillerapets.cl</p>
+            <p class="text-muted mb-1">📞 +56999999999</p>
+            <p class="text-muted">📲 WhatsApp: +56999999999</p>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            © 2025 Cordillera Pets - Todos los derechos reservados
+          </small>
+        </div>
+      </footer>
 
-              {% bootstrap_javascript %}
-              
-              <script>
+      {% bootstrap_javascript %}
+
+      <script>
                 // Configuración global de CSRF para todas las peticiones AJAX
-                function getCookie(name) {
-                  let cookieValue = null;
-                  if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                      const cookie = cookies[i].trim();
-                      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                      }
-                    }
-                  }
-                  return cookieValue;
-                }
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
 
-                const csrftoken = getCookie('csrftoken');
+        const csrftoken = getCookie('csrftoken');
 
                 // Configurar jQuery para enviar CSRF token en todas las peticiones AJAX
-                $.ajaxSetup({
-                  beforeSend: function(xhr, settings) {
-                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
                       // Solo enviar el token a URLs relativas (misma origen)
-                      xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                  }
-                });
-              </script>
-              
-              {% block extra_js %}{% endblock %}
-            </body>
-          </html>
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+          }
+        });
+      </script>
+
+      {% block extra_js %}{% endblock %}
+    </body>
+  </html>

@@ -5,678 +5,678 @@
 {% block title %}Reportes de Productos - Dashboard Admin{% endblock %}
 
 {% block extra_css %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    .metric-card {
-        transition: transform 0.2s;
-    }
-    .metric-card:hover {
-        transform: translateY(-2px);
-    }
-    .table-responsive {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border-radius: 0.375rem;
-    }
-    .stock-badge {
-        font-size: 0.875rem;
-    }
-    .product-image {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-    .chart-container {
-        position: relative;
-        height: 350px;
-        margin-bottom: 1rem;
-    }
-</style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .metric-card {
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .table-responsive {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.375rem;
+        }
+        .stock-badge {
+            font-size: 0.875rem;
+        }
+        .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 1rem;
+        }
+    </style>
 {% endblock %}
 
 {% block page_title %}Reportes de Productos{% endblock %}
 {% block page_description %}Análisis de rendimiento y stock de productos{% endblock %}
 
 {% block page_actions %}
-<div class="btn-group" role="group">
-    <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Volver al Dashboard
-    </a>
-    <a href="{% url 'dashboard:reportes_ventas' %}" class="btn btn-success">
-        <i class="fas fa-chart-line"></i> Reportes de Ventas
-    </a>
-    <a href="{% url 'dashboard:producto_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Nuevo Producto
-    </a>
-</div>
+    <div class="btn-group" role="group">
+        <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
+        <a href="{% url 'dashboard:reportes_ventas' %}" class="btn btn-success">
+            <i class="fas fa-chart-line"></i> Reportes de Ventas
+        </a>
+        <a href="{% url 'dashboard:producto_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Producto
+        </a>
+    </div>
 {% endblock %}
 
 {% block main_content %}
 <!-- Filtros -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Filtros y Ordenamiento</h5>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-3">
-                <label for="categoria" class="form-label">Categoría:</label>
-                <select name="categoria" id="categoria" class="form-select">
-                    <option value="">Todas las categorías</option>
-                    {% for categoria in categorias %}
-                    <option value="{{ categoria.categoria_id }}" {% if categoria.categoria_id|stringformat:"s" == categoria_seleccionada %}selected{% endif %}>
-                        {{ categoria.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="marca" class="form-label">Marca:</label>
-                <select name="marca" id="marca" class="form-select">
-                    <option value="">Todas las marcas</option>
-                    {% for marca in marcas %}
-                    <option value="{{ marca.marca_id }}" {% if marca.marca_id|stringformat:"s" == marca_seleccionada %}selected{% endif %}>
-                        {{ marca.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="orden" class="form-label">Ordenar por:</label>
-                <select name="orden" id="orden" class="form-select">
-                    <option value="ventas" {% if orden_seleccionado == 'ventas' %}selected{% endif %}>Más vendidos</option>
-                    <option value="ingresos" {% if orden_seleccionado == 'ingresos' %}selected{% endif %}>Mayores ingresos</option>
-                    <option value="stock" {% if orden_seleccionado == 'stock' %}selected{% endif %}>Menor stock</option>
-                    <option value="precio" {% if orden_seleccionado == 'precio' %}selected{% endif %}>Mayor precio</option>
-                    <option value="nombre" {% if orden_seleccionado == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
-                </select>
-            </div>
-            <div class="col-md-3 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i> Filtrar
-                </button>
-                <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-redo"></i> Limpiar
-                </a>
-            </div>
-            <div class="col-12 mt-2">
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-info" onclick="exportarCSV()">
-                        <i class="fas fa-file-csv"></i> Exportar CSV
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="exportarPDF()">
-                        <i class="fas fa-file-pdf"></i> Exportar PDF
-                    </button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Filtros y Ordenamiento</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="categoria" class="form-label">Categoría:</label>
+                    <select name="categoria" id="categoria" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.categoria_id }}" {% if categoria.categoria_id|stringformat:"s" == categoria_seleccionada %}selected{% endif %}>
+                                {{ categoria.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </div>
-        </form>
+                <div class="col-md-3">
+                    <label for="marca" class="form-label">Marca:</label>
+                    <select name="marca" id="marca" class="form-select">
+                        <option value="">Todas las marcas</option>
+                        {% for marca in marcas %}
+                            <option value="{{ marca.marca_id }}" {% if marca.marca_id|stringformat:"s" == marca_seleccionada %}selected{% endif %}>
+                                {{ marca.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="orden" class="form-label">Ordenar por:</label>
+                    <select name="orden" id="orden" class="form-select">
+                        <option value="ventas" {% if orden_seleccionado == 'ventas' %}selected{% endif %}>Más vendidos</option>
+                        <option value="ingresos" {% if orden_seleccionado == 'ingresos' %}selected{% endif %}>Mayores ingresos</option>
+                        <option value="stock" {% if orden_seleccionado == 'stock' %}selected{% endif %}>Menor stock</option>
+                        <option value="precio" {% if orden_seleccionado == 'precio' %}selected{% endif %}>Mayor precio</option>
+                        <option value="nombre" {% if orden_seleccionado == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                    <a href="{% url 'dashboard:reportes_productos' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo"></i> Limpiar
+                    </a>
+                </div>
+                <div class="col-12 mt-2">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info" onclick="exportarCSV()">
+                            <i class="fas fa-file-csv"></i> Exportar CSV
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="exportarPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 <!-- Métricas principales -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-primary">
-            <div class="card-body text-center">
-                <div class="text-primary">
-                    <i class="fas fa-box fa-2x mb-2"></i>
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-primary">
+                <div class="card-body text-center">
+                    <div class="text-primary">
+                        <i class="fas fa-box fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-primary">{{ total_productos }}</h3>
+                    <p class="card-text text-muted">Total Productos</p>
+                    <small class="text-muted">{{ productos_activos }} activos</small>
                 </div>
-                <h3 class="text-primary">{{ total_productos }}</h3>
-                <p class="card-text text-muted">Total Productos</p>
-                <small class="text-muted">{{ productos_activos }} activos</small>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-success">
+                <div class="card-body text-center">
+                    <div class="text-success">
+                        <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-success">${{ valor_inventario|floatformat:0|intcomma }}</h3>
+                    <p class="card-text text-muted">Valor Inventario</p>
+                    <small class="text-muted">Productos activos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-warning">
+                <div class="card-body text-center">
+                    <div class="text-warning">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-warning">{{ productos_stock_bajo }}</h3>
+                    <p class="card-text text-muted">Stock Bajo</p>
+                    <small class="text-muted">Menos de 10 unidades</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100 border-danger">
+                <div class="card-body text-center">
+                    <div class="text-danger">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                    </div>
+                    <h3 class="text-danger">{{ productos_sin_stock }}</h3>
+                    <p class="card-text text-muted">Sin Stock</p>
+                    <small class="text-muted">0 unidades</small>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-success">
-            <div class="card-body text-center">
-                <div class="text-success">
-                    <i class="fas fa-dollar-sign fa-2x mb-2"></i>
-                </div>
-                <h3 class="text-success">${{ valor_inventario|floatformat:0|intcomma }}</h3>
-                <p class="card-text text-muted">Valor Inventario</p>
-                <small class="text-muted">Productos activos</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-warning">
-            <div class="card-body text-center">
-                <div class="text-warning">
-                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
-                </div>
-                <h3 class="text-warning">{{ productos_stock_bajo }}</h3>
-                <p class="card-text text-muted">Stock Bajo</p>
-                <small class="text-muted">Menos de 10 unidades</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card metric-card h-100 border-danger">
-            <div class="card-body text-center">
-                <div class="text-danger">
-                    <i class="fas fa-times-circle fa-2x mb-2"></i>
-                </div>
-                <h3 class="text-danger">{{ productos_sin_stock }}</h3>
-                <p class="card-text text-muted">Sin Stock</p>
-                <small class="text-muted">0 unidades</small>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Gráficos de análisis -->
-<div class="row mb-4">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Distribución por Categoría</h5>
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Distribución por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="categoriaDistribucionChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="categoriaDistribucionChart"></canvas>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Estado del Inventario</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="estadoInventarioChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Estado del Inventario</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="estadoInventarioChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Gráficos de top productos -->
-<div class="row mb-4">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> Top 10 Productos Más Vendidos</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="topProductosChart"></canvas>
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> Top 10 Productos Más Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="topProductosChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 <!-- Top productos y categorías -->
-<div class="row mb-4">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> Productos Más Vendidos (Todos los tiempos)</h5>
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> Productos Más Vendidos (Todos los tiempos)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>SKU</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Total Vendido</th>
+                                    <th class="text-end">Ingresos Generados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for producto in productos_mas_vendidos %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ producto.producto__nombre }}</strong>
+                                        </td>
+                                        <td>
+                                            <code>{{ producto.producto__sku }}</code>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>${{ producto.producto__precio|floatformat:0|intcomma }}</strong>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-primary stock-badge">{{ producto.total_vendido }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong class="text-success">${{ producto.ingresos|floatformat:0|intcomma }}</strong>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No hay datos de ventas disponibles</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Producto</th>
-                                <th>SKU</th>
-                                <th class="text-end">Precio</th>
-                                <th class="text-end">Total Vendido</th>
-                                <th class="text-end">Ingresos Generados</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for producto in productos_mas_vendidos %}
-                            <tr>
-                                <td>
-                                    <strong>{{ producto.producto__nombre }}</strong>
-                                </td>
-                                <td>
-                                    <code>{{ producto.producto__sku }}</code>
-                                </td>
-                                <td class="text-end">
-                                    <strong>${{ producto.producto__precio|floatformat:0|intcomma }}</strong>
-                                </td>
-                                <td class="text-end">
-                                    <span class="badge bg-primary stock-badge">{{ producto.total_vendido }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <strong class="text-success">${{ producto.ingresos|floatformat:0|intcomma }}</strong>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">No hay datos de ventas disponibles</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-tags"></i> Estadísticas por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Categoría</th>
+                                    <th class="text-end">Productos</th>
+                                    <th class="text-end">Stock Bajo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for categoria in categorias_stats %}
+                                    <tr>
+                                        <td>{{ categoria.nombre }}</td>
+                                        <td class="text-end">
+                                            <span class="badge bg-info">{{ categoria.num_productos }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if categoria.productos_stock_bajo > 0 %}
+                                                <span class="badge bg-warning">{{ categoria.productos_stock_bajo }}</span>
+                                            {% else %}
+                                                <span class="text-muted">0</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-tags"></i> Estadísticas por Categoría</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Categoría</th>
-                                <th class="text-end">Productos</th>
-                                <th class="text-end">Stock Bajo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for categoria in categorias_stats %}
-                            <tr>
-                                <td>{{ categoria.nombre }}</td>
-                                <td class="text-end">
-                                    <span class="badge bg-info">{{ categoria.num_productos }}</span>
-                                </td>
-                                <td class="text-end">
-                                    {% if categoria.productos_stock_bajo > 0 %}
-                                        <span class="badge bg-warning">{{ categoria.productos_stock_bajo }}</span>
-                                    {% else %}
-                                        <span class="text-muted">0</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Lista detallada de productos -->
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
 // Auto-submit del formulario cuando cambian los filtros
-document.getElementById('categoria').addEventListener('change', function() {
-    this.form.submit();
-});
+        document.getElementById('categoria').addEventListener('change', function() {
+            this.form.submit();
+        });
 
-document.getElementById('marca').addEventListener('change', function() {
-    this.form.submit();
-});
+        document.getElementById('marca').addEventListener('change', function() {
+            this.form.submit();
+        });
 
-document.getElementById('orden').addEventListener('change', function() {
-    this.form.submit();
-});
+        document.getElementById('orden').addEventListener('change', function() {
+            this.form.submit();
+        });
 
 // Gráfico de distribución por categoría
-const categoriasData = [
-    {% for categoria in categorias_stats %}
-    {
-        nombre: "{{ categoria.nombre|escapejs }}",
-        productos: {{ categoria.num_productos }},
-        stockBajo: {{ categoria.productos_stock_bajo }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-];
+        const categoriasData = [
+            {% for categoria in categorias_stats %}
+                {
+                    nombre: "{{ categoria.nombre|escapejs }}",
+                    productos: {{ categoria.num_productos }},
+                    stockBajo: {{ categoria.productos_stock_bajo }}
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
 
-if (categoriasData.length > 0) {
-    const categoriaCtx = document.getElementById('categoriaDistribucionChart').getContext('2d');
+        if (categoriasData.length > 0) {
+            const categoriaCtx = document.getElementById('categoriaDistribucionChart').getContext('2d');
 
     // Generar colores dinámicamente
-    const colores = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-        '#FF9F40', '#FF6384', '#C9CBCF', '#E74C3C', '#3498DB'
-    ];
+            const colores = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                '#FF9F40', '#FF6384', '#C9CBCF', '#E74C3C', '#3498DB'
+            ];
 
-    new Chart(categoriaCtx, {
-        type: 'doughnut',
-        data: {
-            labels: categoriasData.map(c => c.nombre),
-            datasets: [{
-                label: 'Productos',
-                data: categoriasData.map(c => c.productos),
-                backgroundColor: colores,
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        boxWidth: 15,
-                        padding: 10
-                    }
+            new Chart(categoriaCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoriasData.map(c => c.nombre),
+                    datasets: [{
+                        label: 'Productos',
+                        data: categoriasData.map(c => c.productos),
+                        backgroundColor: colores,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const categoria = categoriasData[context.dataIndex];
-                            const label = context.label + ': ' + context.parsed + ' productos';
-                            const extra = categoria.stockBajo > 0 ?
-                                ' (' + categoria.stockBajo + ' con stock bajo)' : '';
-                            return label + extra;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15,
+                                padding: 10
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const categoria = categoriasData[context.dataIndex];
+                                    const label = context.label + ': ' + context.parsed + ' productos';
+                                    const extra = categoria.stockBajo > 0 ?
+                                    ' (' + categoria.stockBajo + ' con stock bajo)' : '';
+                                    return label + extra;
+                                }
+                            }
                         }
                     }
                 }
-            }
+            });
         }
-    });
-}
 
 // Gráfico de estado del inventario
-const inventarioCtx = document.getElementById('estadoInventarioChart').getContext('2d');
-new Chart(inventarioCtx, {
-    type: 'bar',
-    data: {
-        labels: ['Total Productos', 'Activos', 'Stock Bajo', 'Sin Stock'],
-        datasets: [{
-            label: 'Cantidad',
-            data: [
-                {{ total_productos }},
-                {{ productos_activos }},
-                {{ productos_stock_bajo }},
-                {{ productos_sin_stock }}
-            ],
-            backgroundColor: [
-                'rgba(13, 110, 253, 0.8)',
-                'rgba(25, 135, 84, 0.8)',
-                'rgba(255, 193, 7, 0.8)',
-                'rgba(220, 53, 69, 0.8)'
-            ],
-            borderColor: [
-                'rgb(13, 110, 253)',
-                'rgb(25, 135, 84)',
-                'rgb(255, 193, 7)',
-                'rgb(220, 53, 69)'
-            ],
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+        const inventarioCtx = document.getElementById('estadoInventarioChart').getContext('2d');
+        new Chart(inventarioCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Productos', 'Activos', 'Stock Bajo', 'Sin Stock'],
+                datasets: [{
+                    label: 'Cantidad',
+                    data: [
+                        {{ total_productos }},
+                        {{ productos_activos }},
+                        {{ productos_stock_bajo }},
+                        {{ productos_sin_stock }}
+                    ],
+                    backgroundColor: [
+                        'rgba(13, 110, 253, 0.8)',
+                        'rgba(25, 135, 84, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(13, 110, 253)',
+                        'rgb(25, 135, 84)',
+                        'rgb(255, 193, 7)',
+                        'rgb(220, 53, 69)'
+                    ],
+                    borderWidth: 2
+                }]
             },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y + ' productos';
+                                return label;
+                            }
                         }
-                        label += context.parsed.y + ' productos';
-                        return label;
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
                     }
                 }
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        }
-    }
-});
+        });
 
 // Gráfico de top productos más vendidos
-const topProductosData = [
-    {% for producto in productos_mas_vendidos %}
-    {
-        nombre: "{{ producto.producto__nombre|escapejs|truncatechars:30 }}",
-        vendidos: {{ producto.total_vendido }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-];
+        const topProductosData = [
+            {% for producto in productos_mas_vendidos %}
+                {
+                    nombre: "{{ producto.producto__nombre|escapejs|truncatechars:30 }}",
+                    vendidos: {{ producto.total_vendido }}
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
 
-if (topProductosData.length > 0) {
-    const topProductosCtx = document.getElementById('topProductosChart').getContext('2d');
+        if (topProductosData.length > 0) {
+            const topProductosCtx = document.getElementById('topProductosChart').getContext('2d');
 
-    new Chart(topProductosCtx, {
-        type: 'bar',
-        data: {
-            labels: topProductosData.map(p => p.nombre),
-            datasets: [{
-                label: 'Unidades Vendidas',
-                data: topProductosData.map(p => p.vendidos),
-                backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top'
+            new Chart(topProductosCtx, {
+                type: 'bar',
+                data: {
+                    labels: topProductosData.map(p => p.nombre),
+                    datasets: [{
+                        label: 'Unidades Vendidas',
+                        data: topProductosData.map(p => p.vendidos),
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2
+                    }]
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y + ' unidades';
+                                    return label;
+                                }
                             }
-                            label += context.parsed.y + ' unidades';
-                            return label;
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Unidades Vendidas'
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                precision: 0
+                            }
                         }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Unidades Vendidas'
-                    },
-                    ticks: {
-                        stepSize: 1,
-                        precision: 0
-                    }
-                }
-            }
+            });
         }
-    });
-}
 
 // Función para exportar a CSV
-function exportarCSV() {
-    let csv = [];
+        function exportarCSV() {
+            let csv = [];
 
     // Encabezado
-    csv.push(['REPORTE DE PRODUCTOS']);
-    csv.push(['Generado el: ' + new Date().toLocaleString('es-CL')]);
-    csv.push([]);
+            csv.push(['REPORTE DE PRODUCTOS']);
+            csv.push(['Generado el: ' + new Date().toLocaleString('es-CL')]);
+            csv.push([]);
 
     // Métricas generales
-    csv.push(['MÉTRICAS GENERALES']);
-    csv.push(['Total Productos', '{{ total_productos }}']);
-    csv.push(['Productos Activos', '{{ productos_activos }}']);
-    csv.push(['Productos con Stock Bajo', '{{ productos_stock_bajo }}']);
-    csv.push(['Valor Total Inventario', '${{ valor_inventario|floatformat:0 }}']);
-    csv.push([]);
+            csv.push(['MÉTRICAS GENERALES']);
+            csv.push(['Total Productos', '{{ total_productos }}']);
+            csv.push(['Productos Activos', '{{ productos_activos }}']);
+            csv.push(['Productos con Stock Bajo', '{{ productos_stock_bajo }}']);
+            csv.push(['Valor Total Inventario', '${{ valor_inventario|floatformat:0 }}']);
+            csv.push([]);
 
     // Distribución por categorías
-    csv.push(['DISTRIBUCIÓN POR CATEGORÍAS']);
-    csv.push(['Categoría', 'Total Productos', 'Stock Bajo']);
-    {% for cat in categorias_stats %}
-    csv.push(['{{ cat.nombre|escapejs }}', '{{ cat.total_productos }}', '{{ cat.stock_bajo }}']);
-    {% endfor %}
-    csv.push([]);
+            csv.push(['DISTRIBUCIÓN POR CATEGORÍAS']);
+            csv.push(['Categoría', 'Total Productos', 'Stock Bajo']);
+            {% for cat in categorias_stats %}
+                csv.push(['{{ cat.nombre|escapejs }}', '{{ cat.total_productos }}', '{{ cat.stock_bajo }}']);
+            {% endfor %}
+            csv.push([]);
 
     // Top 10 productos más vendidos
-    csv.push(['TOP 10 PRODUCTOS MÁS VENDIDOS']);
-    csv.push(['Producto', 'Unidades Vendidas']);
-    {% for producto in productos_mas_vendidos %}
-    csv.push(['{{ producto.producto__nombre|escapejs }}', '{{ producto.total_vendido }}']);
-    {% endfor %}
-    csv.push([]);
+            csv.push(['TOP 10 PRODUCTOS MÁS VENDIDOS']);
+            csv.push(['Producto', 'Unidades Vendidas']);
+            {% for producto in productos_mas_vendidos %}
+                csv.push(['{{ producto.producto__nombre|escapejs }}', '{{ producto.total_vendido }}']);
+            {% endfor %}
+            csv.push([]);
 
     // Resumen de stock bajo
-    csv.push(['RESUMEN DE STOCK']);
-    csv.push(['Total Productos con Stock Bajo', '{{ productos_stock_bajo }}']);
-    csv.push(['Total Productos Sin Stock', '{{ productos_sin_stock }}']);
+            csv.push(['RESUMEN DE STOCK']);
+            csv.push(['Total Productos con Stock Bajo', '{{ productos_stock_bajo }}']);
+            csv.push(['Total Productos Sin Stock', '{{ productos_sin_stock }}']);
 
     // Convertir a string CSV
-    let csvContent = csv.map(row => row.join(',')).join('\n');
+            let csvContent = csv.map(row => row.join(',')).join('\n');
 
     // Descargar archivo
-    let blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    let link = document.createElement('a');
-    let url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'reporte_productos_' + new Date().getTime() + '.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
+            let blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement('a');
+            let url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'reporte_productos_' + new Date().getTime() + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
 // Función para exportar a PDF
-async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
+        async function exportarPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
 
-    let yPos = 20;
-    const margin = 15;
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+            let yPos = 20;
+            const margin = 15;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
 
     // Título
-    pdf.setFontSize(18);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('REPORTE DE PRODUCTOS', margin, yPos);
+            pdf.setFontSize(18);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('REPORTE DE PRODUCTOS', margin, yPos);
 
-    yPos += 8;
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    pdf.text('Generado el: ' + new Date().toLocaleString('es-CL'), margin, yPos);
+            yPos += 8;
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Generado el: ' + new Date().toLocaleString('es-CL'), margin, yPos);
 
-    yPos += 15;
+            yPos += 15;
 
     // Métricas generales
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Métricas Generales', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Métricas Generales', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    pdf.text('Total Productos: {{ total_productos }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Productos Activos: {{ productos_activos }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Productos con Stock Bajo: {{ productos_stock_bajo }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Valor Total Inventario: ${{ valor_inventario|floatformat:0 }}', margin, yPos);
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Total Productos: {{ total_productos }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Productos Activos: {{ productos_activos }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Productos con Stock Bajo: {{ productos_stock_bajo }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Valor Total Inventario: ${{ valor_inventario|floatformat:0 }}', margin, yPos);
 
-    yPos += 15;
+            yPos += 15;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Distribución por categorías
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Distribución por Categorías', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Distribución por Categorías', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Categoría', margin, yPos);
-    pdf.text('Productos', margin + 80, yPos);
-    pdf.text('Stock Bajo', margin + 120, yPos);
-    yPos += 5;
+            pdf.setFontSize(9);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Categoría', margin, yPos);
+            pdf.text('Productos', margin + 80, yPos);
+            pdf.text('Stock Bajo', margin + 120, yPos);
+            yPos += 5;
 
-    pdf.setFont(undefined, 'normal');
-    {% for cat in categorias_stats %}
-    if (yPos > pageHeight - 20) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    pdf.text('{{ cat.nombre|escapejs|truncatechars:35 }}', margin, yPos);
-    pdf.text('{{ cat.total_productos }}', margin + 80, yPos);
-    pdf.text('{{ cat.stock_bajo }}', margin + 120, yPos);
-    yPos += 5;
-    {% endfor %}
+            pdf.setFont(undefined, 'normal');
+            {% for cat in categorias_stats %}
+                if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text('{{ cat.nombre|escapejs|truncatechars:35 }}', margin, yPos);
+                pdf.text('{{ cat.total_productos }}', margin + 80, yPos);
+                pdf.text('{{ cat.stock_bajo }}', margin + 120, yPos);
+                yPos += 5;
+            {% endfor %}
 
-    yPos += 10;
+            yPos += 10;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Top 10 productos más vendidos
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Top 10 Productos Más Vendidos', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Top 10 Productos Más Vendidos', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Producto', margin, yPos);
-    pdf.text('Unidades', margin + 120, yPos);
-    yPos += 5;
+            pdf.setFontSize(9);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Producto', margin, yPos);
+            pdf.text('Unidades', margin + 120, yPos);
+            yPos += 5;
 
-    pdf.setFont(undefined, 'normal');
-    {% for producto in productos_mas_vendidos %}
-    if (yPos > pageHeight - 20) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    pdf.text('{{ producto.producto__nombre|escapejs|truncatechars:50 }}', margin, yPos);
-    pdf.text('{{ producto.total_vendido }}', margin + 120, yPos);
-    yPos += 5;
-    {% endfor %}
+            pdf.setFont(undefined, 'normal');
+            {% for producto in productos_mas_vendidos %}
+                if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text('{{ producto.producto__nombre|escapejs|truncatechars:50 }}', margin, yPos);
+                pdf.text('{{ producto.total_vendido }}', margin + 120, yPos);
+                yPos += 5;
+            {% endfor %}
 
-    yPos += 10;
+            yPos += 10;
 
     // Verificar si necesitamos nueva página
-    if (yPos > pageHeight - 40) {
-        pdf.addPage();
-        yPos = 20;
-    }
+            if (yPos > pageHeight - 40) {
+                pdf.addPage();
+                yPos = 20;
+            }
 
     // Resumen de stock
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Resumen de Stock', margin, yPos);
-    yPos += 7;
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Resumen de Stock', margin, yPos);
+            yPos += 7;
 
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    pdf.text('Total Productos con Stock Bajo: {{ productos_stock_bajo }}', margin, yPos);
-    yPos += 6;
-    pdf.text('Total Productos Sin Stock: {{ productos_sin_stock }}', margin, yPos);
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Total Productos con Stock Bajo: {{ productos_stock_bajo }}', margin, yPos);
+            yPos += 6;
+            pdf.text('Total Productos Sin Stock: {{ productos_sin_stock }}', margin, yPos);
 
     // Guardar PDF
-    pdf.save('reporte_productos_' + new Date().getTime() + '.pdf');
-}
-</script>
+            pdf.save('reporte_productos_' + new Date().getTime() + '.pdf');
+        }
+    </script>
 {% endblock %}
