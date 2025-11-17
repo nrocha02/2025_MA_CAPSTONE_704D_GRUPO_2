@@ -1,4 +1,4 @@
-{% extends 'ventas/ventas_base.html' %}
+{% extends 'dashboard/base_dashboard.html' %}
 {% load static %}
 
 {% block title %}Dashboard Brevo - Cordillera Pets{% endblock %}
@@ -64,6 +64,10 @@
                     Dashboard Brevo Email Service
                 </h1>
                 <p class="lead">Gestión avanzada de correos electrónicos para Cordillera Pets</p>
+                <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-light btn-lg mt-3">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Volver al Dashboard Principal
+                </a>
             </div>
         </div>
     </div>
@@ -148,27 +152,27 @@
                 Acciones de Email
             </h3>
         </div>
-        
+
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-edit icon-large text-primary"></i>
                     <h5>Enviar Email Personalizado</h5>
                     <p class="text-muted">Envía correos personalizados a clientes específicos</p>
-                    <a href="{% url 'brevo_send_custom_email' %}" class="btn btn-brevo">
+                    <a href="{% url 'dashboard:brevo_send_custom_email' %}" class="btn btn-brevo">
                         <i class="fas fa-edit me-2"></i>Crear Email
                     </a>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-exclamation-triangle icon-large text-warning"></i>
                     <h5>Alerta de Stock Bajo</h5>
                     <p class="text-muted">Envía alertas automáticas sobre productos con stock bajo</p>
-                    <form method="post" action="{% url 'brevo_send_stock_alert' %}" style="display: inline;">
+                    <form method="post" action="{% url 'dashboard:brevo_send_stock_alert' %}" style="display: inline;">
                         {% csrf_token %}
                         <input type="hidden" name="admin_email" value="cordillerapetschile@gmail.com">
                         <button type="submit" class="btn btn-brevo">
@@ -178,7 +182,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
@@ -269,7 +273,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" 
+                                        <button class="btn btn-sm btn-outline-primary"
                                                 onclick="selectClienteForOrder('{{ cliente.cliente_persona_id }}', '{{ cliente.nombres|escapejs }} {{ cliente.apellido_paterno|escapejs }}')">
                                             <i class="fas fa-envelope"></i>
                                         </button>
@@ -293,7 +297,7 @@
                 <h5 class="modal-title">Simular Confirmación de Pedido</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" action="{% url 'brevo_send_order_confirmation' %}">
+            <form method="post" action="{% url 'dashboard:brevo_send_order_confirmation' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
@@ -331,8 +335,8 @@
 function testBrevoAPI() {
     const statusDiv = document.getElementById('api-status');
     statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Probando conexión...';
-    
-    fetch('{% url "brevo_test_api" %}', {
+
+    fetch('{% url "dashboard:brevo_test_api" %}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

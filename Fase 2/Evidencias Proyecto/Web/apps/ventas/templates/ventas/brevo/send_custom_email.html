@@ -1,4 +1,4 @@
-{% extends 'ventas/ventas_base.html' %}
+{% extends 'dashboard/base_dashboard.html' %}
 {% load static %}
 
 {% block title %}Enviar Email Personalizado - Brevo{% endblock %}
@@ -122,7 +122,7 @@
                             <i class="fas fa-paper-plane me-2"></i>
                             Enviar Email
                         </button>
-                        <a href="{% url 'brevo_dashboard' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'dashboard:brevo_dashboard' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>
                             Volver al Dashboard
                         </a>
