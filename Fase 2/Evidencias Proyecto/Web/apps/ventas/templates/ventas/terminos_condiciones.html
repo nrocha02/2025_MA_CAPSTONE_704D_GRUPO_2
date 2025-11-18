@@ -1,0 +1,224 @@
+{% extends 'ventas/ventas_base.html' %}
+{% load static %}
+
+{% block title %}Términos y Condiciones - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <h1 class="text-center mb-4 text-primary">Términos y Condiciones</h1>
+                    <p class="text-muted text-center mb-5">
+                        <small>Última actualización: Enero 2025</small>
+                    </p>
+
+                    <!-- Identificación de la Empresa -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">1. Identificación del Prestador de Servicios</h2>
+                        <div class="bg-light p-4 rounded">
+                            <p><strong>Razón Social:</strong> Cordillera Pets SpA</p>
+                            <p><strong>RUT:</strong> 77.123.456-7</p>
+                            <p><strong>Giro Comercial:</strong> Comercio al por menor de alimentos y artículos para mascotas</p>
+                            <p><strong>Domicilio Comercial:</strong> Av. Libertador Bernardo O'Higgins 1234, Oficina 506, Santiago, Región Metropolitana, Chile</p>
+                            <p><strong>Correo Electrónico:</strong> ventas@cordillerapets.cl</p>
+                            <p><strong>Teléfono:</strong> +56 9 9999 9999</p>
+                            <p><strong>Patente Municipal:</strong> N° 12345-2024, Ilustre Municipalidad de Santiago</p>
+                            <p class="mb-0"><strong>Inicio de Actividades SII:</strong> 15/03/2024</p>
+                        </div>
+                    </section>
+
+                    <!-- Aceptación de Términos -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">2. Aceptación de los Términos</h2>
+                        <p>Al acceder y utilizar el sitio web <strong>www.cordillerapets.cl</strong> y realizar compras a través de nuestra plataforma, usted acepta expresamente estos Términos y Condiciones, así como nuestra Política de Privacidad y Política de Devoluciones.</p>
+                        <p>Si no está de acuerdo con estos términos, le solicitamos que no utilice nuestros servicios.</p>
+                    </section>
+
+                    <!-- Descripción de Servicios -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">3. Descripción de Servicios</h2>
+                        <p>Cordillera Pets ofrece venta en línea de:</p>
+                        <ul>
+                            <li>Alimentos para perros y gatos</li>
+                            <li>Arenas sanitarias para gatos</li>
+                            <li>Accesorios y juguetes para mascotas</li>
+                            <li>Productos de higiene y cuidado animal</li>
+                            <li>Otros productos relacionados con el cuidado de mascotas</li>
+                        </ul>
+                        <p>Todos los productos están sujetos a disponibilidad de stock.</p>
+                    </section>
+
+                    <!-- Precios y Formas de Pago -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">4. Precios y Formas de Pago</h2>
+                        <p><strong>4.1 Precios:</strong> Todos los precios publicados en el sitio están expresados en pesos chilenos (CLP) e incluyen el IVA (Impuesto al Valor Agregado) cuando corresponda.</p>
+                        <p><strong>4.2 Costos de Envío:</strong> Los costos de envío se calculan según la región y comuna de destino y se mostrarán claramente antes de finalizar la compra. Ofrecemos despacho gratuito en las comunas de San Miguel, Estación Central y La Florida para compras sobre $50.000.</p>
+                        <p><strong>4.3 Formas de Pago:</strong> Aceptamos pagos mediante:</p>
+                        <ul>
+                            <li>Tarjetas de débito y crédito (Visa, Mastercard, American Express) a través de Transbank</li>
+                            <li>Transferencia bancaria</li>
+                        </ul>
+                        <p><strong>4.4 Facturación:</strong> Emitimos boletas y facturas electrónicas según lo requerido por el Servicio de Impuestos Internos (SII). Las facturas se envían automáticamente al correo electrónico registrado.</p>
+                    </section>
+
+                    <!-- Proceso de Compra -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">5. Proceso de Compra</h2>
+                        <p><strong>5.1</strong> El cliente selecciona los productos deseados y los agrega al carrito de compras.</p>
+                        <p><strong>5.2</strong> En el checkout, el cliente proporciona sus datos personales, dirección de entrega y método de pago.</p>
+                        <p><strong>5.3</strong> Antes de confirmar la compra, el cliente puede revisar el detalle completo: productos, cantidades, precios unitarios, subtotal, costo de envío y total a pagar.</p>
+                        <p><strong>5.4</strong> Al confirmar la compra, el cliente acepta todos los términos y condiciones.</p>
+                        <p><strong>5.5</strong> Una vez procesado el pago, se envía una confirmación por correo electrónico con los detalles del pedido.</p>
+                    </section>
+
+                    <!-- Tiempos de Entrega -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">6. Despacho y Tiempos de Entrega</h2>
+                        <p><strong>6.1 Cobertura:</strong> Realizamos despachos a todo Chile continental a través de empresas de courier certificadas.</p>
+                        <p><strong>6.2 Tiempos de Entrega:</strong></p>
+                        <ul>
+                            <li><strong>Región Metropolitana:</strong> 2 a 4 días hábiles</li>
+                            <li><strong>Regiones:</strong> 3 a 7 días hábiles</li>
+                            <li><strong>Zonas extremas:</strong> 5 a 10 días hábiles</li>
+                        </ul>
+                        <p><strong>6.3</strong> Los plazos de entrega comienzan a contar desde la confirmación del pago.</p>
+                        <p><strong>6.4</strong> El cliente recibirá un código de seguimiento para rastrear su pedido.</p>
+                        <p><strong>6.5</strong> En caso de retrasos, notificaremos al cliente mediante correo electrónico o teléfono.</p>
+                    </section>
+
+                    <!-- Derecho a Retracto -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">7. Derecho a Retracto (Ley N° 19.496)</h2>
+                        <div class="alert alert-info">
+                            <p><strong><i class="fas fa-info-circle"></i> Importante:</strong> De conformidad con el artículo 3° bis de la Ley N° 19.496 sobre Protección de los Derechos de los Consumidores, usted tiene derecho a retractarse de su compra sin expresión de causa.</p>
+                        </div>
+                        <p><strong>7.1 Plazo:</strong> El consumidor tiene un plazo de <strong>10 días corridos</strong> contados desde la recepción del producto para ejercer el derecho a retracto.</p>
+                        <p><strong>7.2 Procedimiento:</strong> Para ejercer este derecho, el cliente debe:</p>
+                        <ul>
+                            <li>Contactarnos a través de ventas@cordillerapets.cl o al teléfono +56 9 9999 9999</li>
+                            <li>Indicar su número de pedido y motivo de retracto (opcional)</li>
+                            <li>Devolver el producto en su embalaje original, sin uso y con todas sus etiquetas</li>
+                        </ul>
+                        <p><strong>7.3 Devolución del Dinero:</strong> Una vez recibido y verificado el producto, procederemos a la devolución del dinero en un plazo máximo de <strong>10 días hábiles</strong> mediante el mismo medio de pago utilizado en la compra.</p>
+                        <p><strong>7.4 Costos de Envío:</strong> Los costos de devolución son de cargo del cliente, salvo que el producto presente fallas o no corresponda a lo solicitado.</p>
+                        <p><strong>7.5 Excepciones:</strong> El derecho a retracto no aplica para productos de higiene personal o aquellos que por su naturaleza no puedan ser devueltos (productos perecibles, abiertos o usados).</p>
+                    </section>
+
+                    <!-- Garantía Legal -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">8. Garantía Legal</h2>
+                        <p><strong>8.1</strong> Todos los productos vendidos cuentan con la garantía legal de <strong>3 meses</strong> conforme a la Ley del Consumidor, contados desde la recepción del producto.</p>
+                        <p><strong>8.2</strong> La garantía cubre fallas de fabricación o defectos del producto.</p>
+                        <p><strong>8.3</strong> El cliente puede optar por:</p>
+                        <ul>
+                            <li>Reparación gratuita del producto</li>
+                            <li>Reposición del producto</li>
+                            <li>Devolución del dinero</li>
+                        </ul>
+                        <p><strong>8.4</strong> La garantía no cubre daños por mal uso, negligencia o desgaste normal del producto.</p>
+                        <p><strong>8.5</strong> Algunos productos pueden contar con garantía extendida del fabricante, la cual se informará en la descripción del producto.</p>
+                    </section>
+
+                    <!-- Cambios y Devoluciones -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">9. Política de Cambios y Devoluciones</h2>
+                        <p><strong>9.1 Productos Defectuosos:</strong> Si recibe un producto con fallas o defectos, contáctenos dentro de las primeras 24 horas de recibido el producto. Procederemos al cambio inmediato sin costo adicional.</p>
+                        <p><strong>9.2 Producto Incorrecto:</strong> Si recibió un producto diferente al solicitado, nos hacemos responsables del cambio y los costos de envío asociados.</p>
+                        <p><strong>9.3 Productos Dañados en el Transporte:</strong> Si el producto llega dañado por el transporte, debe ser reportado inmediatamente al recibir el pedido. Coordinaremos el cambio o devolución sin costo para el cliente.</p>
+                        <p>Para más información, consulte nuestra <a href="{% url 'politica_devoluciones' %}" class="text-primary">Política de Devoluciones</a> completa.</p>
+                    </section>
+
+                    <!-- Protección de Datos -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">10. Protección de Datos Personales (Ley N° 21.719)</h2>
+                        <p><strong>10.1</strong> Cordillera Pets se compromete a proteger la privacidad y datos personales de sus clientes conforme a la Ley N° 21.719 de Protección de Datos Personales.</p>
+                        <p><strong>10.2</strong> Los datos personales recopilados serán utilizados exclusivamente para:</p>
+                        <ul>
+                            <li>Procesar y despachar pedidos</li>
+                            <li>Emitir boletas y facturas</li>
+                            <li>Comunicarnos con el cliente respecto a su pedido</li>
+                            <li>Enviar información promocional (solo con consentimiento previo)</li>
+                        </ul>
+                        <p><strong>10.3</strong> El cliente tiene derecho a acceder, rectificar, cancelar u oponerse al tratamiento de sus datos personales.</p>
+                        <p>Para más información, revise nuestra <a href="{% url 'politica_privacidad' %}" class="text-primary">Política de Privacidad</a>.</p>
+                    </section>
+
+                    <!-- Seguridad y Medios de Pago -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">11. Seguridad de Transacciones</h2>
+                        <p><strong>11.1</strong> Nuestro sitio web utiliza certificados SSL para proteger la información sensible durante las transacciones.</p>
+                        <p><strong>11.2</strong> Los pagos son procesados a través de <strong>Transbank</strong>, plataforma certificada y segura.</p>
+                        <p><strong>11.3</strong> No almacenamos información completa de tarjetas de crédito o débito en nuestros servidores.</p>
+                        <p><strong>11.4</strong> Implementamos medidas de seguridad conforme a la Ley N° 21.663 de Ciberseguridad.</p>
+                    </section>
+
+                    <!-- Responsabilidad -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">12. Limitación de Responsabilidad</h2>
+                        <p><strong>12.1</strong> Cordillera Pets no se hace responsable por:</p>
+                        <ul>
+                            <li>Retrasos en la entrega causados por situaciones de fuerza mayor</li>
+                            <li>Información incorrecta proporcionada por el cliente (dirección, teléfono, etc.)</li>
+                            <li>Daños causados por mal uso del producto por parte del cliente</li>
+                            <li>Problemas de conexión o disponibilidad del sitio web por causas ajenas a nuestro control</li>
+                        </ul>
+                    </section>
+
+                    <!-- Propiedad Intelectual -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">13. Propiedad Intelectual</h2>
+                        <p>Todos los contenidos del sitio web, incluyendo textos, imágenes, logotipos, diseños y códigos, son propiedad de Cordillera Pets SpA o de sus proveedores y están protegidos por las leyes de propiedad intelectual vigentes en Chile.</p>
+                        <p>Queda prohibida la reproducción, distribución o modificación de cualquier contenido sin autorización expresa.</p>
+                    </section>
+
+                    <!-- Resolución de Conflictos -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">14. Resolución de Conflictos</h2>
+                        <p><strong>14.1 Reclamos:</strong> Para presentar reclamos, el cliente puede:</p>
+                        <ul>
+                            <li>Contactarnos directamente en ventas@cordillerapets.cl</li>
+                            <li>Llamar al +56 9 9999 9999</li>
+                            <li>Presentar un reclamo ante el SERNAC (Servicio Nacional del Consumidor): www.sernac.cl</li>
+                        </ul>
+                        <p><strong>14.2</strong> Nos comprometemos a responder todos los reclamos en un plazo máximo de 5 días hábiles.</p>
+                        <p><strong>14.3 Jurisdicción:</strong> Para cualquier controversia que surja de la interpretación o aplicación de estos términos, las partes se someten a la jurisdicción de los tribunales ordinarios de justicia de Santiago, Chile.</p>
+                    </section>
+
+                    <!-- Modificaciones -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">15. Modificaciones a los Términos</h2>
+                        <p>Cordillera Pets se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Las modificaciones entrarán en vigencia desde su publicación en el sitio web.</p>
+                        <p>Recomendamos revisar periódicamente esta sección para estar al tanto de cualquier cambio.</p>
+                    </section>
+
+                    <!-- Contacto -->
+                    <section class="mb-5">
+                        <h2 class="h4 text-primary mb-3">16. Información de Contacto</h2>
+                        <div class="bg-light p-4 rounded">
+                            <p><strong>Para consultas, reclamos o sugerencias:</strong></p>
+                            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ventas@cordillerapets.cl</p>
+                            <p><i class="fas fa-phone"></i> <strong>Teléfono:</strong> +56 9 9999 9999</p>
+                            <p><i class="fab fa-whatsapp"></i> <strong>WhatsApp:</strong> +56 9 9999 9999</p>
+                            <p><i class="fas fa-map-marker-alt"></i> <strong>Dirección:</strong> Av. Libertador Bernardo O'Higgins 1234, Oficina 506, Santiago</p>
+                            <p class="mb-0"><strong>Horario de Atención:</strong> Lunes a Viernes de 9:00 a 18:00 hrs</p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5">
+
+                    <div class="text-center">
+                        <p class="text-muted">
+                            <small>
+                                Al utilizar nuestros servicios, usted declara haber leído, entendido y aceptado estos Términos y Condiciones en su totalidad.
+                            </small>
+                        </p>
+                        <a href="{% url 'index' %}" class="btn btn-primary mt-3">Volver al Inicio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
