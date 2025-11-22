@@ -49,6 +49,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from ..ventas.brevo_service import BrevoEmailService
 
+
 from .models import CostoEnvioComuna
 from .storage import delete_product_image, is_spaces_configured, upload_product_image
 

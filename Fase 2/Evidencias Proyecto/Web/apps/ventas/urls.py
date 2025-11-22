@@ -23,4 +23,7 @@ urlpatterns = [
         views.politica_devoluciones,
         name="politica_devoluciones",
     ),
+    #Recuperar contraseña
+    path("olvide-contrasena/", views.olvide_contrasena, name="olvide_contrasena"),
+    path("restablecer-contrasena/<uidb64>/<token>/", views.restablecer_contrasena, name="restablecer_contrasena"),
 ]
