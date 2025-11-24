@@ -20,6 +20,15 @@ package "Gestión de Clientes" {
         - fecha_registro: DateTimeField
         - estado: BooleanField
         - password: CharField(100)
+        --
+        + get_nombre_completo(): str
+        + validar_rut(): bool
+        + actualizar_perfil(datos: dict): bool
+        + cambiar_password(password_actual: str, password_nueva: str): bool
+        + desactivar_cuenta(): bool
+        + get_direcciones(): list
+        + get_pedidos(): list
+        + get_metodos_pago(): list
     }
 
     class ClienteEmpresa {
@@ -32,6 +41,13 @@ package "Gestión de Clientes" {
         - representante_legal: CharField(50)
         - fecha_registro: DateTimeField
         - estado: BooleanField
+        --
+        + validar_rut_empresa(): bool
+        + actualizar_datos_empresa(datos: dict): bool
+        + get_pedidos(): list
+        + get_documentos_tributarios(): list
+        + get_direcciones(): list
+        + desactivar_cuenta(): bool
     }
 
     class SesionInvitado {
@@ -39,6 +55,11 @@ package "Gestión de Clientes" {
         - email: CharField(50) <<unique>>
         - fecha_creacion: DateTimeField
         - estado: CharField(50)
+        --
+        + validar_email(): bool
+        + activar_sesion(): bool
+        + cerrar_sesion(): bool
+        + convertir_a_cliente(): ClientePersona
     }
 
     class Direccion {
@@ -48,6 +69,11 @@ package "Gestión de Clientes" {
         - region: CharField(50)
         - codigo_postal: SmallIntegerField
         - telefono: CharField(10)
+        --
+        + get_direccion_completa(): str
+        + validar_datos(): bool
+        + establecer_como_principal(): bool
+        + calcular_costo_envio(): int
     }
 
     class MetodoPago {
@@ -59,6 +85,13 @@ package "Gestión de Clientes" {
         - fecha_vencimiento: DateField
         - estado: CharField(50)
         - fecha_creacion: DateTimeField
+        --
+        + validar_tarjeta(): bool
+        + esta_vigente(): bool
+        + get_tipo_metodo_display(): str
+        + activar(): bool
+        + desactivar(): bool
+        + verificar_fondos(monto: int): bool
     }
 }
 
@@ -75,6 +108,15 @@ package "Gestión de Productos" {
         - fecha_creation: DateTimeField
         - estado_producto: CharField(50)
         - slug: CharField(50)
+        --
+        + esta_disponible(): bool
+        + tiene_stock(cantidad: int): bool
+        + actualizar_stock(cantidad: int, operacion: str): bool
+        + cambiar_estado(nuevo_estado: str): bool
+        + aplicar_descuento(porcentaje: float): int
+        + get_precio_formateado(): str
+        + registrar_movimiento_stock(cantidad: int, tipo: str): bool
+        + get_categoria_completa(): str
     }
 
     class Categoria {
@@ -83,6 +125,13 @@ package "Gestión de Productos" {
         - descripcion: TextField
         - nivel: IntegerField
         - activa: BooleanField
+        --
+        + get_productos(): list
+        + get_subcategorias(): list
+        + get_ruta_completa(): str
+        + activar(): bool
+        + desactivar(): bool
+        + tiene_productos(): bool
     }
 
     class Marca {
@@ -93,6 +142,11 @@ package "Gestión de Productos" {
         - sitio_web: CharField(50)
         - slug: CharField(50)
         - activa: BooleanField
+        --
+        + get_productos(): list
+        + activar(): bool
+        + desactivar(): bool
+        + actualizar_logo(url: str): bool
     }
 
     class MovimientoStock {
@@ -100,6 +154,11 @@ package "Gestión de Productos" {
         - cantidad: IntegerField
         - fecha_movimiento: DateTimeField
         - tipo_operacion: CharField(50)
+        --
+        + registrar_entrada(cantidad: int): bool
+        + registrar_salida(cantidad: int): bool
+        + registrar_ajuste(cantidad: int): bool
+        + get_tipo_operacion_display(): str
     }
 
     class MovimientoEstado {
@@ -107,6 +166,9 @@ package "Gestión de Productos" {
         - fecha_movimiento: DateTimeField
         - estado_anterior: CharField(50)
         - estado_actual: CharField(50)
+        --
+        + registrar_cambio(estado_nuevo: str): bool
+        + get_descripcion_cambio(): str
     }
 }
 
@@ -124,6 +186,17 @@ package "Gestión de Pedidos" {
         - notas: TextField
         - tracking_codigo: CharField(50)
         - precio_envio: IntegerField
+        --
+        + calcular_total(): int
+        + cambiar_estado(nuevo_estado: str): bool
+        + cancelar_pedido(): bool
+        + confirmar_pago(): bool
+        + generar_tracking_codigo(): str
+        + get_items(): list
+        + get_direccion_completa(): str
+        + enviar_confirmacion_email(): bool
+        + get_cliente(): object
+        + puede_cancelar(): bool
     }
 
     class PedidoItem {
@@ -131,6 +204,10 @@ package "Gestión de Pedidos" {
         - cantidad: IntegerField
         - precio_unitario: IntegerField
         - subtotal: IntegerField
+        --
+        + calcular_subtotal(): int
+        + actualizar_cantidad(cantidad: int): bool
+        + get_producto_info(): dict
     }
 
     class PedidoRegistro {
@@ -138,6 +215,9 @@ package "Gestión de Pedidos" {
         - fecha_registro: DateField
         - estado_anterior: CharField(50)
         - estado_actual: CharField(50)
+        --
+        + registrar_cambio_estado(): bool
+        + get_descripcion(): str
     }
 
     class DocumentoTributario {
@@ -153,6 +233,13 @@ package "Gestión de Pedidos" {
         - razon_social: CharField(100)
         - giro: CharField(255)
         - direccion_facturacion: TextField
+        --
+        + generar_folio(): int
+        + calcular_iva(): int
+        + generar_pdf(): bytes
+        + enviar_por_email(): bool
+        + get_tipo_documento_display(): str
+        + anular_documento(): bool
     }
 
     class Pago {
@@ -162,6 +249,13 @@ package "Gestión de Pedidos" {
         - estado: CharField(50)
         - transbank_token: CharField(50)
         - fecha: DateTimeField
+        --
+        + procesar_pago(): bool
+        + confirmar_pago(): bool
+        + rechazar_pago(): bool
+        + reembolsar(): bool
+        + get_estado_transbank(): str
+        + validar_token(): bool
     }
 }
 
@@ -190,6 +284,15 @@ package "Gestión de Carrito" {
         - carrito_data: JSONField
         - fecha_creacion: DateTimeField
         - fecha_actualizacion: DateTimeField
+        --
+        + generar_session_id(): str
+        + calcular_totales(): dict
+        + iniciar_pago_transbank(): dict
+        + confirmar_pago(): bool
+        + convertir_a_pedido(): Pedido
+        + cancelar_sesion(): bool
+        + validar_datos(): bool
+        + get_carrito(): dict
     }
 }
 
@@ -201,6 +304,11 @@ package "Gestión Administrativa" {
         - email: CharField(200) <<unique>>
         - password_hash: CharField(255)
         - rol: CharField(50)
+        --
+        + validar_credenciales(password: str): bool
+        + cambiar_password(password_nueva: str): bool
+        + tiene_permiso(permiso: str): bool
+        + get_sucursales_asignadas(): list
     }
 
     class Sucursal {
@@ -211,6 +319,11 @@ package "Gestión Administrativa" {
         - email: CharField(50)
         - estado: BooleanField
         - fecha_creacion: DateTimeField
+        --
+        + activar(): bool
+        + desactivar(): bool
+        + get_vendedores(): list
+        + actualizar_datos(datos: dict): bool
     }
 
     class Vendedor {
@@ -222,6 +335,12 @@ package "Gestión Administrativa" {
         - telefono: CharField(10)
         - estado: BooleanField
         - fecha_creacion: DateTimeField
+        --
+        + get_nombre_completo(): str
+        + activar(): bool
+        + desactivar(): bool
+        + get_pedidos_atendidos(): list
+        + actualizar_perfil(datos: dict): bool
     }
 
     class CostoEnvioComuna {
@@ -230,6 +349,11 @@ package "Gestión Administrativa" {
         - costo: IntegerField
         - activo: BooleanField
         - fecha_actualizacion: DateTimeField
+        --
+        + calcular_costo(comuna: str): int
+        + actualizar_costo(costo: int): bool
+        + activar(): bool
+        + desactivar(): bool
     }
 }
 
