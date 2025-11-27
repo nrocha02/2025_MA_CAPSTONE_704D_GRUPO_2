@@ -1,0 +1,552 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Pedido #{{ pedido.pedido_id }} - Dashboard Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        border-left: 4px solid #0d6efd;
+        transition: all 0.3s;
+    }
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 30px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 60px;
+        margin-bottom: 30px;
+    }
+    .timeline-icon {
+        position: absolute;
+        left: 18px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        z-index: 1;
+    }
+    .timeline-icon.success {
+        border-color: #28a745;
+        background: #28a745;
+        color: white;
+    }
+    .timeline-icon.warning {
+        border-color: #ffc107;
+        background: #ffc107;
+        color: white;
+    }
+    .timeline-icon.danger {
+        border-color: #dc3545;
+        background: #dc3545;
+        color: white;
+    }
+    .product-item {
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px 0;
+        transition: background-color 0.2s;
+    }
+    .product-item:last-child {
+        border-bottom: none;
+    }
+    .product-item:hover {
+        background-color: #f8f9fa;
+    }
+    .status-badge-lg {
+        font-size: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+    .action-button {
+        min-width: 150px;
+    }
+    .map-container {
+        height: 300px;
+        background: #e9ecef;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Detalle de Pedido #{{ pedido.pedido_id }}{% endblock %}
+{% block page_description %}Información completa del pedido{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'dashboard:pedido_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <a href="{% url 'dashboard:pedido_edit' pedido.pedido_id %}" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Editar
+    </a>
+    <button type="button" class="btn btn-primary" onclick="imprimirPedido()">
+        <i class="fas fa-print"></i> Imprimir
+    </button>
+</div>
+{% endblock %}
+
+{% block main_content %}
+
+<div class="row">
+    <!-- Columna Principal -->
+    <div class="col-lg-8">
+
+        <!-- Estado del Pedido -->
+        <div class="card info-card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Estado del Pedido
+                    </h5>
+                    {% if pedido.estado == "Pendiente de pago" %}
+                        <span class="badge bg-warning text-dark status-badge-lg">
+                            <i class="fas fa-clock"></i> {{ pedido.estado }}
+                        </span>
+                    {% elif pedido.estado == "Procesando" %}
+                        <span class="badge bg-info status-badge-lg">
+                            <i class="fas fa-cog"></i> {{ pedido.estado }}
+                        </span>
+                    {% elif pedido.estado == "Despachado" %}
+                        <span class="badge bg-primary status-badge-lg">
+                            <i class="fas fa-truck"></i> {{ pedido.estado }}
+                        </span>
+                    {% elif pedido.estado == "Entregado" %}
+                        <span class="badge bg-success status-badge-lg">
+                            <i class="fas fa-check-circle"></i> {{ pedido.estado }}
+                        </span>
+                    {% elif pedido.estado == "Entrega fallida" %}
+                        <span class="badge bg-danger status-badge-lg">
+                            <i class="fas fa-exclamation-triangle"></i> {{ pedido.estado }}
+                        </span>
+                    {% elif pedido.estado == "Cancelado" %}
+                        <span class="badge bg-danger status-badge-lg">
+                            <i class="fas fa-times-circle"></i> {{ pedido.estado }}
+                        </span>
+                    {% elif pedido.estado == "Reembolsado" %}
+                        <span class="badge bg-secondary status-badge-lg">
+                            <i class="fas fa-undo"></i> {{ pedido.estado }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary status-badge-lg">
+                            {{ pedido.estado }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Acciones de Cambio de Estado -->
+                <div class="btn-group w-100" role="group">
+                    {% if pedido.estado == "Pendiente de pago" %}
+                        <button class="btn btn-info action-button" onclick="cambiarEstado('Procesando')">
+                            <i class="fas fa-cog"></i> Iniciar Procesamiento
+                        </button>
+                        <button class="btn btn-danger action-button" onclick="cambiarEstado('Cancelado')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    {% elif pedido.estado == "Procesando" %}
+                        <button class="btn btn-primary action-button" onclick="cambiarEstado('Despachado')">
+                            <i class="fas fa-truck"></i> Marcar como Despachado
+                        </button>
+                        <button class="btn btn-danger action-button" onclick="cambiarEstado('Cancelado')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    {% elif pedido.estado == "Despachado" %}
+                        <button class="btn btn-success action-button" onclick="cambiarEstado('Entregado')">
+                            <i class="fas fa-check-circle"></i> Marcar Entregado
+                        </button>
+                        <button class="btn btn-warning action-button" onclick="cambiarEstado('Entrega fallida')">
+                            <i class="fas fa-exclamation-triangle"></i> Entrega Fallida
+                        </button>
+                    {% elif pedido.estado == "Entrega fallida" %}
+                        <button class="btn btn-primary action-button" onclick="cambiarEstado('Despachado')">
+                            <i class="fas fa-redo"></i> Reintentar Envío
+                        </button>
+                        <button class="btn btn-secondary action-button" onclick="cambiarEstado('Reembolsado')">
+                            <i class="fas fa-undo"></i> Reembolsar
+                        </button>
+                    {% elif pedido.estado == "Cancelado" %}
+                        <button class="btn btn-secondary action-button" onclick="cambiarEstado('Reembolsado')">
+                            <i class="fas fa-undo"></i> Procesar Reembolso
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos del Pedido -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-shopping-cart"></i> Productos
+                    <span class="badge bg-primary">{{ pedido.items.count }} items</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% for item in pedido.items.all %}
+                <div class="product-item px-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                {% if item.producto.imagen %}
+                                <img src="{{ item.producto.imagen }}"
+                                     alt="{{ item.producto.nombre }}"
+                                     class="rounded me-3"
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                                     style="width: 60px; height: 60px;">
+                                    <i class="fas fa-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1">{{ item.producto.nombre }}</h6>
+                                    <small class="text-muted">SKU: {{ item.producto.sku }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <small class="text-muted d-block">Precio</small>
+                            <strong>${{ item.precio_unitario|floatformat:0 }}</strong>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <small class="text-muted d-block">Cantidad</small>
+                            <strong>{{ item.cantidad }}</strong>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <small class="text-muted d-block">Subtotal</small>
+                            <strong class="text-primary">${{ item.subtotal|floatformat:0 }}</strong>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Resumen de Totales -->
+                <div class="px-3 py-3 bg-light">
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <strong>${{ subtotal|floatformat:0 }}</strong>
+                            </div>
+                            {% if pedido.precio_envio %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Envío:</span>
+                                <strong>${{ pedido.precio_envio|floatformat:0 }}</strong>
+                            </div>
+                            {% endif %}
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="h5">Total:</span>
+                                <span class="h5 text-primary">${{ pedido.total|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notas del Pedido -->
+        {% if pedido.notas %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-sticky-note"></i> Notas del Cliente
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ pedido.notas }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Columna Lateral -->
+    <div class="col-lg-4">
+
+        <!-- Información del Cliente -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Cliente
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pedido.cliente_persona %}
+                    <p class="mb-2">
+                        <strong><i class="fas fa-user-circle"></i> Persona Natural</strong>
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-id-card"></i>
+                        {{ pedido.cliente_persona.nombre }} {{ pedido.cliente_persona.apellido }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-id-badge"></i>
+                        RUT: {{ pedido.cliente_persona.rut }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:{{ pedido.cliente_persona.email }}">{{ pedido.cliente_persona.email }}</a>
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-phone"></i>
+                        {{ pedido.cliente_persona.telefono }}
+                    </p>
+                {% elif pedido.cliente_empresa %}
+                    <p class="mb-2">
+                        <strong><i class="fas fa-building"></i> Empresa</strong>
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-briefcase"></i>
+                        {{ pedido.cliente_empresa.razon_social }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-id-badge"></i>
+                        RUT: {{ pedido.cliente_empresa.rut }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:{{ pedido.cliente_empresa.email }}">{{ pedido.cliente_empresa.email }}</a>
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-phone"></i>
+                        {{ pedido.cliente_empresa.telefono }}
+                    </p>
+                {% elif pedido.cliente_invitado %}
+                    <p class="mb-2">
+                        <strong><i class="fas fa-user-secret"></i> Cliente Invitado</strong>
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:{{ pedido.cliente_invitado.email }}">{{ pedido.cliente_invitado.email }}</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Dirección de Envío -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marker-alt"></i> Dirección de Envío
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><i class="fas fa-road"></i> {{ pedido.calle }}</p>
+                <p class="mb-1"><i class="fas fa-city"></i> {{ pedido.ciudad }}</p>
+                <p class="mb-1"><i class="fas fa-map"></i> {{ pedido.region }}</p>
+                {% if pedido.codigo_postal %}
+                <p class="mb-0"><i class="fas fa-mail-bulk"></i> CP: {{ pedido.codigo_postal }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Información de Envío -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-truck"></i> Información de Envío
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pedido.tracking_codigo %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Código de Seguimiento:</label>
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control"
+                               value="{{ pedido.tracking_codigo }}"
+                               id="trackingCode"
+                               readonly>
+                        <button class="btn btn-outline-secondary"
+                                onclick="copiarTracking()"
+                                title="Copiar">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle"></i>
+                    Sin código de seguimiento asignado
+                </div>
+                <button class="btn btn-primary w-100" onclick="agregarTracking()">
+                    <i class="fas fa-plus"></i> Agregar Código
+                </button>
+                {% endif %}
+
+                {% if pedido.precio_envio %}
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>Costo de Envío:</span>
+                    <strong>${{ pedido.precio_envio|floatformat:0 }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Información del Pedido -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Información
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Fecha de Pedido:</strong><br>
+                    {{ pedido.fecha|date:"d/m/Y H:i" }}
+                </p>
+                <p class="mb-2">
+                    <strong>ID de Pedido:</strong><br>
+                    #{{ pedido.pedido_id }}
+                </p>
+                <p class="mb-0">
+                    <strong>Última actualización:</strong><br>
+                    {{ pedido.fecha|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal para Cambiar Estado -->
+<div class="modal fade" id="cambiarEstadoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exchange-alt"></i> Cambiar Estado del Pedido
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'dashboard:pedido_cambiar_estado' pedido.pedido_id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="nuevo_estado" id="nuevoEstadoInput">
+                    <p>¿Está seguro de cambiar el estado del pedido a <strong id="estadoTexto"></strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Notas adicionales (opcional):</label>
+                        <textarea class="form-control" name="notas" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar Cambio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar Tracking -->
+<div class="modal fade" id="agregarTrackingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-barcode"></i> Agregar Código de Seguimiento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'dashboard:pedido_agregar_tracking' pedido.pedido_id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Código de Seguimiento:</label>
+                        <input type="text"
+                               class="form-control"
+                               name="tracking_codigo"
+                               required
+                               placeholder="Ej: TRACK123456789">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Cambiar estado del pedido
+function cambiarEstado(nuevoEstado) {
+    document.getElementById('nuevoEstadoInput').value = nuevoEstado;
+    document.getElementById('estadoTexto').textContent = nuevoEstado;
+    const modal = new bootstrap.Modal(document.getElementById('cambiarEstadoModal'));
+    modal.show();
+}
+
+// Agregar código de tracking
+function agregarTracking() {
+    const modal = new bootstrap.Modal(document.getElementById('agregarTrackingModal'));
+    modal.show();
+}
+
+// Copiar código de tracking
+function copiarTracking() {
+    const trackingInput = document.getElementById('trackingCode');
+    trackingInput.select();
+    document.execCommand('copy');
+
+    // Mostrar feedback
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i>';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+
+// Imprimir pedido
+function imprimirPedido() {
+    window.print();
+}
+
+// Estilos de impresión
+const style = document.createElement('style');
+style.textContent = `
+    @media print {
+        .btn, .modal, nav, .card-header button {
+            display: none !important;
+        }
+        .card {
+            border: 1px solid #dee2e6 !important;
+            box-shadow: none !important;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

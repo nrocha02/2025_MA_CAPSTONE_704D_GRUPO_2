@@ -1,0 +1,415 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Gestión de Pedidos - Dashboard Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-estado {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.8rem;
+    }
+    .table-hover tbody tr {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: translateX(2px);
+    }
+    .search-box {
+        position: relative;
+    }
+    .search-box .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    .search-box input {
+        padding-left: 45px;
+    }
+    .filter-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .stats-card {
+        border-left: 4px solid;
+        transition: all 0.3s;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .btn-action {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Gestión de Pedidos{% endblock %}
+{% block page_description %}Administra y monitorea todos los pedidos{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Volver
+</a>
+{% endblock %}
+
+{% block main_content %}
+
+<!-- Estadísticas Rápidas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card border-0 shadow-sm" style="border-left-color: #ffc107 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Pendientes</p>
+                        <h3 class="mb-0">{{ stats.pendientes }}</h3>
+                    </div>
+                    <div class="text-warning">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card border-0 shadow-sm" style="border-left-color: #17a2b8 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">En Proceso</p>
+                        <h3 class="mb-0">{{ stats.en_proceso }}</h3>
+                    </div>
+                    <div class="text-info">
+                        <i class="fas fa-spinner fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card border-0 shadow-sm" style="border-left-color: #28a745 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Completados</p>
+                        <h3 class="mb-0">{{ stats.completados }}</h3>
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card border-0 shadow-sm" style="border-left-color: #dc3545 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Cancelados</p>
+                        <h3 class="mb-0">{{ stats.cancelados }}</h3>
+                    </div>
+                    <div class="text-danger">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="filter-card">
+    <form method="GET" action="{% url 'dashboard:pedido_list' %}" id="filterForm">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">
+                    <i class="fas fa-search"></i> Buscar Pedido
+                </label>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="ID, Cliente, Email, Código tracking..."
+                        value="{{ request.GET.search }}"
+                    >
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">
+                    <i class="fas fa-filter"></i> Estado
+                </label>
+                <select name="estado" class="form-select" onchange="document.getElementById('filterForm').submit();">
+                    <option value="">Todos los estados</option>
+                    <option value="Pendiente de pago" {% if request.GET.estado|default:'' == 'Pendiente de pago' %}selected{% endif %}>Pendiente de pago</option>
+                    <option value="Procesando" {% if request.GET.estado|default:'' == 'Procesando' %}selected{% endif %}>Procesando</option>
+                    <option value="Despachado" {% if request.GET.estado|default:'' == 'Despachado' %}selected{% endif %}>Despachado</option>
+                    <option value="Entregado" {% if request.GET.estado|default:'' == 'Entregado' %}selected{% endif %}>Entregado</option>
+                    <option value="Entrega fallida" {% if request.GET.estado|default:'' == 'Entrega fallida' %}selected{% endif %}>Entrega fallida</option>
+                    <option value="Cancelado" {% if request.GET.estado|default:'' == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                    <option value="Reembolsado" {% if request.GET.estado|default:'' == 'Reembolsado' %}selected{% endif %}>Reembolsado</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">
+                    <i class="fas fa-calendar-alt"></i> Desde
+                </label>
+                <input
+                    type="date"
+                    name="fecha_desde"
+                    class="form-control"
+                    value="{{ request.GET.fecha_desde }}"
+                    onchange="document.getElementById('filterForm').submit();"
+                >
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">
+                    <i class="fas fa-calendar-alt"></i> Hasta
+                </label>
+                <input
+                    type="date"
+                    name="fecha_hasta"
+                    class="form-control"
+                    value="{{ request.GET.fecha_hasta }}"
+                    onchange="document.getElementById('filterForm').submit();"
+                >
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12 text-end">
+                <a href="{% url 'dashboard:pedido_list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-times"></i> Limpiar filtros
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de Pedidos -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> Lista de Pedidos
+                <span class="badge bg-secondary">{{ page_obj.paginator.count }} total</span>
+            </h5>
+            <div>
+                <button class="btn btn-sm btn-outline-success" onclick="exportarPedidos()">
+                    <i class="fas fa-file-excel"></i> Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Envío</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in page_obj %}
+                    <tr onclick="window.location='{% url 'dashboard:pedido_detail' pedido.pedido_id %}'">
+                        <td>
+                            <strong>#{{ pedido.pedido_id }}</strong>
+                        </td>
+                        <td>
+                            {% if pedido.cliente_persona %}
+                                <i class="fas fa-user"></i>
+                                {{ pedido.cliente_persona.nombre }} {{ pedido.cliente_persona.apellido }}
+                                <br>
+                                <small class="text-muted">{{ pedido.cliente_persona.email }}</small>
+                            {% elif pedido.cliente_empresa %}
+                                <i class="fas fa-building"></i>
+                                {{ pedido.cliente_empresa.razon_social }}
+                                <br>
+                                <small class="text-muted">{{ pedido.cliente_empresa.email }}</small>
+                            {% elif pedido.cliente_invitado %}
+                                <i class="fas fa-user-secret"></i>
+                                Invitado
+                                <br>
+                                <small class="text-muted">{{ pedido.cliente_invitado.email }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <i class="fas fa-calendar"></i> {{ pedido.fecha|date:"d/m/Y" }}
+                            <br>
+                            <small class="text-muted">{{ pedido.fecha|date:"H:i" }}</small>
+                        </td>
+                        <td>
+                            <strong>${{ pedido.total|floatformat:0 }}</strong>
+                        </td>
+                        <td>
+                            {% with estado=pedido.estado %}
+                            {% if estado == 'Pendiente de pago' %}
+                                <span class="badge bg-warning text-dark badge-estado">
+                                    <i class="fas fa-clock"></i> {{ pedido.estado }}
+                                </span>
+                            {% elif estado == 'Procesando' %}
+                                <span class="badge bg-info badge-estado">
+                                    <i class="fas fa-cog"></i> {{ pedido.estado }}
+                                </span>
+                            {% elif estado == 'Despachado' %}
+                                <span class="badge bg-primary badge-estado">
+                                    <i class="fas fa-truck"></i> {{ pedido.estado }}
+                                </span>
+                            {% elif estado == 'Entregado' %}
+                                <span class="badge bg-success badge-estado">
+                                    <i class="fas fa-check-circle"></i> {{ pedido.estado }}
+                                </span>
+                            {% elif estado == 'Entrega fallida' %}
+                                <span class="badge bg-danger badge-estado">
+                                    <i class="fas fa-exclamation-triangle"></i> {{ pedido.estado }}
+                                </span>
+                            {% elif estado == 'Cancelado' %}
+                                <span class="badge bg-danger badge-estado">
+                                    <i class="fas fa-times-circle"></i> {{ pedido.estado }}
+                                </span>
+                            {% elif estado == 'Reembolsado' %}
+                                <span class="badge bg-secondary badge-estado">
+                                    <i class="fas fa-undo"></i> {{ pedido.estado }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary badge-estado">
+                                    {{ pedido.estado }}
+                                </span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% if pedido.tracking_codigo %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-barcode"></i> {{ pedido.tracking_codigo }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">
+                                    <i class="fas fa-minus"></i> Sin código
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center" onclick="event.stopPropagation();">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'dashboard:pedido_detail' pedido.pedido_id %}"
+                                   class="btn btn-sm btn-outline-primary btn-action"
+                                   title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:pedido_edit' pedido.pedido_id %}"
+                                   class="btn btn-sm btn-outline-warning btn-action"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No se encontraron pedidos</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Paginación -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Navegación de pedidos" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% if request.GET.search %}&amp;search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&amp;estado={{ request.GET.estado }}{% endif %}{% if request.GET.fecha_desde %}&amp;fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&amp;fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&amp;search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&amp;estado={{ request.GET.estado }}{% endif %}{% if request.GET.fecha_desde %}&amp;fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&amp;fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% with current=page_obj.number %}
+            {% if current == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% elif num > current|add:'-3' and num < current|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&amp;search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&amp;estado={{ request.GET.estado }}{% endif %}{% if request.GET.fecha_desde %}&amp;fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&amp;fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+            {% endif %}
+            {% endwith %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&amp;search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&amp;estado={{ request.GET.estado }}{% endif %}{% if request.GET.fecha_desde %}&amp;fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&amp;fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">
+                <i class="fas fa-angle-right"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&amp;search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&amp;estado={{ request.GET.estado }}{% endif %}{% if request.GET.fecha_desde %}&amp;fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&amp;fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+    <p class="text-center text-muted">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    </p>
+</nav>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function exportarPedidos() {
+    // Obtener parámetros actuales de filtro
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', 'excel');
+
+    // Redirigir a URL de exportación
+    window.location.href = '{% url "dashboard:pedido_export" %}?' + params.toString();
+}
+
+// Auto-submit en búsqueda después de dejar de escribir
+let searchTimeout;
+document.querySelector('input[name="search"]').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('filterForm').submit();
+    }, 800);
+});
+</script>
+{% endblock %}
