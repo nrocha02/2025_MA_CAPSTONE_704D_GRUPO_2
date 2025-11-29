@@ -23,4 +23,8 @@ urlpatterns = [
         views.politica_devoluciones,
         name="politica_devoluciones",
     ),
+    #Perfil de usuarios
+    path("perfil/", views.perfil_view, name="perfil"),
+    path("perfil/editar/", views.editar_perfil_view, name="editar_perfil"),
+    path("perfil/cambiar-contrasena/", views.cambiar_contrasena_view, name="cambiar_contrasena"),
 ]

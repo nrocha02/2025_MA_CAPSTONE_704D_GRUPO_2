@@ -1,0 +1,112 @@
+{% extends 'ventas/ventas_base.html' %}
+
+{% block title %}Cambiar Contraseña - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container mt-3 mt-md-5 px-2">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0 h5 h3-md"><i class="fas fa-key"></i> Cambiar Contraseña</h3>
+                </div>
+                <div class="card-body p-2 p-md-3">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="cambiarContrasenaForm">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="password_actual" class="form-label small">Contraseña Actual</label>
+                            <input type="password" class="form-control form-control-sm" id="password_actual" name="password_actual" required>
+                            <div class="invalid-feedback small">
+                                La contraseña es requerida
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-3">
+                            <label for="password_nueva" class="form-label small">Nueva Contraseña</label>
+                            <input type="password" class="form-control form-control-sm" id="password_nueva" name="password_nueva" required minlength="6">
+                            <div class="invalid-feedback small">
+                                Mínimo 6 caracteres
+                            </div>
+                            <small class="text-muted">Mínimo 6 caracteres</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password_confirmar" class="form-label small">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-control form-control-sm" id="password_confirmar" name="password_confirmar" required minlength="6">
+                            <div class="invalid-feedback small">
+                                Las contraseñas no coinciden
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fas fa-save"></i> Cambiar
+                            </button>
+                            <a href="{% url 'perfil' %}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3 small">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Consejos de seguridad:</strong>
+                <ul class="mb-0 mt-2 small">
+                    <li>Usa una contraseña única</li>
+                    <li>Combina mayúsculas, minúsculas y números</li>
+                    <li>No compartas tu contraseña</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const passwordNueva = document.getElementById('password_nueva');
+    const passwordConfirmar = document.getElementById('password_confirmar');
+    
+    // Validar que las contraseñas coincidan
+    passwordConfirmar.addEventListener('input', function() {
+        if (passwordNueva.value === passwordConfirmar.value) {
+            passwordConfirmar.classList.remove('is-invalid');
+            passwordConfirmar.classList.add('is-valid');
+        } else {
+            passwordConfirmar.classList.remove('is-valid');
+            passwordConfirmar.classList.add('is-invalid');
+        }
+    });
+
+    // Validar al enviar el formulario
+    document.getElementById('cambiarContrasenaForm').addEventListener('submit', function(e) {
+        if (passwordNueva.value !== passwordConfirmar.value) {
+            e.preventDefault();
+            passwordConfirmar.classList.add('is-invalid');
+            alert('Las contraseñas no coinciden');
+            return false;
+        }
+        
+        if (passwordNueva.value.length < 6) {
+            e.preventDefault();
+            passwordNueva.classList.add('is-invalid');
+            alert('La contraseña debe tener al menos 6 caracteres');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

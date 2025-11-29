@@ -7,6 +7,16 @@
 {% block content %}
 
     <!-- Carrusel de imágenes -->
+  <style>
+    #carouselExampleControls {
+      height: 200px;
+    }
+    @media (min-width: 768px) {
+      #carouselExampleControls {
+        height: 400px;
+      }
+    }
+  </style>
   <div
     id="carouselExampleControls"
     class="carousel slide"
@@ -14,10 +24,10 @@
     style="
            width: 100%;
            max-width: 1200px;
-           margin: 30px auto;
-           border-radius: 15px;
+           margin: 20px auto;
+           border-radius: 10px;
            overflow: hidden;
-           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
           "
   >
     <div class="carousel-inner">
@@ -28,7 +38,7 @@
             src="{% static 'blog/images/inicio/ofert2.png' %}"
             class="d-block w-100"
             alt="Promoción"
-            style="height: 400px; object-fit: cover"
+            style="height: 100%; object-fit: cover"
           />
         </a>
       </div>
@@ -39,7 +49,7 @@
           src="{% static 'blog/images/inicio/gats.png' %}"
           class="d-block w-100"
           alt="Promoción"
-          style="height: 400px; object-fit: cover"
+          style="height: 100%; object-fit: cover"
         />
       </div>
     </div>
@@ -66,9 +76,9 @@
   </div>
 
     <!-- Texto bienvenida -->
-  <div class="container text-center my-4">
-    <h4>¡Bienvenido a Cordillera Pets! 🐶🐱</h4>
-    <p class="text-muted">
+  <div class="container text-center my-3 my-md-4 px-2">
+    <h4 class="h5 h4-md">¡Bienvenido a Cordillera Pets! 🐶🐱</h4>
+    <p class="text-muted small">
       Descubre productos y marcas de confianza para cuidar y consentir a tu
       mascota.
     </p>
@@ -77,27 +87,28 @@
     <!-- Marcas -->
 
  <!-- Carrusel de Marcas -->
-  <div class="container my-5">
-    <h4 class="text-center mb-4">Nuestras Marcas</h4>
+  <div class="container my-3 my-md-5 px-2">
+    <h4 class="text-center mb-3 mb-md-4 h5 h4-md">Nuestras Marcas</h4>
     <div id="carouselMarcas" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         {% for i in marcas %}
           {% if forloop.counter0|divisibleby:4 or forloop.first %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
               <div class="container">
-                <div class="row justify-content-center">
+                <div class="row justify-content-center g-3">
           {% endif %}
 
-          <div class="col-6 col-md-3 text-center mb-4">
+          <div class="col-6 col-md-3 text-center">
             <div
               style="
-                     width: 150px;
-                     height: 150px;
+                     width: 100px;
+                     height: 100px;
                      border-radius: 50%;
                      overflow: hidden;
-                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
                      margin: 0 auto;
                     "
+              class="marca-logo"
             >
               {% if i.logo_url %}
                 <img
@@ -109,11 +120,11 @@
                 <div
                   class="d-flex align-items-center justify-content-center h-100 bg-light"
                 >
-                  <span class="text-muted">{{ i.nombre|truncatechars:10 }}</span>
+                  <span class="text-muted small">{{ i.nombre|truncatechars:8 }}</span>
                 </div>
               {% endif %}
             </div>
-            <p class="mt-2 fw-bold">{{ i.nombre }}</p>
+            <p class="mt-2 fw-bold small mb-0">{{ i.nombre|truncatechars:20 }}</p>
           </div>
 
           {% if forloop.counter|divisibleby:4 or forloop.last %}
@@ -135,46 +146,72 @@
       </div>
 
     <!-- Controles del carrusel -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselMarcas" data-bs-slide="prev" style="width: 5%;">
+      <button class="carousel-control-prev d-none d-md-flex" type="button" data-bs-target="#carouselMarcas" data-bs-slide="prev" style="width: 5%;">
         <span class="carousel-control-prev-icon" aria-hidden="true" style="
                                                                            background-color: rgba(0, 0, 0, 0.5);
                                                                            border-radius: 50%;
-                                                                           padding: 20px;
-                                                                           width: 50px;
-                                                                           height: 50px;
+                                                                           padding: 15px;
+                                                                           width: 40px;
+                                                                           height: 40px;
                                                                           "></span>
         <span class="visually-hidden">Anterior</span>
       </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselMarcas" data-bs-slide="next" style="width: 5%;">
+      <button class="carousel-control-next d-none d-md-flex" type="button" data-bs-target="#carouselMarcas" data-bs-slide="next" style="width: 5%;">
         <span class="carousel-control-next-icon" aria-hidden="true" style="
                                                                            background-color: rgba(0, 0, 0, 0.5);
                                                                            border-radius: 50%;
-                                                                           padding: 20px;
-                                                                           width: 50px;
-                                                                           height: 50px;
+                                                                           padding: 15px;
+                                                                           width: 40px;
+                                                                           height: 40px;
                                                                           "></span>
         <span class="visually-hidden">Siguiente</span>
       </button>
     </div>
   </div>
+  <style>
+    @media (min-width: 768px) {
+      .marca-logo {
+        width: 150px !important;
+        height: 150px !important;
+      }
+    }
+  </style>
 
 
     <!-- Botones grandes perro/gato -->
-  <div class="container my-5">
-    <div class="row text-center">
+  <style>
+    .categoria-btn {
+      height: 150px;
+    }
+    @media (min-width: 768px) {
+      .categoria-btn {
+        height: 250px;
+      }
+    }
+    .categoria-btn span {
+      font-size: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .categoria-btn span {
+        font-size: 2rem;
+      }
+    }
+  </style>
+  <div class="container my-3 my-md-5 px-2">
+    <div class="row text-center g-3">
         <!-- Botón Perro con imagen -->
-      <div class="col-md-6 mb-3">
+      <div class="col-12 col-md-6">
         <a
           href="{% url 'catalogo' %}?categoria=comida-perro"
+          class="categoria-btn"
           style="
                  display: block;
                  width: 100%;
-                 height: 250px;
-                 border-radius: 15px;
+                 border-radius: 10px;
                  overflow: hidden;
                  position: relative;
                  text-decoration: none;
-                 box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 "
         >
             <!-- Imagen de fondo (sin opacidad oscura) -->
@@ -192,7 +229,6 @@
                    left: 50%;
                    transform: translate(-50%, -50%);
                    color: white;
-                   font-size: 2rem;
                    font-weight: bold;
                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
                   "
@@ -203,18 +239,18 @@
       </div>
 
         <!-- Botón Gato con imagen -->
-      <div class="col-md-6 mb-3">
+      <div class="col-12 col-md-6">
         <a
           href="{% url 'catalogo' %}?categoria=comida-gato"
+          class="categoria-btn"
           style="
                  display: block;
                  width: 100%;
-                 height: 250px;
-                 border-radius: 15px;
+                 border-radius: 10px;
                  overflow: hidden;
                  position: relative;
                  text-decoration: none;
-                 box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 "
         >
             <!-- Imagen de fondo (sin opacidad oscura) -->
@@ -232,7 +268,6 @@
                    left: 50%;
                    transform: translate(-50%, -50%);
                    color: white;
-                   font-size: 2rem;
                    font-weight: bold;
                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
                   "
@@ -245,48 +280,48 @@
   </div>
 
     <!-- Productos recomendados -->
-  <div class="container my-5">
-    <h4 class="text-center mb-4">Productos recomendados</h4>
-    <div class="row">
+  <div class="container my-3 my-md-5 px-2">
+    <h4 class="text-center mb-3 mb-md-4 h5 h4-md">Productos recomendados</h4>
+    <div class="row g-3">
       {% for producto in productos %}
-        <div class="col-6 col-md-3 mb-4">
+        <div class="col-6 col-md-4 col-lg-3">
           <div class="card h-100 shadow-sm">
             {% if producto.imagen_url %}
               <img
                 src="{% product_image_url producto.imagen_url %}"
                 class="card-img-top"
                 alt="{{ producto.nombre }}"
-                style="height: 200px; object-fit: cover"
+                style="height: 120px; object-fit: cover"
               />
             {% else %}
               <div
                 class="card-img-top d-flex align-items-center justify-content-center bg-light"
-                style="height: 200px"
+                style="height: 120px"
               >
-                <span class="text-muted">Sin imagen</span>
+                <span class="text-muted small">Sin imagen</span>
               </div>
             {% endif %}
-            <div class="card-body text-center">
-              <h6 class="card-title">{{ producto.nombre }}</h6>
-              <p class="text-muted small">
-                {{ producto.marca.nombre|default:"" }}
+            <div class="card-body text-center p-2">
+              <h6 class="card-title small">{{ producto.nombre|truncatechars:30 }}</h6>
+              <p class="text-muted small mb-1 d-none d-md-block">
+                {{ producto.marca.nombre|default:""|truncatechars:20 }}
               </p>
-              <p class="text-primary fw-bold">
+              <p class="text-primary fw-bold mb-2">
                 ${{ producto.precio|floatformat:0 }}
               </p>
-              <a
-                href="{% url 'producto_detalle' producto.producto_id %}"
-                class="btn btn-sm btn-outline-primary me-1"
-              >Ver detalle</a
-                >
+              <div class="d-flex flex-column gap-1">
+                <a
+                  href="{% url 'producto_detalle' producto.producto_id %}"
+                  class="btn btn-sm btn-outline-primary"
+                >Ver</a>
                 <a
                   href="{% url 'carrito:ver_carrito' %}?add={{ producto.producto_id }}"
                   class="btn btn-sm btn-success"
-                >Agregar</a
-                  >
-                </div>
+                >Agregar</a>
               </div>
             </div>
+          </div>
+        </div>
       {% empty %}
         <div class="col-12 text-center">
           <p class="text-muted">
@@ -296,5 +331,12 @@
       {% endfor %}
     </div>
   </div>
+  <style>
+    @media (min-width: 768px) {
+      .card-img-top {
+        height: 200px !important;
+      }
+    }
+  </style>
 
 {% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'ventas/ventas_base.html' %}
+
+{% block title %}Mi Perfil - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container mt-3 mt-md-5 px-2">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0 h5 h3-md"><i class="fas fa-user-circle"></i> Mi Perfil</h3>
+                </div>
+                <div class="card-body p-2 p-md-3">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="row mb-3 mb-md-4">
+                        <div class="col-12 col-md-3 text-center mb-3 mb-md-0">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-9">
+                            <h4 class="mb-2 mb-md-3 h5 h4-md">{{ cliente.nombres }} {{ cliente.apellido_paterno }} {{ cliente.apellido_materno }}</h4>
+                            
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-2 mb-md-3">
+                                    <strong class="small"><i class="fas fa-id-card text-primary"></i> RUT:</strong><br>
+                                    <span class="small">{{ cliente.rut }}</span>
+                                </div>
+                                <div class="col-12 col-md-6 mb-2 mb-md-3">
+                                    <strong class="small"><i class="fas fa-envelope text-primary"></i> Email:</strong><br>
+                                    <span class="small" style="word-break: break-all;">{{ cliente.email }}</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-2 mb-md-3">
+                                    <strong class="small"><i class="fas fa-phone text-primary"></i> Teléfono:</strong><br>
+                                    <span class="small">{{ cliente.telefono }}</span>
+                                </div>
+                                <div class="col-12 col-md-6 mb-2 mb-md-3">
+                                    <strong class="small"><i class="fas fa-birthday-cake text-primary"></i> Fech. Nacimiento:</strong><br>
+                                    <span class="small">{{ cliente.fecha_nacimiento|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-2 mb-md-3">
+                                    <strong class="small"><i class="fas fa-calendar-alt text-primary"></i> Registro:</strong><br>
+                                    <span class="small">{{ cliente.fecha_registro|date:"d/m/Y H:i" }}</span>
+                                </div>
+                                <div class="col-12 col-md-6 mb-2 mb-md-3">
+                                    <strong class="small"><i class="fas fa-check-circle text-success"></i> Estado:</strong><br>
+                                    {% if cliente.estado %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+                        <a href="{% url 'editar_perfil' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'cambiar_contrasena' %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-key"></i> Cambiar Contraseña
+                        </a>
+                        <a href="{% url 'index' %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    @media (min-width: 768px) {
+        .col-md-3 .rounded-circle {
+            width: 150px !important;
+            height: 150px !important;
+        }
+        .col-md-3 .fa-3x {
+            font-size: 5em !important;
+        }
+    }
+</style>
+{% endblock %}
