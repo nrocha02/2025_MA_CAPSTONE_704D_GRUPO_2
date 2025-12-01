@@ -15,6 +15,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .brevo_service import BrevoEmailService
 from .models import *
+from ..ventas.utils import validar_rut, formatear_rut
+from .tokens import cliente_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.urls import reverse
+import hashlib
 
 # Configurar logger
 logger = logging.getLogger(__name__)
@@ -205,3 +211,122 @@ def registro_view(request):
                 messages.error(request, f"Error al registrar cliente: {str(e)}")
 
     return render(request, "ventas/registro.html")
+
+def olvide_contrasena(request):
+    """Vista para solicitar recuperación de contraseña mediante RUT"""
+    if request.method == "POST":
+        rut = request.POST.get("rut", "").strip()
+        
+        # Formatear y validar RUT
+        rut_formateado = formatear_rut(rut)
+        
+        if not validar_rut(rut_formateado):
+            messages.error(request, "El RUT ingresado no es válido")
+            return render(request, "ventas/olvide_contrasena.html", {"rut": rut})
+        
+        try:
+            # Buscar cliente por RUT
+            cliente = ClientePersona.objects.get(rut=rut_formateado, estado=True)
+            
+            # Generar token de recuperación
+            token = cliente_token_generator.make_token(cliente)
+            uid = urlsafe_base64_encode(force_bytes(cliente.cliente_persona_id))
+            
+            # Construir URL de restablecimiento
+            reset_url = request.build_absolute_uri(
+                reverse('restablecer_contrasena', kwargs={'uidb64': uid, 'token': token})
+            )
+            
+            # Enviar correo con Brevo
+            email_service = BrevoEmailService()
+            resultado = email_service.enviar_recuperacion_contrasena(
+                email=cliente.email,
+                nombre=cliente.nombres,
+                reset_url=reset_url
+            )
+            
+            if resultado['success']:
+                messages.success(
+                    request, 
+                    f"Se ha enviado un correo a {cliente.email} con las instrucciones para restablecer tu contraseña."
+                )
+                return redirect('iniciosesion')
+            else:
+                messages.error(
+                    request, 
+                    f"Error al enviar el correo: {resultado['message']}"
+                )
+                
+        except ClientePersona.DoesNotExist:
+            # Por seguridad, no revelar si el RUT existe o no
+            messages.success(
+                request, 
+                "Si el RUT está registrado, recibirás un correo con las instrucciones para restablecer tu contraseña."
+            )
+            return redirect('iniciosesion')
+        except Exception as e:
+            logger.error(f"Error en recuperación de contraseña: {str(e)}", exc_info=True)
+            messages.error(request, "Ocurrió un error. Por favor, intenta nuevamente.")
+    
+    return render(request, "ventas/olvide_contrasena.html")
+
+
+def restablecer_contrasena(request, uidb64, token):
+    """Vista para restablecer la contraseña con el token"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        cliente = ClientePersona.objects.get(cliente_persona_id=uid, estado=True)
+    except (TypeError, ValueError, OverflowError, ClientePersona.DoesNotExist):
+        cliente = None
+    
+    # Verificar token
+    if cliente is None or not cliente_token_generator.check_token(cliente, token):
+        messages.error(request, "El enlace de recuperación es inválido o ha expirado.")
+        return redirect('iniciar_sesion')
+    
+    if request.method == "POST":
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
+        
+        # Validaciones
+        if not password1 or not password2:
+            messages.error(request, "Debes ingresar ambas contraseñas")
+            return render(request, "ventas/restablecer_contrasena.html", {
+                'uidb64': uidb64,
+                'token': token
+            })
+        
+        if password1 != password2:
+            messages.error(request, "Las contraseñas no coinciden")
+            return render(request, "ventas/restablecer_contrasena.html", {
+                'uidb64': uidb64,
+                'token': token
+            })
+        
+        if len(password1) < 6:
+            messages.error(request, "La contraseña debe tener al menos 6 caracteres")
+            return render(request, "ventas/restablecer_contrasena.html", {
+                'uidb64': uidb64,
+                'token': token
+            })
+        
+        try:
+            # Hash de la nueva contraseña
+            password_hash = hashlib.sha256(password1.encode()).hexdigest()
+            
+            # Actualizar contraseña
+            cliente.password = password_hash
+            cliente.save()
+            
+            messages.success(request, "Tu contraseña ha sido restablecida exitosamente. Ya puedes iniciar sesión.")
+            return redirect('iniciosesion')
+            
+        except Exception as e:
+            logger.error(f"Error al restablecer contraseña: {str(e)}", exc_info=True)
+            messages.error(request, "Ocurrió un error al restablecer la contraseña.")
+    
+    return render(request, "ventas/restablecer_contrasena.html", {
+        'uidb64': uidb64,
+        'token': token,
+        'cliente': cliente
+    })

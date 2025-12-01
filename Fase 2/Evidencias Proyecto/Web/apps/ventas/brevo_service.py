@@ -585,4 +585,111 @@ class BrevoEmailService:
             logger.error(f"Error inesperado al enviar email: {e}")
             return {"success": False, "message": f"Error inesperado: {e}"}
         
-   
+    def enviar_recuperacion_contrasena(self, email, nombre, reset_url):
+        """Enviar correo con enlace para restablecer contraseña"""
+        try:
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                to=[{"email": email, "name": nombre}],
+                sender={"name": self.sender_name, "email": self.sender_email},
+                subject="Recuperación de Contraseña - Cordillera Pets",
+                html_content=f"""
+                <html>
+                <head>
+                    <style>
+                        body {{
+                            font-family: 'Arial', sans-serif;
+                            background-color: #f8f9fa;
+                            color: #333;
+                            padding: 0;
+                            margin: 0;
+                        }}
+                        .container {{
+                            max-width: 600px;
+                            margin: 40px auto;
+                            background-color: #ffffff;
+                            border-radius: 12px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }}
+                        .header {{
+                            background-color: #000000;
+                            text-align: center;
+                            padding: 20px;
+                        }}
+                        .content {{
+                            padding: 30px 40px;
+                            text-align: left;
+                        }}
+                        h2 {{
+                            color: #257be0;
+                        }}
+                        .button {{
+                            background-color: #257be0;
+                            color: white;
+                            padding: 14px 28px;
+                            text-decoration: none;
+                            border-radius: 6px;
+                            display: inline-block;
+                            margin-top: 20px;
+                            font-weight: bold;
+                        }}
+                        .footer {{
+                            background-color: #1C4E80;
+                            color: white;
+                            text-align: center;
+                            padding: 15px;
+                            font-size: 13px;
+                        }}
+                        .warning {{
+                            background-color: #fff3cd;
+                            border-left: 4px solid #ffc107;
+                            padding: 15px;
+                            margin: 20px 0;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1 style="color: white;">Cordillera Pets</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Recuperación de Contraseña</h2>
+                            <p>Hola <strong>{nombre}</strong>,</p>
+                            <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
+                            <p>Para restablecer tu contraseña, haz clic en el siguiente botón:</p>
+                            <center>
+                                <a href="{reset_url}" class="button">Restablecer Contraseña</a>
+                            </center>
+                            <div class="warning">
+                                <strong>⚠️ Importante:</strong>
+                                <ul style="margin: 5px 0;">
+                                    <li>Este enlace es válido por <strong>24 horas</strong></li>
+                                    <li>Si no solicitaste este cambio, ignora este correo</li>
+                                </ul>
+                            </div>
+                            <p>Si el botón no funciona, copia y pega esta URL en tu navegador:</p>
+                            <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px;">
+                                {reset_url}
+                            </p>
+                            <p style="margin-top: 25px;">Saludos,<br>Tu equipo de <strong>Cordillera Pets</strong> 🐾</p>
+                        </div>
+                        <div class="footer">
+                            © 2025 Cordillera Pets
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
+            )
+            
+            api_response = self.api_instance.send_transac_email(send_smtp_email)
+            logger.info(f"Email de recuperación enviado: {api_response}")
+            return {"success": True, "message": "Email enviado exitosamente", "response": api_response}
+            
+        except ApiException as e:
+            logger.error(f"Error al enviar email de recuperación: {e}")
+            return {"success": False, "message": f"Error: {e}"}
+        except Exception as e:
+            logger.error(f"Error inesperado: {e}")
+            return {"success": False, "message": f"Error inesperado: {e}"}

@@ -45,7 +45,6 @@ from apps.ventas.models import (
     PedidoItem,
     Producto,
 )
-
 from ..ventas.brevo_service import BrevoEmailService
 from .models import CostoEnvioComuna
 from .storage import delete_product_image, is_spaces_configured, upload_product_image
