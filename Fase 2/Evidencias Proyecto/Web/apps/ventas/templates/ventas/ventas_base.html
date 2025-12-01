@@ -51,6 +51,7 @@
         <div>
           {% if user.is_authenticated %}
             <span class="text-muted me-2">Hola, {{ user.first_name|default:user.username }}</span>
+            <a href="{% url 'mi_perfil' %}" class="btn btn-outline-primary me-2">Mi Perfil</a>
             <a href="{% url 'logout' %}" class="btn btn-outline-danger me-2">Cerrar sesión</a>
           {% else %}
             <a href="{% url 'iniciosesion' %}" class="btn btn-outline-dark me-2">Inicia sesión</a>
@@ -101,8 +102,8 @@
             <div class="col-md-3 mb-3">
               <h6 class="text-primary">Mi Cuenta</h6>
               {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}" class="d-block text-muted text-decoration-none mb-2">Mi Perfil</a>
-                <a href="#" class="d-block text-muted text-decoration-none mb-2">Mis Pedidos</a>
+                <a href="{% url 'mi_perfil' %}" class="d-block text-muted text-decoration-none mb-2">Mi Perfil</a>
+                <a href="{% url 'mis_pedidos' %}" class="d-block text-muted text-decoration-none mb-2">Mis Pedidos</a>
               {% else %}
                 <a href="{% url 'iniciosesion' %}" class="d-block text-muted text-decoration-none mb-2">Iniciar Sesión</a>
                 <a href="{% url 'registro' %}" class="d-block text-muted text-decoration-none mb-2">Registrarse</a>

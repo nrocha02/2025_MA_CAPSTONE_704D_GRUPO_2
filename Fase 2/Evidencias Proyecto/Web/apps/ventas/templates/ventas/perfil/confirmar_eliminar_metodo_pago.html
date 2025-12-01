@@ -1,0 +1,135 @@
+{% extends "ventas/ventas_base.html" %}
+{% load static %}
+
+{% block title %}Eliminar Método de Pago - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar de navegación -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-user-circle"></i> Mi Cuenta
+                    </h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'mi_perfil' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <a href="{% url 'mis_pedidos' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shopping-bag"></i> Mis Pedidos
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heart"></i> Favoritos
+                        </a>
+                        <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <strong>¡Atención!</strong> Estás a punto de eliminar el siguiente método de pago:
+                    </div>
+
+                    <!-- Información del método de pago a eliminar -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-credit-card text-danger"></i>
+                                {% if metodo_pago.tipo_metodo == 'credito' %}
+                                    Tarjeta de Crédito
+                                {% elif metodo_pago.tipo_metodo == 'debito' %}
+                                    Tarjeta de Débito
+                                {% else %}
+                                    {{ metodo_pago.tipo_metodo|title }}
+                                {% endif %}
+                            </h6>
+                            <p class="mb-2"><strong>{{ metodo_pago.nombre_titular }}</strong></p>
+                            <p class="mb-2 text-muted">
+                                <i class="fas fa-ellipsis-h"></i>
+                                <i class="fas fa-ellipsis-h"></i>
+                                <i class="fas fa-ellipsis-h"></i>
+                                {{ metodo_pago.ultimos_4_digitos }}
+                            </p>
+                            <p class="mb-2 text-muted small">
+                                Vence: {{ metodo_pago.fecha_vencimiento|date:"m/Y" }}
+                            </p>
+                            <span class="badge bg-success">{{ metodo_pago.estado|upper }}</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Nota:</strong> Esta acción marcará el método de pago como inactivo.
+                        Si eliminas este método de pago, no podrás utilizarlo para realizar compras.
+                        Si lo necesitas en el futuro, deberás agregarlo nuevamente.
+                    </div>
+
+                    <div class="alert alert-secondary" role="alert">
+                        <i class="fas fa-shield-alt"></i>
+                        <strong>Seguridad:</strong> Por tu protección, toda la información sensible
+                        de la tarjeta será eliminada de forma segura y no podrá ser recuperada.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'mi_perfil' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Sí, Eliminar Método de Pago
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Ayuda adicional -->
+            <div class="card shadow-sm mt-4 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-question-circle"></i> ¿Por qué eliminar un método de pago?
+                    </h6>
+                    <ul class="small text-muted mb-0">
+                        <li>La tarjeta está vencida o perdida</li>
+                        <li>Ya no utilizas esa tarjeta</li>
+                        <li>Prefieres usar otro método de pago</li>
+                        <li>Necesitas actualizar la información de la tarjeta</li>
+                    </ul>
+                    <hr>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                        <strong>Consejo:</strong> Te recomendamos mantener al menos un método de pago
+                        activo para agilizar tus compras futuras.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+    .border-danger {
+        border-width: 2px !important;
+    }
+</style>
+{% endblock %}

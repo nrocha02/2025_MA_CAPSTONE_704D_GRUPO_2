@@ -1,0 +1,228 @@
+{% extends "ventas/ventas_base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar de navegación -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-user-circle"></i> Mi Cuenta
+                    </h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'mi_perfil' %}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <a href="{% url 'mis_pedidos' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shopping-bag"></i> Mis Pedidos
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heart"></i> Favoritos
+                        </a>
+                        <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <!-- Información Personal -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Información Personal</h5>
+                    <a href="{% url 'editar_perfil' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">RUT</label>
+                            <p class="fw-bold">{{ cliente.rut }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Email</label>
+                            <p class="fw-bold">{{ cliente.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Nombres</label>
+                            <p class="fw-bold">{{ cliente.nombres }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Apellidos</label>
+                            <p class="fw-bold">{{ cliente.apellido_paterno }} {{ cliente.apellido_materno }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Teléfono</label>
+                            <p class="fw-bold">{{ cliente.telefono }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Fecha de Nacimiento</label>
+                            <p class="fw-bold">{{ cliente.fecha_nacimiento|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <a href="{% url 'cambiar_contrasena' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </a>
+                </div>
+            </div>
+
+            <!-- Direcciones -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Mis Direcciones</h5>
+                    <a href="{% url 'agregar_direccion' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus"></i> Agregar Dirección
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if direcciones %}
+                        <div class="row">
+                            {% for direccion in direcciones %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-home text-success"></i>
+                                                Dirección #{{ forloop.counter }}
+                                            </h6>
+                                            <p class="mb-1"><strong>{{ direccion.calle }}</strong></p>
+                                            <p class="mb-1 text-muted small">{{ direccion.ciudad }}, {{ direccion.region }}</p>
+                                            <p class="mb-1 text-muted small">Código Postal: {{ direccion.codigo_postal }}</p>
+                                            <p class="mb-2 text-muted small">
+                                                <i class="fas fa-phone"></i> {{ direccion.telefono }}
+                                            </p>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'editar_direccion' direccion.direccion_id %}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </a>
+                                                <a href="{% url 'eliminar_direccion' direccion.direccion_id %}"
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tienes direcciones registradas.</p>
+                            <a href="{% url 'agregar_direccion' %}" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Agregar Primera Dirección
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Métodos de Pago -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-credit-card"></i> Mis Métodos de Pago</h5>
+                    <a href="{% url 'agregar_metodo_pago' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus"></i> Agregar Método de Pago
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if metodos_pago %}
+                        <div class="row">
+                            {% for metodo in metodos_pago %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-credit-card text-info"></i>
+                                                {% if metodo.tipo_metodo == 'credito' %}
+                                                    Tarjeta de Crédito
+                                                {% elif metodo.tipo_metodo == 'debito' %}
+                                                    Tarjeta de Débito
+                                                {% else %}
+                                                    {{ metodo.tipo_metodo|title }}
+                                                {% endif %}
+                                            </h6>
+                                            <p class="mb-1"><strong>{{ metodo.nombre_titular }}</strong></p>
+                                            <p class="mb-1 text-muted">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                                <i class="fas fa-ellipsis-h"></i>
+                                                <i class="fas fa-ellipsis-h"></i>
+                                                {{ metodo.ultimos_4_digitos }}
+                                            </p>
+                                            <p class="mb-2 text-muted small">
+                                                Vence: {{ metodo.fecha_vencimiento|date:"m/Y" }}
+                                            </p>
+                                            <span class="badge bg-success mb-2">{{ metodo.estado|upper }}</span>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'editar_metodo_pago' metodo.metodo_pago_id %}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </a>
+                                                <a href="{% url 'eliminar_metodo_pago' metodo.metodo_pago_id %}"
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tienes métodos de pago registrados.</p>
+                            <a href="{% url 'agregar_metodo_pago' %}" class="btn btn-info text-white">
+                                <i class="fas fa-plus"></i> Agregar Primer Método de Pago
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="card shadow-sm mb-4 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-shield-alt text-primary"></i> Seguridad de tus Datos
+                    </h6>
+                    <p class="small text-muted mb-0">
+                        Toda tu información personal, direcciones y métodos de pago están protegidos
+                        con encriptación de nivel bancario. Nunca compartiremos tus datos con terceros
+                        sin tu consentimiento.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+    .list-group-item-action.active {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .gap-2 {
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}

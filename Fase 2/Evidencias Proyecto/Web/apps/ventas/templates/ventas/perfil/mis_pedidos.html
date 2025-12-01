@@ -1,0 +1,270 @@
+{% extends "ventas/ventas_base.html" %}
+{% load static %}
+
+{% block title %}Mis Pedidos - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar de navegación -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-user-circle"></i> Mi Cuenta
+                    </h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'mi_perfil' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <a href="{% url 'mis_pedidos' %}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-shopping-bag"></i> Mis Pedidos
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heart"></i> Favoritos
+                        </a>
+                        <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <!-- Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shopping-cart fa-2x text-primary mb-2"></i>
+                            <h3 class="mb-0">{{ total_pedidos }}</h3>
+                            <small class="text-muted">Total Pedidos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body text-center">
+                            <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                            <h3 class="mb-0">{{ pedidos_pendientes }}</h3>
+                            <small class="text-muted">Pendientes</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm border-success">
+                        <div class="card-body text-center">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h3 class="mb-0">{{ pedidos_completados }}</h3>
+                            <small class="text-muted">Completados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Título -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-bag"></i> Mis Pedidos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if page_obj %}
+                        <!-- Lista de pedidos -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Pedido #</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Total</th>
+                                        <th>Tracking</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pedido in page_obj %}
+                                        <tr>
+                                            <td>
+                                                <strong>#{{ pedido.pedido_id }}</strong>
+                                            </td>
+                                            <td>
+                                                <i class="far fa-calendar"></i>
+                                                {{ pedido.fecha|date:"d/m/Y" }}<br>
+                                                <small class="text-muted">{{ pedido.fecha|date:"H:i" }}</small>
+                                            </td>
+                                            <td>
+                                                {% if pedido.estado == "Entregado" %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check"></i> {{ pedido.estado }}
+                                                    </span>
+                                                {% elif pedido.estado == "En tránsito" %}
+                                                    <span class="badge bg-info">
+                                                        <i class="fas fa-truck"></i> {{ pedido.estado }}
+                                                    </span>
+                                                {% elif pedido.estado == "Pendiente de pago" %}
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-clock"></i> {{ pedido.estado }}
+                                                    </span>
+                                                {% elif pedido.estado == "Cancelado" %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-times"></i> {{ pedido.estado }}
+                                                    </span>
+                                                {% elif pedido.estado == "Preparando" %}
+                                                    <span class="badge bg-primary">
+                                                        <i class="fas fa-box"></i> {{ pedido.estado }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">
+                                                        {{ pedido.estado }}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <strong>${{ pedido.total|floatformat:0 }}</strong>
+                                                {% if pedido.precio_envio %}
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        (Envío: ${{ pedido.precio_envio|floatformat:0 }})
+                                                    </small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if pedido.tracking_codigo %}
+                                                    <span class="badge bg-dark">
+                                                        <i class="fas fa-barcode"></i>
+                                                        {{ pedido.tracking_codigo }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'detalle_pedido' pedido.pedido_id %}"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Ver detalle">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        {% if page_obj.has_other_pages %}
+                            <nav aria-label="Navegación de pedidos">
+                                <ul class="pagination justify-content-center mt-4">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+
+                    {% else %}
+                        <!-- Sin pedidos -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-bag fa-5x text-muted mb-3"></i>
+                            <h4 class="text-muted">No tienes pedidos aún</h4>
+                            <p class="text-muted">Cuando realices tu primera compra, aparecerá aquí.</p>
+                            <a href="{% url 'catalogo' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-shopping-cart"></i> Ir al Catálogo
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Información de estados -->
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-info-circle"></i> Estados de Pedido
+                    </h6>
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-2">
+                            <span class="badge bg-warning text-dark me-2">Pendiente de pago</span>
+                            <small class="text-muted">Esperando confirmación de pago</small>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <span class="badge bg-primary me-2">Preparando</span>
+                            <small class="text-muted">Preparando tu pedido</small>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <span class="badge bg-info me-2">En tránsito</span>
+                            <small class="text-muted">Tu pedido está en camino</small>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <span class="badge bg-success me-2">Entregado</span>
+                            <small class="text-muted">Pedido entregado exitosamente</small>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <span class="badge bg-danger me-2">Cancelado</span>
+                            <small class="text-muted">Pedido cancelado</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+    .list-group-item-action.active {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

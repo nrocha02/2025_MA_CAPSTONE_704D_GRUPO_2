@@ -1,0 +1,175 @@
+{% extends "ventas/ventas_base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block title %}Editar Perfil - Cordillera Pets{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar de navegación -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-user-circle"></i> Mi Cuenta
+                    </h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'mi_perfil' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <a href="{% url 'mis_pedidos' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shopping-bag"></i> Mis Pedidos
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heart"></i> Favoritos
+                        </a>
+                        <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i> Editar Información Personal
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- RUT (solo lectura) -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-id-card"></i> RUT
+                            </label>
+                            <input type="text" class="form-control" value="{{ cliente.rut }}" disabled>
+                            <small class="text-muted">El RUT no puede ser modificado</small>
+                        </div>
+
+                        <!-- Nombres -->
+                        <div class="mb-3">
+                            <label for="{{ form.nombres.id_for_label }}" class="form-label">
+                                <i class="fas fa-user"></i> Nombres <span class="text-danger">*</span>
+                            </label>
+                            {{ form.nombres }}
+                            {% if form.nombres.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.nombres.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Apellido Paterno -->
+                        <div class="mb-3">
+                            <label for="{{ form.apellido_paterno.id_for_label }}" class="form-label">
+                                <i class="fas fa-user"></i> Apellido Paterno <span class="text-danger">*</span>
+                            </label>
+                            {{ form.apellido_paterno }}
+                            {% if form.apellido_paterno.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.apellido_paterno.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Apellido Materno -->
+                        <div class="mb-3">
+                            <label for="{{ form.apellido_materno.id_for_label }}" class="form-label">
+                                <i class="fas fa-user"></i> Apellido Materno <span class="text-danger">*</span>
+                            </label>
+                            {{ form.apellido_materno }}
+                            {% if form.apellido_materno.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.apellido_materno.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                <i class="fas fa-envelope"></i> Correo Electrónico <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="mb-3">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                                <i class="fas fa-phone"></i> Teléfono <span class="text-danger">*</span>
+                            </label>
+                            {{ form.telefono }}
+                            {% if form.telefono.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.telefono.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Ingresa tu número sin espacios ni guiones (ej: 912345678)</small>
+                        </div>
+
+                        <!-- Fecha de Nacimiento -->
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">
+                                <i class="fas fa-calendar"></i> Fecha de Nacimiento <span class="text-danger">*</span>
+                            </label>
+                            {{ form.fecha_nacimiento }}
+                            {% if form.fecha_nacimiento.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.fecha_nacimiento.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Debes ser mayor de 18 años</small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'mi_perfil' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información de ayuda -->
+            <div class="alert alert-info mt-4" role="alert">
+                <i class="fas fa-info-circle"></i>
+                <strong>Información importante:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Todos los campos marcados con <span class="text-danger">*</span> son obligatorios.</li>
+                    <li>Tu correo electrónico debe ser único y válido.</li>
+                    <li>El RUT no puede ser modificado por razones de seguridad.</li>
+                    <li>Asegúrate de que tu información esté actualizada para recibir comunicaciones importantes.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
