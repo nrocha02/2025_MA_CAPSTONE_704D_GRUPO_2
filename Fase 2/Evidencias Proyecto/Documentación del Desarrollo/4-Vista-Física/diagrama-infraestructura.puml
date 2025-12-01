@@ -1,0 +1,59 @@
+@startuml diagrama-infraestructura
+!include <C4/C4_Deployment>
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/django.puml
+!include DEVICONS/postgresql.puml
+!include DEVICONS/python.puml
+!include FONTAWESOME/users.puml
+!include FONTAWESOME/server.puml
+!include FONTAWESOME/database.puml
+!include FONTAWESOME/cloud.puml
+
+title Diagrama de Infraestructura - Plataforma eCommerce Cordillera Pets
+
+Person(cliente, "Cliente", "Usuario final que realiza compras", $sprite="users")
+Person(admin, "Administrador", "Gestiona productos y pedidos", $sprite="users")
+
+Deployment_Node(browser, "Navegador Web", "Chrome, Firefox, Safari"){
+    Container(web_app, "Aplicación Web", "HTML, CSS, JavaScript, Bootstrap 5", "Interfaz de usuario para clientes y administradores")
+}
+
+Deployment_Node(do_app, "DigitalOcean App Platform", "Plataforma de Hosting", $sprite="cloud"){
+    Deployment_Node(web_server, "Servidor Web", "Gunicorn WSGI Server", $sprite="server"){
+        Container(django_app, "Aplicación Django", "Python 3.12, Django 5.2", "Aplicación web eCommerce con módulos de ventas, carrito, dashboard y gestión de compras", $sprite="django")
+    }
+}
+
+Deployment_Node(do_db, "DigitalOcean Databases", "Base de Datos Gestionada", $sprite="cloud"){
+    ContainerDb(postgres_db, "Base de Datos", "PostgreSQL", "Almacena productos, clientes, pedidos, usuarios y transacciones", $sprite="postgresql")
+}
+
+Deployment_Node(do_spaces, "DigitalOcean Spaces", "Object Storage", $sprite="cloud"){
+    Container(cdn, "CDN Storage", "S3-Compatible Storage", "Almacenamiento de imágenes de productos y recursos estáticos")
+}
+
+Deployment_Node(transbank, "Transbank", "Pasarela de Pago"){
+    Container(webpay, "Webpay Plus", "API REST", "Procesamiento de pagos con tarjetas de crédito/débito")
+}
+
+Deployment_Node(brevo, "Brevo (Sendinblue)", "Servicio de Email"){
+    Container(email_service, "Email API", "API v3", "Envío de notificaciones y confirmaciones por email")
+}
+
+' Relaciones
+Rel(cliente, web_app, "Accede vía HTTPS", "Browser")
+Rel(admin, web_app, "Gestiona vía HTTPS", "Browser")
+
+Rel(web_app, django_app, "Envía peticiones", "HTTPS")
+Rel(django_app, web_app, "Retorna respuestas", "HTML/JSON")
+
+Rel(django_app, postgres_db, "Lee/Escribe datos", "psycopg3 SSL")
+Rel(django_app, cdn, "Carga/Lee imágenes", "boto3/S3 API")
+Rel(django_app, webpay, "Procesa pagos", "transbank-sdk HTTPS")
+Rel(django_app, email_service, "Envía emails", "sib-api-v3-sdk HTTPS")
+
+SHOW_LEGEND()
+
+@enduml

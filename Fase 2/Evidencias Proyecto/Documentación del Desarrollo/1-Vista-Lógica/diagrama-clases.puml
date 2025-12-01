@@ -1,0 +1,416 @@
+@startuml diagrama-clases
+!theme plain
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam groupInheritance 2
+
+title Diagrama de Clases - Sistema de Ventas PetShop
+
+' ============= CLASES DE CLIENTES =============
+package "Gestión de Clientes" {
+    class ClientePersona {
+        - cliente_persona_id: AutoField <<PK>>
+        - rut: CharField(12) <<unique>>
+        - nombres: CharField(25)
+        - apellido_paterno: CharField(25)
+        - apellido_materno: CharField(25)
+        - email: CharField(50) <<unique>>
+        - telefono: CharField(10)
+        - fecha_nacimiento: DateField
+        - fecha_registro: DateTimeField
+        - estado: BooleanField
+        - password: CharField(100)
+        --
+        + get_nombre_completo(): str
+        + validar_rut(): bool
+        + actualizar_perfil(datos: dict): bool
+        + cambiar_password(password_actual: str, password_nueva: str): bool
+        + desactivar_cuenta(): bool
+        + get_direcciones(): list
+        + get_pedidos(): list
+        + get_metodos_pago(): list
+    }
+
+    class ClienteEmpresa {
+        - cliente_empresa_id: AutoField <<PK>>
+        - rut_empresa: CharField(12) <<unique>>
+        - razon_social: CharField(100)
+        - giro: CharField(50)
+        - email_contacto: CharField(50) <<unique>>
+        - telefono_contacto: CharField(20)
+        - representante_legal: CharField(50)
+        - fecha_registro: DateTimeField
+        - estado: BooleanField
+        --
+        + validar_rut_empresa(): bool
+        + actualizar_datos_empresa(datos: dict): bool
+        + get_pedidos(): list
+        + get_documentos_tributarios(): list
+        + get_direcciones(): list
+        + desactivar_cuenta(): bool
+    }
+
+    class SesionInvitado {
+        - cliente_invitado_id: AutoField <<PK>>
+        - email: CharField(50) <<unique>>
+        - fecha_creacion: DateTimeField
+        - estado: CharField(50)
+        --
+        + validar_email(): bool
+        + activar_sesion(): bool
+        + cerrar_sesion(): bool
+        + convertir_a_cliente(): ClientePersona
+    }
+
+    class Direccion {
+        - direccion_id: AutoField <<PK>>
+        - calle: CharField(50)
+        - ciudad: CharField(50)
+        - region: CharField(50)
+        - codigo_postal: SmallIntegerField
+        - telefono: CharField(10)
+        --
+        + get_direccion_completa(): str
+        + validar_datos(): bool
+        + establecer_como_principal(): bool
+        + calcular_costo_envio(): int
+    }
+
+    class MetodoPago {
+        - metodo_pago_id: AutoField <<PK>>
+        - tipo_metodo: CharField(50)
+        - token_seguro: CharField(50)
+        - ultimos_4_digitos: CharField(4)
+        - nombre_titular: CharField(50)
+        - fecha_vencimiento: DateField
+        - estado: CharField(50)
+        - fecha_creacion: DateTimeField
+        --
+        + validar_tarjeta(): bool
+        + esta_vigente(): bool
+        + get_tipo_metodo_display(): str
+        + activar(): bool
+        + desactivar(): bool
+        + verificar_fondos(monto: int): bool
+    }
+}
+
+' ============= CLASES DE PRODUCTOS =============
+package "Gestión de Productos" {
+    class Producto {
+        - producto_id: AutoField <<PK>>
+        - sku: CharField(100) <<unique>>
+        - nombre: CharField(50)
+        - descripcion: TextField
+        - precio: IntegerField
+        - stock: IntegerField
+        - imagen_url: TextField
+        - fecha_creation: DateTimeField
+        - estado_producto: CharField(50)
+        - slug: CharField(50)
+        --
+        + esta_disponible(): bool
+        + tiene_stock(cantidad: int): bool
+        + actualizar_stock(cantidad: int, operacion: str): bool
+        + cambiar_estado(nuevo_estado: str): bool
+        + aplicar_descuento(porcentaje: float): int
+        + get_precio_formateado(): str
+        + registrar_movimiento_stock(cantidad: int, tipo: str): bool
+        + get_categoria_completa(): str
+    }
+
+    class Categoria {
+        - categoria_id: AutoField <<PK>>
+        - nombre: CharField(50)
+        - descripcion: TextField
+        - nivel: IntegerField
+        - activa: BooleanField
+        --
+        + get_productos(): list
+        + get_subcategorias(): list
+        + get_ruta_completa(): str
+        + activar(): bool
+        + desactivar(): bool
+        + tiene_productos(): bool
+    }
+
+    class Marca {
+        - marca_id: AutoField <<PK>>
+        - nombre: CharField(50)
+        - descripcion: TextField
+        - logo_url: CharField(50)
+        - sitio_web: CharField(50)
+        - slug: CharField(50)
+        - activa: BooleanField
+        --
+        + get_productos(): list
+        + activar(): bool
+        + desactivar(): bool
+        + actualizar_logo(url: str): bool
+    }
+
+    class MovimientoStock {
+        - movimiento_stock_id: BigAutoField <<PK>>
+        - cantidad: IntegerField
+        - fecha_movimiento: DateTimeField
+        - tipo_operacion: CharField(50)
+        --
+        + registrar_entrada(cantidad: int): bool
+        + registrar_salida(cantidad: int): bool
+        + registrar_ajuste(cantidad: int): bool
+        + get_tipo_operacion_display(): str
+    }
+
+    class MovimientoEstado {
+        - movimiento_estado_id: AutoField <<PK>>
+        - fecha_movimiento: DateTimeField
+        - estado_anterior: CharField(50)
+        - estado_actual: CharField(50)
+        --
+        + registrar_cambio(estado_nuevo: str): bool
+        + get_descripcion_cambio(): str
+    }
+}
+
+' ============= CLASES DE PEDIDOS =============
+package "Gestión de Pedidos" {
+    class Pedido {
+        - pedido_id: BigAutoField <<PK>>
+        - calle: CharField(50)
+        - ciudad: CharField(50)
+        - region: CharField(50)
+        - codigo_postal: SmallIntegerField
+        - fecha: DateTimeField
+        - estado: CharField(50)
+        - total: IntegerField
+        - notas: TextField
+        - tracking_codigo: CharField(50)
+        - precio_envio: IntegerField
+        --
+        + calcular_total(): int
+        + cambiar_estado(nuevo_estado: str): bool
+        + cancelar_pedido(): bool
+        + confirmar_pago(): bool
+        + generar_tracking_codigo(): str
+        + get_items(): list
+        + get_direccion_completa(): str
+        + enviar_confirmacion_email(): bool
+        + get_cliente(): object
+        + puede_cancelar(): bool
+    }
+
+    class PedidoItem {
+        - pedido_item_id: BigAutoField <<PK>>
+        - cantidad: IntegerField
+        - precio_unitario: IntegerField
+        - subtotal: IntegerField
+        --
+        + calcular_subtotal(): int
+        + actualizar_cantidad(cantidad: int): bool
+        + get_producto_info(): dict
+    }
+
+    class PedidoRegistro {
+        - registro_id: BigAutoField <<PK>>
+        - fecha_registro: DateField
+        - estado_anterior: CharField(50)
+        - estado_actual: CharField(50)
+        --
+        + registrar_cambio_estado(): bool
+        + get_descripcion(): str
+    }
+
+    class DocumentoTributario {
+        - documento_id: BigAutoField <<PK>>
+        - tipo_documento: CharField(50)
+        - folio: IntegerField
+        - fecha_emision: DateTimeField
+        - subtotal: IntegerField
+        - total: IntegerField
+        - rut_cliente: CharField(12)
+        - nombre_cliente: CharField(45)
+        - rut_empresa: CharField(12)
+        - razon_social: CharField(100)
+        - giro: CharField(255)
+        - direccion_facturacion: TextField
+        --
+        + generar_folio(): int
+        + calcular_iva(): int
+        + generar_pdf(): bytes
+        + enviar_por_email(): bool
+        + get_tipo_documento_display(): str
+        + anular_documento(): bool
+    }
+
+    class Pago {
+        - pago_id: BigAutoField <<PK>>
+        - monto: IntegerField
+        - metodo: CharField(50)
+        - estado: CharField(50)
+        - transbank_token: CharField(50)
+        - fecha: DateTimeField
+        --
+        + procesar_pago(): bool
+        + confirmar_pago(): bool
+        + rechazar_pago(): bool
+        + reembolsar(): bool
+        + get_estado_transbank(): str
+        + validar_token(): bool
+    }
+}
+
+' ============= CLASES DE CARRITO Y CHECKOUT =============
+package "Gestión de Carrito" {
+    class CheckoutSession {
+        - id: AutoField <<PK>>
+        - session_id: CharField(255) <<unique>>
+        - nombres: CharField(100)
+        - apellidos: CharField(100)
+        - email: EmailField
+        - telefono: CharField(20)
+        - rut: CharField(12)
+        - calle: CharField(100)
+        - ciudad: CharField(100)
+        - region: CharField(100)
+        - codigo_postal: CharField(10)
+        - total: IntegerField
+        - subtotal: IntegerField
+        - costo_envio: IntegerField
+        - transbank_token: CharField(255)
+        - transbank_url: URLField
+        - estado: CharField(50)
+        - cliente_persona_id: IntegerField
+        - cliente_empresa_id: IntegerField
+        - carrito_data: JSONField
+        - fecha_creacion: DateTimeField
+        - fecha_actualizacion: DateTimeField
+        --
+        + generar_session_id(): str
+        + calcular_totales(): dict
+        + iniciar_pago_transbank(): dict
+        + confirmar_pago(): bool
+        + convertir_a_pedido(): Pedido
+        + cancelar_sesion(): bool
+        + validar_datos(): bool
+        + get_carrito(): dict
+    }
+}
+
+' ============= CLASES DE ADMINISTRACIÓN =============
+package "Gestión Administrativa" {
+    class UsuarioAdmin {
+        - admin_id: AutoField <<PK>>
+        - nombre: CharField(200)
+        - email: CharField(200) <<unique>>
+        - password_hash: CharField(255)
+        - rol: CharField(50)
+        --
+        + validar_credenciales(password: str): bool
+        + cambiar_password(password_nueva: str): bool
+        + tiene_permiso(permiso: str): bool
+        + get_sucursales_asignadas(): list
+    }
+
+    class Sucursal {
+        - sucursal_id: AutoField <<PK>>
+        - nombre: CharField(50) <<unique>>
+        - direccion: TextField
+        - telefono: CharField(20)
+        - email: CharField(50)
+        - estado: BooleanField
+        - fecha_creacion: DateTimeField
+        --
+        + activar(): bool
+        + desactivar(): bool
+        + get_vendedores(): list
+        + actualizar_datos(datos: dict): bool
+    }
+
+    class Vendedor {
+        - vendedor_id: AutoField <<PK>>
+        - nombres: CharField(25)
+        - apellido_paterno: CharField(25)
+        - apellido_materno: CharField(25)
+        - email: CharField(50) <<unique>>
+        - telefono: CharField(10)
+        - estado: BooleanField
+        - fecha_creacion: DateTimeField
+        --
+        + get_nombre_completo(): str
+        + activar(): bool
+        + desactivar(): bool
+        + get_pedidos_atendidos(): list
+        + actualizar_perfil(datos: dict): bool
+    }
+
+    class CostoEnvioComuna {
+        - id: AutoField <<PK>>
+        - comuna: CharField(100) <<unique>>
+        - costo: IntegerField
+        - activo: BooleanField
+        - fecha_actualizacion: DateTimeField
+        --
+        + calcular_costo(comuna: str): int
+        + actualizar_costo(costo: int): bool
+        + activar(): bool
+        + desactivar(): bool
+    }
+}
+
+' ============= RELACIONES =============
+
+' Relaciones de Clientes con Direccion
+ClientePersona "1" -- "0..*" Direccion : tiene >
+ClienteEmpresa "1" -- "0..*" Direccion : tiene >
+
+' Relaciones de Clientes con MetodoPago
+ClientePersona "1" -- "0..*" MetodoPago : posee >
+ClienteEmpresa "1" -- "0..*" MetodoPago : posee >
+
+' Relaciones de Producto
+Producto "*" --> "1" Categoria : pertenece a >
+Producto "*" --> "0..1" Marca : tiene >
+Categoria "0..1" <-- "*" Categoria : subcategoría de
+
+' Relaciones de Movimientos
+Producto "1" -- "0..*" MovimientoStock : registra >
+Producto "1" -- "0..*" MovimientoEstado : registra >
+
+' Relaciones de Pedido con Clientes
+Pedido "*" --> "0..1" ClientePersona : realizado por >
+Pedido "*" --> "0..1" ClienteEmpresa : realizado por >
+Pedido "*" --> "0..1" SesionInvitado : realizado por >
+
+' Relaciones de PedidoItem
+Pedido "1" *-- "1..*" PedidoItem : contiene >
+PedidoItem "*" --> "1" Producto : referencia >
+
+' Relaciones de Documentos y Pagos
+Pedido "1" -- "0..1" DocumentoTributario : genera >
+Pedido "1" -- "0..*" Pago : tiene >
+Pedido "1" -- "0..*" PedidoRegistro : registra cambios >
+
+' Relaciones Administrativas
+Sucursal "*" --> "1" UsuarioAdmin : responsable >
+Vendedor "*" --> "1" Sucursal : trabaja en >
+
+' Nota sobre CheckoutSession
+note right of CheckoutSession
+  Sesión temporal para procesar
+  el checkout antes de crear
+  el pedido definitivo
+end note
+
+note right of Pedido
+  Un pedido solo puede estar
+  asociado a un tipo de cliente:
+  Persona, Empresa o Invitado
+end note
+
+note right of Direccion
+  Una dirección solo puede
+  pertenecer a un ClientePersona
+  o a un ClienteEmpresa
+end note
+
+@enduml

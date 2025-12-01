@@ -79,4 +79,19 @@ urlpatterns = [
         views.costo_envio_cargar_predeterminados,
         name="costo_envio_cargar_predeterminados",
     ),
+    # Gestión de Pedidos
+    path("pedidos/", views.pedido_list, name="pedido_list"),
+    path("pedidos/<int:pedido_id>/", views.pedido_detail, name="pedido_detail"),
+    path("pedidos/<int:pedido_id>/editar/", views.pedido_edit, name="pedido_edit"),
+    path(
+        "pedidos/<int:pedido_id>/cambiar-estado/",
+        views.pedido_cambiar_estado,
+        name="pedido_cambiar_estado",
+    ),
+    path(
+        "pedidos/<int:pedido_id>/agregar-tracking/",
+        views.pedido_agregar_tracking,
+        name="pedido_agregar_tracking",
+    ),
+    path("pedidos/exportar/", views.pedido_export, name="pedido_export"),
 ]

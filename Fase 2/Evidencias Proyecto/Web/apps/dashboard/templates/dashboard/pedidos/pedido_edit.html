@@ -1,0 +1,406 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Editar Pedido #{{ pedido.pedido_id }} - Dashboard Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #fff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #dee2e6;
+    }
+    .form-section h5 {
+        border-bottom: 2px solid #0d6efd;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .required-field::after {
+        content: '*';
+        color: #dc3545;
+        margin-left: 4px;
+    }
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .readonly-field {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Editar Pedido #{{ pedido.pedido_id }}{% endblock %}
+{% block page_description %}Modifica la información del pedido{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'dashboard:pedido_detail' pedido.pedido_id %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Volver
+</a>
+{% endblock %}
+
+{% block main_content %}
+
+<form method="POST" action="{% url 'dashboard:pedido_edit' pedido.pedido_id %}" id="pedidoEditForm">
+    {% csrf_token %}
+
+    <div class="row">
+        <!-- Columna Principal -->
+        <div class="col-lg-8">
+
+            <!-- Información del Pedido -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-info-circle"></i> Información del Pedido
+                </h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">ID del Pedido</label>
+                        <input type="text"
+                               class="form-control readonly-field"
+                               value="#{{ pedido.pedido_id }}"
+                               readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Fecha del Pedido</label>
+                        <input type="text"
+                               class="form-control readonly-field"
+                               value="{{ pedido.fecha|date:'d/m/Y H:i' }}"
+                               readonly>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required-field">Estado</label>
+                            <select name="estado" class="form-select" required>
+                                <option value="Pendiente de pago" {% if pedido.estado == "Pendiente de pago" %}selected{% endif %}>
+                                    Pendiente de pago
+                                </option>
+                                <option value="Procesando" {% if pedido.estado == "Procesando" %}selected{% endif %}>
+                                    Procesando
+                                </option>
+                                <option value="Despachado" {% if pedido.estado == "Despachado" %}selected{% endif %}>
+                                    Despachado
+                                </option>
+                                <option value="Entregado" {% if pedido.estado == "Entregado" %}selected{% endif %}>
+                                    Entregado
+                                </option>
+                                <option value="Entrega fallida" {% if pedido.estado == "Entrega fallida" %}selected{% endif %}>
+                                    Entrega fallida
+                                </option>
+                                <option value="Cancelado" {% if pedido.estado == "Cancelado" %}selected{% endif %}>
+                                    Cancelado
+                                </option>
+                                <option value="Reembolsado" {% if pedido.estado == "Reembolsado" %}selected{% endif %}>
+                                    Reembolsado
+                                </option>
+                            </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Código de Seguimiento</label>
+                        <input type="text"
+                               name="tracking_codigo"
+                               class="form-control"
+                               value="{{ pedido.tracking_codigo }}"
+                               placeholder="Ej: TRACK123456789">
+                        <div class="help-text">Código de tracking del envío</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Notas del Pedido</label>
+                    <textarea name="notas"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Notas adicionales sobre el pedido...">{{ pedido.notas }}</textarea>
+                </div>
+            </div>
+
+            <!-- Dirección de Envío -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-map-marker-alt"></i> Dirección de Envío
+                </h5>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label required-field">Calle</label>
+                        <input type="text"
+                               name="calle"
+                               class="form-control"
+                               value="{{ pedido.calle }}"
+                               required
+                               placeholder="Dirección completa">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required-field">Ciudad/Comuna</label>
+                        <input type="text"
+                               name="ciudad"
+                               class="form-control"
+                               value="{{ pedido.ciudad }}"
+                               required
+                               placeholder="Ej: Santiago">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required-field">Región</label>
+                        <input type="text"
+                               name="region"
+                               class="form-control"
+                               value="{{ pedido.region }}"
+                               required
+                               placeholder="Ej: Región Metropolitana">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Código Postal</label>
+                        <input type="number"
+                               name="codigo_postal"
+                               class="form-control"
+                               value="{{ pedido.codigo_postal }}"
+                               placeholder="Ej: 8320000">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Precio de Envío</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number"
+                                   name="precio_envio"
+                                   class="form-control"
+                                   value="{{ pedido.precio_envio }}"
+                                   min="0"
+                                   placeholder="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos del Pedido -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-shopping-cart"></i> Productos del Pedido
+                </h5>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Los productos no pueden ser modificados desde aquí.
+                    Para cambios en productos, cancele este pedido y cree uno nuevo.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Precio Unitario</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pedido.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.producto.imagen %}
+                                        <img src="{{ item.producto.imagen }}"
+                                             alt="{{ item.producto.nombre }}"
+                                             class="rounded me-2"
+                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ item.producto.nombre }}</strong><br>
+                                            <small class="text-muted">SKU: {{ item.producto.sku }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">{{ item.cantidad }}</td>
+                                <td class="text-end">${{ item.precio_unitario|floatformat:0 }}</td>
+                                <td class="text-end"><strong>${{ item.subtotal|floatformat:0 }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                <td class="text-end"><strong>${{ subtotal|floatformat:0 }}</strong></td>
+                            </tr>
+                            {% if pedido.precio_envio %}
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Envío:</strong></td>
+                                <td class="text-end"><strong>${{ pedido.precio_envio|floatformat:0 }}</strong></td>
+                            </tr>
+                            {% endif %}
+                            <tr class="table-primary">
+                                <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                <td class="text-end"><strong class="h5 mb-0">${{ pedido.total|floatformat:0 }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Columna Lateral -->
+        <div class="col-lg-4">
+
+            <!-- Información del Cliente -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-user"></i> Cliente
+                </h5>
+                <div class="alert alert-secondary">
+                    <i class="fas fa-lock"></i>
+                    La información del cliente no puede ser modificada
+                </div>
+                {% if pedido.cliente_persona %}
+                    <p class="mb-2"><strong>Tipo:</strong> Persona Natural</p>
+                    <p class="mb-1"><strong>Nombre:</strong><br>{{ pedido.cliente_persona.nombre }} {{ pedido.cliente_persona.apellido }}</p>
+                    <p class="mb-1"><strong>RUT:</strong> {{ pedido.cliente_persona.rut }}</p>
+                    <p class="mb-1"><strong>Email:</strong><br>{{ pedido.cliente_persona.email }}</p>
+                    <p class="mb-0"><strong>Teléfono:</strong> {{ pedido.cliente_persona.telefono }}</p>
+                {% elif pedido.cliente_empresa %}
+                    <p class="mb-2"><strong>Tipo:</strong> Empresa</p>
+                    <p class="mb-1"><strong>Razón Social:</strong><br>{{ pedido.cliente_empresa.razon_social }}</p>
+                    <p class="mb-1"><strong>RUT:</strong> {{ pedido.cliente_empresa.rut }}</p>
+                    <p class="mb-1"><strong>Email:</strong><br>{{ pedido.cliente_empresa.email }}</p>
+                    <p class="mb-0"><strong>Teléfono:</strong> {{ pedido.cliente_empresa.telefono }}</p>
+                {% elif pedido.cliente_invitado %}
+                    <p class="mb-2"><strong>Tipo:</strong> Invitado</p>
+                    <p class="mb-0"><strong>Email:</strong><br>{{ pedido.cliente_invitado.email }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Acciones -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-cog"></i> Acciones
+                </h5>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <a href="{% url 'dashboard:pedido_detail' pedido.pedido_id %}"
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        Importante
+                    </h6>
+                    <p class="card-text small mb-0">
+                        Los cambios en el estado del pedido pueden afectar el inventario
+                        y notificaciones al cliente. Asegúrate de revisar antes de guardar.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</form>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    Confirmar Cambios
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea guardar los cambios realizados en este pedido?</p>
+                <div id="cambiosDetalle"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarGuardado()">
+                    <i class="fas fa-check"></i> Sí, Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación del formulario
+document.getElementById('pedidoEditForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validar campos requeridos
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    if (!isValid) {
+        alert('Por favor, complete todos los campos requeridos');
+        return;
+    }
+
+    // Mostrar modal de confirmación
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+});
+
+function confirmarGuardado() {
+    document.getElementById('pedidoEditForm').submit();
+}
+
+// Calcular total automáticamente si cambia el precio de envío
+document.querySelector('input[name="precio_envio"]').addEventListener('input', function() {
+    const subtotal = {{ subtotal }};
+    const envio = parseInt(this.value) || 0;
+    const total = subtotal + envio;
+
+    // Actualizar visualmente (opcional)
+    console.log('Nuevo total:', total);
+});
+
+// Limpiar estado de validación al escribir
+document.querySelectorAll('input, select, textarea').forEach(field => {
+    field.addEventListener('input', function() {
+        this.classList.remove('is-invalid');
+    });
+});
+
+// Confirmación al cambiar el estado
+const estadoSelect = document.querySelector('select[name="estado"]');
+const estadoOriginal = estadoSelect.value;
+
+estadoSelect.addEventListener('change', function() {
+    if (this.value !== estadoOriginal) {
+        const confirmChange = confirm(
+            `¿Está seguro de cambiar el estado del pedido de "${estadoOriginal}" a "${this.value}"?`
+        );
+
+        if (!confirmChange) {
+            this.value = estadoOriginal;
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -3,6 +3,8 @@ import logging
 from datetime import datetime, timedelta
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator
 from django.db.models import (
     Avg,
@@ -28,6 +30,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.text import slugify
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from apps.ventas.models import (
     Categoria,
@@ -41,20 +45,14 @@ from apps.ventas.models import (
     PedidoItem,
     Producto,
 )
-import logging
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.views.decorators.http import require_http_methods
-import json
 from ..ventas.brevo_service import BrevoEmailService
-
-
 from .models import CostoEnvioComuna
 from .storage import delete_product_image, is_spaces_configured, upload_product_image
 
 # Configurar logger
 logger = logging.getLogger(__name__)
+
+
 # Función para verificar si el usuario es staff (administrador)
 def is_staff_user(user):
     return user.is_authenticated and user.is_staff
@@ -64,28 +62,36 @@ def is_staff_user(user):
 def dashboard_login(request):
     """Vista de login para el dashboard"""
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect('dashboard:admin_dashboard')
-    
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
+        return redirect("dashboard:admin_dashboard")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
         if username and password:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 if user.is_staff:
                     login(request, user)
-                    messages.success(request, f'Bienvenido {user.first_name or user.username}!')
-                    next_url = request.GET.get('next', 'dashboard:admin_dashboard')
+                    messages.success(
+                        request, f"Bienvenido {user.first_name or user.username}!"
+                    )
+                    next_url = request.GET.get("next", "dashboard:admin_dashboard")
                     return redirect(next_url)
                 else:
-                    messages.error(request, 'No tienes permisos para acceder al panel de administración.')
+                    messages.error(
+                        request,
+                        "No tienes permisos para acceder al panel de administración.",
+                    )
             else:
-                messages.error(request, 'Credenciales incorrectas. Por favor, verifica tu usuario y contraseña.')
+                messages.error(
+                    request,
+                    "Credenciales incorrectas. Por favor, verifica tu usuario y contraseña.",
+                )
         else:
-            messages.error(request, 'Por favor, completa todos los campos.')
-    
-    return render(request, 'dashboard/auth/login.html')
+            messages.error(request, "Por favor, completa todos los campos.")
+
+    return render(request, "dashboard/auth/login.html")
 
 
 def dashboard_logout(request):
@@ -93,18 +99,20 @@ def dashboard_logout(request):
     if request.user.is_authenticated:
         user_name = request.user.first_name or request.user.username
         logout(request)
-        messages.success(request, f'Sesión cerrada exitosamente. ¡Hasta pronto {user_name}!')
-    
-    return redirect('dashboard:login')
+        messages.success(
+            request, f"Sesión cerrada exitosamente. ¡Hasta pronto {user_name}!"
+        )
+
+    return redirect("dashboard:login")
 
 
 def acceso_denegado(request):
     """Vista para mostrar cuando el acceso es denegado"""
-    return render(request, 'dashboard/auth/acceso_denegado.html')
+    return render(request, "dashboard/auth/acceso_denegado.html")
 
 
-@login_required(login_url='dashboard:login')
-@user_passes_test(is_staff_user, login_url='dashboard:login')
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
 def admin_dashboard(request):
     """Dashboard principal de administración con métricas de ventas y productos"""
     # Métricas de productos
@@ -177,9 +185,10 @@ def admin_dashboard(request):
 
 # CRUD CATEGORÍAS
 
-#Con este codigo me ayuda a que solo el admin pueda ingresar:
-#@login_required(login_url='dashboard:login')
-#@user_passes_test(is_staff_user, login_url='dashboard:login')
+# Con este codigo me ayuda a que solo el admin pueda ingresar:
+# @login_required(login_url='dashboard:login')
+# @user_passes_test(is_staff_user, login_url='dashboard:login')
+
 
 def categoria_list(request):
     """Lista todas las categorías"""
@@ -1238,187 +1247,551 @@ def api_categorias_chart(request):
         "data": [float(v["total"]) for v in ventas_categoria],
     }
 
+
 # ===== VISTAS PARA BREVO EMAIL SERVICE =====
-#gestión de correos
+# gestión de correos
 def brevo_dashboard(request):
-    #Dashboard para gestión de correos con Brevo"""
+    # Dashboard para gestión de correos con Brevo"""
     try:
         brevo_service = BrevoEmailService()
         account_info = brevo_service.get_account_info()
-        
+
         # Obtener estadísticas básicas
         total_clientes = ClientePersona.objects.filter(estado=True).count()
         productos_stock_bajo = Producto.objects.filter(
-            stock__lt=10, 
-            estado_producto='activo'
-        ).select_related('categoria')
-        
+            stock__lt=10, estado_producto="activo"
+        ).select_related("categoria")
+
         # Últimos clientes registrados
-        ultimos_clientes = ClientePersona.objects.filter(estado=True).order_by('-fecha_registro')[:5]
-        
+        ultimos_clientes = ClientePersona.objects.filter(estado=True).order_by(
+            "-fecha_registro"
+        )[:5]
+
         context = {
-            'account_info': account_info,
-            'total_clientes': total_clientes,
-            'productos_stock_bajo': productos_stock_bajo,
-            'ultimos_clientes': ultimos_clientes,
+            "account_info": account_info,
+            "total_clientes": total_clientes,
+            "productos_stock_bajo": productos_stock_bajo,
+            "ultimos_clientes": ultimos_clientes,
         }
-        
-        return render(request, 'ventas/brevo/dashboard.html', context)
-        
+
+        return render(request, "ventas/brevo/dashboard.html", context)
+
     except Exception as e:
         logger.error(f"Error en brevo_dashboard: {e}")
-        messages.error(request, f'Error al cargar dashboard: {str(e)}')
-        return redirect('index')
+        messages.error(request, f"Error al cargar dashboard: {str(e)}")
+        return redirect("index")
+
 
 #
 def brevo_send_custom_email(request):
-    #Vista para enviar correos personalizados"""
-    if request.method == 'POST':
+    # Vista para enviar correos personalizados"""
+    if request.method == "POST":
         try:
-            recipient_email = request.POST.get('recipient_email')
-            recipient_name = request.POST.get('recipient_name', '')
-            subject = request.POST.get('subject')
-            message = request.POST.get('message')
-            
+            recipient_email = request.POST.get("recipient_email")
+            recipient_name = request.POST.get("recipient_name", "")
+            subject = request.POST.get("subject")
+            message = request.POST.get("message")
+
             brevo_service = BrevoEmailService()
             result = brevo_service.send_custom_email(
                 recipient_email=recipient_email,
                 recipient_name=recipient_name,
                 subject=subject,
-                message=message
+                message=message,
             )
-            
-            if result['success']:
-                messages.success(request, f'Correo enviado exitosamente a {recipient_email}')
+
+            if result["success"]:
+                messages.success(
+                    request, f"Correo enviado exitosamente a {recipient_email}"
+                )
             else:
-                messages.error(request, f'Error al enviar correo: {result["message"]}')
-                
+                messages.error(request, f"Error al enviar correo: {result['message']}")
+
         except Exception as e:
             logger.error(f"Error al enviar correo personalizado: {e}")
-            messages.error(request, f'Error inesperado: {str(e)}')
-    
-    # Obtener lista de clientes para el formulario
-    clientes = ClientePersona.objects.filter(estado=True).order_by('nombres')
-    
-    context = {
-        'clientes': clientes,
-    }
-    
-    return render(request, 'ventas/brevo/send_custom_email.html', context)
+            messages.error(request, f"Error inesperado: {str(e)}")
 
-#Envia las alertas del stock bajo
+    # Obtener lista de clientes para el formulario
+    clientes = ClientePersona.objects.filter(estado=True).order_by("nombres")
+
+    context = {
+        "clientes": clientes,
+    }
+
+    return render(request, "ventas/brevo/send_custom_email.html", context)
+
+
+# Envia las alertas del stock bajo
 def brevo_send_stock_alert(request):
     """Vista para enviar alertas de stock bajo"""
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            admin_email = request.POST.get('admin_email', 'cordillerapetschile@gmail.com')
-            
+            admin_email = request.POST.get(
+                "admin_email", "cordillerapetschile@gmail.com"
+            )
+
             # Obtener productos con stock bajo
             productos_bajo_stock = Producto.objects.filter(
-                stock__lt=10, 
-                estado_producto='activo'
-            ).select_related('categoria')
-            
+                stock__lt=10, estado_producto="activo"
+            ).select_related("categoria")
+
             if not productos_bajo_stock.exists():
-                messages.info(request, 'No hay productos con stock bajo en este momento.')
-                return redirect('brevo_dashboard')
-            
+                messages.info(
+                    request, "No hay productos con stock bajo en este momento."
+                )
+                return redirect("brevo_dashboard")
+
             # Preparar datos para el email
             productos_data = []
             for producto in productos_bajo_stock:
-                productos_data.append({
-                    'nombre': producto.nombre,
-                    'sku': producto.sku,
-                    'stock': producto.stock,
-                    'categoria': producto.categoria.nombre if producto.categoria else 'Sin categoría'
-                })
-            
+                productos_data.append(
+                    {
+                        "nombre": producto.nombre,
+                        "sku": producto.sku,
+                        "stock": producto.stock,
+                        "categoria": producto.categoria.nombre
+                        if producto.categoria
+                        else "Sin categoría",
+                    }
+                )
+
             brevo_service = BrevoEmailService()
             result = brevo_service.send_stock_alert(
-                admin_email=admin_email,
-                productos_bajo_stock=productos_data
+                admin_email=admin_email, productos_bajo_stock=productos_data
             )
-            
-            if result['success']:
-                messages.success(request, f'Alerta de stock enviada exitosamente a {admin_email}')
+
+            if result["success"]:
+                messages.success(
+                    request, f"Alerta de stock enviada exitosamente a {admin_email}"
+                )
             else:
-                messages.error(request, f'Error al enviar alerta: {result["message"]}')
-                
+                messages.error(request, f"Error al enviar alerta: {result['message']}")
+
         except Exception as e:
             logger.error(f"Error al enviar alerta de stock: {e}")
-            messages.error(request, f'Error inesperado: {str(e)}')
-    
-    return redirect('brevo_dashboard')
+            messages.error(request, f"Error inesperado: {str(e)}")
+
+    return redirect("brevo_dashboard")
 
 
 def brevo_send_order_confirmation(request):
-    #Vista para simular envío de confirmación de pedido"""
-    if request.method == 'POST':
+    # Vista para simular envío de confirmación de pedido"""
+    if request.method == "POST":
         try:
-            cliente_id = request.POST.get('cliente_id')
-            
+            cliente_id = request.POST.get("cliente_id")
+
             # Obtener cliente
             cliente = ClientePersona.objects.get(cliente_persona_id=cliente_id)
-            
+
             # Simular datos de pedido
-            productos_simulados = Producto.objects.filter(estado_producto='activo')[:3]
+            productos_simulados = Producto.objects.filter(estado_producto="activo")[:3]
             items_simulados = []
             total_simulado = 0
-            
+
             for producto in productos_simulados:
                 cantidad = 2
                 subtotal = producto.precio * cantidad
                 total_simulado += subtotal
-                
-                items_simulados.append({
-                    'nombre': producto.nombre,
-                    'cantidad': cantidad,
-                    'precio_unitario': producto.precio,
-                    'subtotal': subtotal
-                })
-            
+
+                items_simulados.append(
+                    {
+                        "nombre": producto.nombre,
+                        "cantidad": cantidad,
+                        "precio_unitario": producto.precio,
+                        "subtotal": subtotal,
+                    }
+                )
+
             brevo_service = BrevoEmailService()
             result = brevo_service.send_order_confirmation(
                 cliente_email=cliente.email,
                 cliente_nombre=f"{cliente.nombres} {cliente.apellido_paterno}",
                 pedido_id=99999,  # ID simulado
                 total=total_simulado,
-                items=items_simulados
+                items=items_simulados,
             )
-            
-            if result['success']:
-                messages.success(request, f'Confirmación de pedido simulada enviada a {cliente.email}')
+
+            if result["success"]:
+                messages.success(
+                    request,
+                    f"Confirmación de pedido simulada enviada a {cliente.email}",
+                )
             else:
-                messages.error(request, f'Error al enviar confirmación: {result["message"]}')
-                
+                messages.error(
+                    request, f"Error al enviar confirmación: {result['message']}"
+                )
+
         except ClientePersona.DoesNotExist:
-            messages.error(request, 'Cliente no encontrado.')
+            messages.error(request, "Cliente no encontrado.")
         except Exception as e:
             logger.error(f"Error al enviar confirmación de pedido: {e}")
-            messages.error(request, f'Error inesperado: {str(e)}')
-    
-    return redirect('brevo_dashboard')
+            messages.error(request, f"Error inesperado: {str(e)}")
+
+    return redirect("brevo_dashboard")
 
 
 @csrf_exempt
 def brevo_test_api(request):
-    #Vista para probar conexión con API de Brevo"""
-    if request.method == 'POST':
+    # Vista para probar conexión con API de Brevo"""
+    if request.method == "POST":
         try:
             brevo_service = BrevoEmailService()
             account_info = brevo_service.get_account_info()
-            
-            return JsonResponse({
-                'success': account_info['success'],
-                'data': account_info.get('data', {}).__dict__ if account_info['success'] else None,
-                'message': account_info.get('message', 'Conexión exitosa')
-            })
-            
+
+            return JsonResponse(
+                {
+                    "success": account_info["success"],
+                    "data": account_info.get("data", {}).__dict__
+                    if account_info["success"]
+                    else None,
+                    "message": account_info.get("message", "Conexión exitosa"),
+                }
+            )
+
         except Exception as e:
             logger.error(f"Error al probar API: {e}")
-            return JsonResponse({
-                'success': False,
-                'message': f'Error: {str(e)}'
-            })
-    
-    return JsonResponse({'success': False, 'message': 'Método no permitido'})
+            return JsonResponse({"success": False, "message": f"Error: {str(e)}"})
+
+    return JsonResponse({"success": False, "message": "Método no permitido"})
+
+
+# ===== VISTAS PARA GESTIÓN DE PEDIDOS =====
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
+def pedido_list(request):
+    """Vista para listar todos los pedidos con filtros y búsqueda"""
+    # Obtener todos los pedidos
+    pedidos = (
+        Pedido.objects.select_related(
+            "cliente_persona", "cliente_empresa", "cliente_invitado"
+        )
+        .prefetch_related("items__producto")
+        .order_by("-fecha")
+    )
+
+    # Filtros
+    search = request.GET.get("search", "")
+    estado = request.GET.get("estado", "")
+    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_hasta = request.GET.get("fecha_hasta", "")
+
+    # Aplicar búsqueda
+    if search:
+        pedidos = pedidos.filter(
+            Q(pedido_id__icontains=search)
+            | Q(tracking_codigo__icontains=search)
+            | Q(cliente_persona__email__icontains=search)
+            | Q(cliente_persona__nombre__icontains=search)
+            | Q(cliente_persona__apellido__icontains=search)
+            | Q(cliente_empresa__razon_social__icontains=search)
+            | Q(cliente_empresa__email__icontains=search)
+            | Q(cliente_invitado__email__icontains=search)
+        )
+
+    # Filtrar por estado
+    if estado:
+        pedidos = pedidos.filter(estado=estado)
+
+    # Filtrar por fechas
+    if fecha_desde:
+        try:
+            fecha_desde_obj = datetime.strptime(fecha_desde, "%Y-%m-%d")
+            pedidos = pedidos.filter(fecha__gte=fecha_desde_obj)
+        except ValueError:
+            pass
+
+    if fecha_hasta:
+        try:
+            fecha_hasta_obj = datetime.strptime(fecha_hasta, "%Y-%m-%d")
+            # Agregar un día para incluir todo el día
+            fecha_hasta_obj = fecha_hasta_obj + timedelta(days=1)
+            pedidos = pedidos.filter(fecha__lt=fecha_hasta_obj)
+        except ValueError:
+            pass
+
+    # Calcular estadísticas
+    stats = {
+        "pendientes": Pedido.objects.filter(estado="Pendiente de pago").count(),
+        "en_proceso": Pedido.objects.filter(
+            estado__in=["Procesando", "Despachado"]
+        ).count(),
+        "completados": Pedido.objects.filter(estado="Entregado").count(),
+        "cancelados": Pedido.objects.filter(
+            estado__in=["Cancelado", "Reembolsado", "Entrega fallida"]
+        ).count(),
+    }
+
+    # Paginación
+    paginator = Paginator(pedidos, 20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "stats": stats,
+    }
+
+    return render(request, "dashboard/pedidos/pedido_list.html", context)
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
+def pedido_detail(request, pedido_id):
+    """Vista para ver el detalle completo de un pedido"""
+    pedido = get_object_or_404(
+        Pedido.objects.select_related(
+            "cliente_persona", "cliente_empresa", "cliente_invitado"
+        ).prefetch_related("items__producto"),
+        pedido_id=pedido_id,
+    )
+
+    # Calcular subtotal
+    subtotal = sum(item.subtotal for item in pedido.items.all())
+
+    context = {
+        "pedido": pedido,
+        "subtotal": subtotal,
+    }
+
+    return render(request, "dashboard/pedidos/pedido_detail.html", context)
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
+def pedido_edit(request, pedido_id):
+    """Vista para editar un pedido"""
+    pedido = get_object_or_404(
+        Pedido.objects.select_related(
+            "cliente_persona", "cliente_empresa", "cliente_invitado"
+        ).prefetch_related("items__producto"),
+        pedido_id=pedido_id,
+    )
+
+    if request.method == "POST":
+        try:
+            # Actualizar campos del pedido
+            pedido.estado = request.POST.get("estado", pedido.estado)
+            pedido.tracking_codigo = request.POST.get("tracking_codigo", "")
+            pedido.notas = request.POST.get("notas", "")
+            pedido.calle = request.POST.get("calle", pedido.calle)
+            pedido.ciudad = request.POST.get("ciudad", pedido.ciudad)
+            pedido.region = request.POST.get("region", pedido.region)
+
+            # Código postal (puede ser vacío)
+            codigo_postal = request.POST.get("codigo_postal", "")
+            if codigo_postal:
+                pedido.codigo_postal = int(codigo_postal)
+            else:
+                pedido.codigo_postal = None
+
+            # Precio de envío
+            precio_envio = request.POST.get("precio_envio", "")
+            if precio_envio:
+                pedido.precio_envio = int(precio_envio)
+            else:
+                pedido.precio_envio = None
+
+            pedido.save()
+
+            messages.success(
+                request, f"Pedido #{pedido.pedido_id} actualizado exitosamente."
+            )
+            return redirect("dashboard:pedido_detail", pedido_id=pedido.pedido_id)
+
+        except Exception as e:
+            logger.error(f"Error al actualizar pedido {pedido_id}: {e}")
+            messages.error(request, f"Error al actualizar el pedido: {str(e)}")
+
+    # Calcular subtotal
+    subtotal = sum(item.subtotal for item in pedido.items.all())
+
+    context = {
+        "pedido": pedido,
+        "subtotal": subtotal,
+    }
+
+    return render(request, "dashboard/pedidos/pedido_edit.html", context)
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
+@require_http_methods(["POST"])
+def pedido_cambiar_estado(request, pedido_id):
+    """Vista para cambiar el estado de un pedido"""
+    pedido = get_object_or_404(Pedido, pedido_id=pedido_id)
+
+    try:
+        nuevo_estado = request.POST.get("nuevo_estado")
+        notas_adicionales = request.POST.get("notas", "")
+
+        if nuevo_estado:
+            estado_anterior = pedido.estado
+            pedido.estado = nuevo_estado
+
+            # Agregar notas si hay
+            if notas_adicionales:
+                if pedido.notas:
+                    pedido.notas += f"\n\n[{timezone.now().strftime('%Y-%m-%d %H:%M')}] Estado cambiado de '{estado_anterior}' a '{nuevo_estado}': {notas_adicionales}"
+                else:
+                    pedido.notas = f"[{timezone.now().strftime('%Y-%m-%d %H:%M')}] Estado cambiado de '{estado_anterior}' a '{nuevo_estado}': {notas_adicionales}"
+
+            pedido.save()
+
+            messages.success(
+                request,
+                f"Estado del pedido #{pedido.pedido_id} cambiado a '{nuevo_estado}' exitosamente.",
+            )
+
+            # Aquí se podría enviar un email al cliente notificando el cambio
+            # try:
+            #     brevo_service = BrevoEmailService()
+            #     # Implementar envío de email
+            # except Exception as e:
+            #     logger.error(f"Error al enviar email de cambio de estado: {e}")
+
+        else:
+            messages.error(request, "Debe especificar un nuevo estado.")
+
+    except Exception as e:
+        logger.error(f"Error al cambiar estado del pedido {pedido_id}: {e}")
+        messages.error(request, f"Error al cambiar el estado: {str(e)}")
+
+    return redirect("dashboard:pedido_detail", pedido_id=pedido_id)
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
+@require_http_methods(["POST"])
+def pedido_agregar_tracking(request, pedido_id):
+    """Vista para agregar código de tracking a un pedido"""
+    pedido = get_object_or_404(Pedido, pedido_id=pedido_id)
+
+    try:
+        tracking_codigo = request.POST.get("tracking_codigo", "").strip()
+
+        if tracking_codigo:
+            pedido.tracking_codigo = tracking_codigo
+            pedido.save()
+
+            messages.success(
+                request,
+                f"Código de seguimiento '{tracking_codigo}' agregado al pedido #{pedido.pedido_id}.",
+            )
+
+            # Aquí se podría enviar un email al cliente con el código de tracking
+            # try:
+            #     brevo_service = BrevoEmailService()
+            #     # Implementar envío de email con tracking
+            # except Exception as e:
+            #     logger.error(f"Error al enviar email con tracking: {e}")
+
+        else:
+            messages.error(request, "Debe ingresar un código de seguimiento válido.")
+
+    except Exception as e:
+        logger.error(f"Error al agregar tracking al pedido {pedido_id}: {e}")
+        messages.error(request, f"Error al agregar código de seguimiento: {str(e)}")
+
+    return redirect("dashboard:pedido_detail", pedido_id=pedido_id)
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(is_staff_user, login_url="dashboard:login")
+def pedido_export(request):
+    """Vista para exportar pedidos a Excel/CSV"""
+    import csv
+
+    from django.http import HttpResponse
+
+    # Obtener filtros de la URL
+    pedidos = Pedido.objects.select_related(
+        "cliente_persona", "cliente_empresa", "cliente_invitado"
+    ).order_by("-fecha")
+
+    # Aplicar filtros (igual que en pedido_list)
+    search = request.GET.get("search", "")
+    estado = request.GET.get("estado", "")
+    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_hasta = request.GET.get("fecha_hasta", "")
+
+    if search:
+        pedidos = pedidos.filter(
+            Q(pedido_id__icontains=search)
+            | Q(tracking_codigo__icontains=search)
+            | Q(cliente_persona__email__icontains=search)
+            | Q(cliente_empresa__email__icontains=search)
+            | Q(cliente_invitado__email__icontains=search)
+        )
+
+    if estado:
+        pedidos = pedidos.filter(estado=estado)
+
+    if fecha_desde:
+        try:
+            fecha_desde_obj = datetime.strptime(fecha_desde, "%Y-%m-%d")
+            pedidos = pedidos.filter(fecha__gte=fecha_desde_obj)
+        except ValueError:
+            pass
+
+    if fecha_hasta:
+        try:
+            fecha_hasta_obj = datetime.strptime(fecha_hasta, "%Y-%m-%d")
+            fecha_hasta_obj = fecha_hasta_obj + timedelta(days=1)
+            pedidos = pedidos.filter(fecha__lt=fecha_hasta_obj)
+        except ValueError:
+            pass
+
+    # Crear respuesta CSV
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="pedidos.csv"'
+    response.write("\ufeff")  # BOM para Excel
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "ID",
+            "Fecha",
+            "Cliente",
+            "Email",
+            "Estado",
+            "Total",
+            "Tracking",
+            "Ciudad",
+            "Región",
+        ]
+    )
+
+    for pedido in pedidos:
+        # Determinar cliente
+        if pedido.cliente_persona:
+            cliente_nombre = (
+                f"{pedido.cliente_persona.nombre} {pedido.cliente_persona.apellido}"
+            )
+            cliente_email = pedido.cliente_persona.email
+        elif pedido.cliente_empresa:
+            cliente_nombre = pedido.cliente_empresa.razon_social
+            cliente_email = pedido.cliente_empresa.email
+        elif pedido.cliente_invitado:
+            cliente_nombre = "Invitado"
+            cliente_email = pedido.cliente_invitado.email
+        else:
+            cliente_nombre = "N/A"
+            cliente_email = "N/A"
+
+        writer.writerow(
+            [
+                pedido.pedido_id,
+                pedido.fecha.strftime("%Y-%m-%d %H:%M"),
+                cliente_nombre,
+                cliente_email,
+                pedido.estado,
+                pedido.total,
+                pedido.tracking_codigo or "N/A",
+                pedido.ciudad,
+                pedido.region,
+            ]
+        )
+
+    return response
