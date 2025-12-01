@@ -375,6 +375,27 @@
 
     <div class="col-lg-4 col-md-6 mb-4">
       <div class="card h-100">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">
+            <i class="fas fa-shopping-bag"></i> Gestión de Pedidos
+          </h5>
+        </div>
+        <div class="card-body">
+          <p>Administra y monitorea todos los pedidos de la tienda.</p>
+          <div class="d-grid gap-2">
+            <a href="{% url 'dashboard:pedido_list' %}" class="btn btn-outline-warning">
+              <i class="fas fa-list"></i> Ver Todos los Pedidos
+            </a>
+            <a href="{% url 'dashboard:pedido_export' %}" class="btn btn-warning">
+              <i class="fas fa-file-excel"></i> Exportar Pedidos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100">
         <div class="card-header bg-purple text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
           <h5 class="mb-0">
             <i class="fas fa-envelope"></i> Servicio de Email Brevo
@@ -394,33 +415,31 @@
       </div>
     </div>
 
-      <!-- Sección de Costos de Envío -->
-    <div class="row mt-4">
-      <div class="col-md-12">
-        <div class="card">
-          <div class="card-header bg-info text-white">
-            <h5 class="mb-0">
-              <i class="fas fa-truck"></i> Gestión de Costos de Envío
-            </h5>
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-truck"></i> Gestión de Costos de Envío
+          </h5>
+        </div>
+        <div class="card-body">
+          <p>Configura los costos de envío por comuna para las entregas autogestionadas.</p>
+          <div class="d-grid gap-2">
+            <a href="{% url 'dashboard:costo_envio_list' %}" class="btn btn-outline-info">
+              <i class="fas fa-list"></i> Ver Costos de Envío
+            </a>
+            <a href="{% url 'dashboard:costo_envio_create' %}" class="btn btn-info">
+              <i class="fas fa-plus"></i> Agregar Nuevo Costo
+            </a>
           </div>
-          <div class="card-body">
-            <p>Configura los costos de envío por comuna para las entregas autogestionadas.</p>
-            <div class="d-grid gap-2">
-              <a
-                href="{% url 'dashboard:costo_envio_list' %}"
-                class="btn btn-outline-info"
-              >
-                <i class="fas fa-list"></i> Ver Costos de Envío
-              </a>
-            </div>
-            <div class="alert alert-info mt-3 mb-0">
-              <small>
-                <i class="fas fa-info-circle"></i>
-                Los costos se aplican automáticamente a comunas de Santiago. Para otras regiones se usa la API.
-              </small>
-            </div>
+          <div class="alert alert-info mt-3 mb-0">
+            <small>
+              <i class="fas fa-info-circle"></i>
+              Los costos se aplican automáticamente a comunas de Santiago. Para otras regiones se usa la API.
+            </small>
           </div>
         </div>
       </div>
     </div>
+  </div>
 {% endblock %}
