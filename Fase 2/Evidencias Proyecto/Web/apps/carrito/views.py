@@ -1,21 +1,24 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from django.http import JsonResponse
+import http.client
+import json
+import logging
+import os
+import re
+import uuid
+
 from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from transbank.common.integration_type import IntegrationType
+from transbank.common.options import WebpayOptions
+from transbank.webpay.webpay_plus.transaction import Transaction
+
+from apps.ventas.models import Pago, Pedido, PedidoItem, Producto, SesionInvitado
+
 from .carrito import Carrito
 from .models import CheckoutSession
 from .shipping_service import calcular_costo_envio, obtener_opciones_envio
-from apps.ventas.models import Producto, Pedido, PedidoItem, Pago, SesionInvitado
-from transbank.webpay.webpay_plus.transaction import Transaction
-from transbank.common.integration_type import IntegrationType
-from transbank.common.options import WebpayOptions
-import uuid
-import json
-import logging
-import re
-import http.client
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -446,7 +449,10 @@ def confirmar_pago(request):
             ):
                 sesion_invitado, created = SesionInvitado.objects.get_or_create(
                     email=checkout_session.email[:50],  # Limitar a 50 caracteres
-                    defaults={"estado": "activa"},
+                    defaults={
+                        "rut": checkout_session.rut[:11],
+                        "estado": "activa",
+                    },
                 )
                 cliente_invitado_id = sesion_invitado.cliente_invitado_id
 

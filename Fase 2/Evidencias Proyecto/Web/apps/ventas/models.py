@@ -1,7 +1,6 @@
+from django.contrib.auth.models import AbstractUser, User
 from django.db import models
 from django.db.models import Q
-from django.contrib.auth.models import User, AbstractUser
-
 
 """
 Importante:
@@ -52,8 +51,7 @@ class ClientePersona(models.Model):
     fecha_registro = models.DateTimeField(auto_now_add=True)
     estado = models.BooleanField(default=True)
     password = models.CharField(max_length=100)
-#    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
+    #    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "cliente_persona"
@@ -71,6 +69,7 @@ class SesionInvitado(models.Model):
     email = models.CharField(max_length=50, unique=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=50, default="activa")  # enum estado_sesion
+    rut = models.CharField(max_length=11)
 
     class Meta:
         db_table = "sesion_invitado"
