@@ -1,0 +1,4 @@
+Product,Details,Quantity,Add ons,Hourly Price,Monthly Price
+"Compute: App Platform - Shared","1 GiB: 1  Shared  CPU",2,"N/A","$0.036","$24"
+"Databases: PostgreSQL - Basic Nodes - Regular CPU","1 GiB: 1 vCPU / 10 GiB SSD Disk",1,"N/A","$0.023","$15.15"
+"Storage: Spaces Object Storage","250 GiB Storage + 1,024 GiB Outbound Transfer: 0 MiB additional storage, 0 MiB additional outbound transfer, 0 MiB cold storage, 0 MiB cold storage retrieval overage(after one free retrieval per month)",1,"N/A","$0","$5"
